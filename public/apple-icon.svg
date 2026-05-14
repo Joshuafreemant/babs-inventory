@@ -1,0 +1,12 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="110" fill="#0D9488"/>
+  <clipPath id="apl">
+    <rect x="72" y="176" width="184" height="160"/>
+  </clipPath>
+  <clipPath id="apr">
+    <rect x="256" y="176" width="184" height="160"/>
+  </clipPath>
+  <rect x="72" y="176" width="368" height="160" rx="80" fill="#FFFFFF" clip-path="url(#apl)"/>
+  <rect x="72" y="176" width="368" height="160" rx="80" fill="rgba(255,255,255,0.28)" clip-path="url(#apr)"/>
+  <rect x="251" y="176" width="10" height="160" fill="rgba(255,255,255,0.45)"/>
+</svg>

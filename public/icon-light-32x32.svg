@@ -1,0 +1,12 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="7" fill="#0D9488"/>
+  <clipPath id="pl32">
+    <rect x="4" y="11" width="12" height="10"/>
+  </clipPath>
+  <clipPath id="pr32">
+    <rect x="16" y="11" width="12" height="10"/>
+  </clipPath>
+  <rect x="4" y="11" width="24" height="10" rx="5" fill="#FFFFFF" clip-path="url(#pl32)"/>
+  <rect x="4" y="11" width="24" height="10" rx="5" fill="rgba(255,255,255,0.28)" clip-path="url(#pr32)"/>
+  <rect x="15.5" y="11" width="1" height="10" fill="rgba(255,255,255,0.45)"/>
+</svg>
