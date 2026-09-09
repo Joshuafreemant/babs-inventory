@@ -23,6 +23,7 @@ export function productForConsole(p: any) {
     stock: p.stock,
     lowStockThreshold: p.lowStockThreshold,
     forceLowStock: p.forceLowStock,
+    showStock: p.showStock !== false,
     backorder: p.backorder,
     imageUrl: p.imageUrl || "",
   };

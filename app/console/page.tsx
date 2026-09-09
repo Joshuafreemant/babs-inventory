@@ -35,12 +35,32 @@ export default function ConsolePage() {
   const [editFor, setEditFor] = useState<Product | null>(null);
   const [showImport, setShowImport] = useState(false);
 
+  const [ledgerOpen, setLedgerOpen] = useState(true);
+  const [ordersOpen, setOrdersOpen] = useState(true);
+
   useEffect(() => {
     apiGet<StaffSession>("/api/staff/me")
       .then((s) => setSession(s))
       .catch(() => setSession(null))
       .finally(() => setAuthChecked(true));
+    try {
+      const s = localStorage.getItem("embassy_console_panels");
+      if (s) {
+        const v = JSON.parse(s);
+        if (typeof v.ledger === "boolean") setLedgerOpen(v.ledger);
+        if (typeof v.orders === "boolean") setOrdersOpen(v.orders);
+      }
+    } catch {}
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "embassy_console_panels",
+        JSON.stringify({ ledger: ledgerOpen, orders: ordersOpen })
+      );
+    } catch {}
+  }, [ledgerOpen, ordersOpen]);
 
   const productsList = useInfiniteList<Product>({
     endpoint: "/api/admin/products",
@@ -83,7 +103,11 @@ export default function ConsolePage() {
     }
   };
 
-  const setFlag = async (p: Product, flag: "forceLowStock" | "backorder", value: boolean) => {
+  const setFlag = async (
+    p: Product,
+    flag: "forceLowStock" | "showStock" | "backorder",
+    value: boolean
+  ) => {
     try {
       const updated = await apiPatch<Product>(`/api/admin/products/${p.id}`, { op: "flags", [flag]: value });
       replaceProduct(updated);
@@ -171,25 +195,47 @@ export default function ConsolePage() {
 
         <div className="grid-split" style={{ alignItems: "start" }}>
           {/* inventory ledger */}
-          <div className="card" style={{ display: "flex", flexDirection: "column", maxHeight: "68vh" }}>
-            <div
+          <div
+            className="card"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: ledgerOpen ? "68vh" : undefined,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setLedgerOpen((v) => !v)}
               className="flex items-center justify-between"
               style={{
                 padding: "14px 18px",
-                borderBottom: "1px solid var(--line)",
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
+                borderBottom: ledgerOpen ? "1px solid var(--line)" : "1px solid transparent",
                 background: "#fff",
                 flexShrink: 0,
+                width: "100%",
+                cursor: "pointer",
+                textAlign: "left",
               }}
+              aria-expanded={ledgerOpen}
             >
-              <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
-                Inventory ledger
-              </p>
+              <span className="flex items-center gap-2">
+                <span style={{ fontSize: 11, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+                  {ledgerOpen ? "▾" : "▸"}
+                </span>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 15.5 }}>
+                  Inventory ledger
+                </span>
+              </span>
               {productTotal != null && (
                 <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
-                  {products.length} of {productTotal}
+                  {ledgerOpen ? `${products.length} of ${productTotal}` : `${productTotal} products`}
                 </span>
               )}
-            </div>
+            </button>
+            {ledgerOpen && (
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {products.map((p) => {
               const bd = cartonBreakdown(p.stock, p.boxesPerCarton);
@@ -237,10 +283,10 @@ export default function ConsolePage() {
                     <label className="check">
                       <input
                         type="checkbox"
-                        checked={p.forceLowStock}
-                        onChange={(e) => setFlag(p, "forceLowStock", e.target.checked)}
+                        checked={p.showStock}
+                        onChange={(e) => setFlag(p, "showStock", e.target.checked)}
                       />{" "}
-                      Flag as selling fast
+                      Show quantity left to customers
                     </label>
                     <label className="check">
                       <input
@@ -287,28 +333,51 @@ export default function ConsolePage() {
             )}
             <InfiniteFooter list={productsList} noun="products" count={productTotal ?? products.length} />
             </div>
+            )}
           </div>
 
           {/* recent orders */}
-          <div className="card" style={{ display: "flex", flexDirection: "column", maxHeight: "68vh" }}>
-            <div
+          <div
+            className="card"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: ordersOpen ? "68vh" : undefined,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setOrdersOpen((v) => !v)}
               className="flex items-center justify-between"
               style={{
                 padding: "14px 18px",
-                borderBottom: "1px solid var(--line)",
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
+                borderBottom: ordersOpen ? "1px solid var(--line)" : "1px solid transparent",
                 background: "#fff",
                 flexShrink: 0,
+                width: "100%",
+                cursor: "pointer",
+                textAlign: "left",
               }}
+              aria-expanded={ordersOpen}
             >
-              <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
-                Recent orders
-              </p>
+              <span className="flex items-center gap-2">
+                <span style={{ fontSize: 11, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+                  {ordersOpen ? "▾" : "▸"}
+                </span>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 15.5 }}>
+                  Recent orders
+                </span>
+              </span>
               {stats && (
                 <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
-                  {orders.length} of {stats.ordersTotal}
+                  {ordersOpen ? `${orders.length} of ${stats.ordersTotal}` : `${stats.ordersTotal} orders`}
                 </span>
               )}
-            </div>
+            </button>
+            {ordersOpen && (
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {orders.map((o) => (
               <div key={o.id} style={{ padding: "11px 18px", borderBottom: "1px solid var(--line)" }}>
@@ -356,6 +425,7 @@ export default function ConsolePage() {
               count={stats?.ordersTotal ?? orders.length}
             />
             </div>
+            )}
           </div>
         </div>
 

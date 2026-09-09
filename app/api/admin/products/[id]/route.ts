@@ -16,7 +16,7 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * One endpoint for every ledger edit, chosen by `op`:
  *  - "adjust"  { delta }                       single-box +/- stepper
  *  - "restock" { cartons, loose }              count a fresh delivery, add exactly
- *  - "flags"   { forceLowStock?, backorder? }
+ *  - "flags"   { forceLowStock?, showStock?, backorder? }
  *  - "edit"    { name?, category?, price?, boxesPerCarton?, lowStockThreshold?, backorder? }
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -63,6 +63,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (typeof b.forceLowStock === "boolean") {
         product.forceLowStock = b.forceLowStock;
         changed.push(`selling-fast=${b.forceLowStock}`);
+      }
+      if (typeof b.showStock === "boolean") {
+        product.showStock = b.showStock;
+        changed.push(`show-stock=${b.showStock}`);
       }
       if (typeof b.backorder === "boolean") {
         product.backorder = b.backorder;

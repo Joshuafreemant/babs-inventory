@@ -35,6 +35,10 @@ export default function Storefront() {
   const [ref, setRef] = useState<string>("");
   const [hero, setHero] = useState<Hero>(DEFAULT_HERO);
 
+  const [query, setQuery] = useState("");
+  const PAGE = 50;
+  const [visible, setVisible] = useState(PAGE);
+
   const loadProducts = () =>
     apiGet<Product[]>("/api/products")
       .then((res) => {
@@ -78,6 +82,17 @@ export default function Storefront() {
 
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) => p.name.toLowerCase().includes(q));
+  }, [products, query]);
+  const shown = filtered.slice(0, visible);
+
+  useEffect(() => {
+    setVisible(PAGE);
+  }, [query]);
+
   const cartItems = useMemo(
     () =>
       Object.entries(cart)
@@ -99,6 +114,12 @@ export default function Storefront() {
       const next = Math.max(0, Math.min(cap(p), (d[p.id] || 0) + dir));
       return { ...d, [p.id]: next };
     });
+
+  const setDraftQty = (p: Product, n: number) =>
+    setDraft((d) => ({
+      ...d,
+      [p.id]: Math.max(0, Math.min(cap(p), Math.floor(n) || 0)),
+    }));
 
   const addToCart = (p: Product) => {
     const q = draft[p.id] || 0;
@@ -185,21 +206,67 @@ export default function Storefront() {
           </div>
         )}
 
-        <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 14px", fontSize: 13 }}>
-          Product Catalogue
-        </p>
+        <div
+          className="flex items-center justify-between flex-wrap gap-2"
+          style={{ margin: "0 0 14px" }}
+        >
+          <p className="small-caps" style={{ color: "var(--ink-soft)", margin: 0, fontSize: 13 }}>
+            Product Catalogue
+          </p>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products…"
+            aria-label="Search products"
+            style={{
+              border: "1px solid var(--line)",
+              background: "#fff",
+              padding: "9px 12px",
+              fontSize: 15,
+              minWidth: 200,
+              flex: "0 1 280px",
+            }}
+          />
+        </div>
+
+        {query.trim() && (
+          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 12px" }}>
+            {filtered.length} result{filtered.length === 1 ? "" : "s"} for &ldquo;{query.trim()}&rdquo;
+          </p>
+        )}
+
         <div className="catalogue-grid">
-          {products.map((p) => (
+          {shown.map((p) => (
             <ProductCard
               key={p.id}
               product={p}
               qty={draft[p.id] || 0}
               onDec={() => bumpDraft(p, -1)}
               onInc={() => bumpDraft(p, 1)}
+              onSet={(n) => setDraftQty(p, n)}
               onAdd={() => addToCart(p)}
             />
           ))}
         </div>
+
+        {!loadError && filtered.length === 0 && products.length > 0 && (
+          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "20px 0 0" }}>
+            No products match your search.
+          </p>
+        )}
+
+        {filtered.length > visible && (
+          <div className="flex justify-center" style={{ marginTop: 24 }}>
+            <button
+              className="btn btn-outline"
+              onClick={() => setVisible((v) => v + PAGE)}
+              style={{ fontSize: 15 }}
+            >
+              Show more ({filtered.length - visible} more)
+            </button>
+          </div>
+        )}
 
         {totalQty > 0 && (
           <div

@@ -9,6 +9,7 @@ export interface Product {
   stock: number;
   lowStockThreshold: number;
   forceLowStock: boolean;
+  showStock: boolean;
   backorder: boolean;
   imageUrl?: string;
 }

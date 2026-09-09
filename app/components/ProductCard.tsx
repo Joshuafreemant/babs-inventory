@@ -9,17 +9,18 @@ interface Props {
   qty?: number;
   onDec?: () => void;
   onInc?: () => void;
+  onSet?: (n: number) => void;
   onAdd?: () => void;
   /** Display-only (used for the "Add product" storefront preview). */
   preview?: boolean;
 }
 
-export function ProductCard({ product: p, qty = 0, onDec, onInc, onAdd, preview }: Props) {
+export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, preview }: Props) {
   const s = stockStripe(p);
 
   return (
     <div className="card flex flex-col">
-      <div className="art-panel" style={{ height: 150, padding: p.imageUrl ? 0 : "18px 0", overflow: "hidden" }}>
+      <div className="art-panel" style={{ height: 180, padding: p.imageUrl ? 0 : "20px 0", overflow: "hidden" }}>
         {p.imageUrl ? (
           // plain <img> avoids next/image remote-domain config
           // eslint-disable-next-line @next/next/no-img-element
@@ -52,7 +53,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onAdd, preview 
           </p>
           <p style={{ fontSize: 13, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
             {s.label}
-            {p.stock > 0 ? ` · ${p.stock} left` : ""}
+            {p.showStock && p.stock > 0 ? ` · ${p.stock} left` : ""}
           </p>
         </div>
 
@@ -62,7 +63,19 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onAdd, preview 
               <button onClick={onDec} aria-label="decrease" style={{ fontSize: 17 }}>
                 &minus;
               </button>
-              <span style={{ fontSize: 15 }}>{qty}</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={qty === 0 ? "" : qty}
+                placeholder="0"
+                aria-label="quantity in boxes"
+                onChange={(e) => {
+                  const n = parseInt(e.target.value, 10);
+                  onSet?.(Number.isFinite(n) ? n : 0);
+                }}
+                onFocus={(e) => e.currentTarget.select()}
+              />
               <button onClick={onInc} aria-label="increase" style={{ fontSize: 17 }}>
                 +
               </button>

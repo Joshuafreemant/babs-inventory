@@ -53,7 +53,7 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
             className="serif site-brand"
             style={{ fontWeight: 700, fontSize: 18, margin: 0, letterSpacing: "0.02em" }}
           >
-            Embassy Pharmaceutical &amp; Chemicals Ltd
+            Embassy Pharm. &amp; Chem. LTD
           </p>
           <p className="small-caps" style={{ margin: "2px 0 0", color: "var(--gold-light)", opacity: 0.85 }}>
             Your Visa to Healthy Living

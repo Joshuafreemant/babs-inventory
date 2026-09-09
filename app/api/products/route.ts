@@ -21,6 +21,7 @@ export async function GET() {
         stock: p.stock,
         lowStockThreshold: p.lowStockThreshold,
         forceLowStock: p.forceLowStock,
+        showStock: p.showStock !== false,
         backorder: p.backorder,
         imageUrl: p.imageUrl || "",
       }))
