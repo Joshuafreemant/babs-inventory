@@ -18,10 +18,11 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
       className="flex items-center justify-between"
       style={{
         padding: "18px var(--gutter)",
-        background: "var(--navy)",
+        background: "var(--navy-deep)",
         color: "#fff",
         flexWrap: "wrap",
         gap: 12,
+        borderBottom: "2px solid var(--gold)",
       }}
     >
       <div className="flex items-center gap-3">

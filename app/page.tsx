@@ -186,7 +186,7 @@ export default function Storefront() {
         )}
 
         <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 14px", fontSize: 13 }}>
-          The Catalogue
+          Product Catalogue
         </p>
         <div className="catalogue-grid">
           {products.map((p) => (
