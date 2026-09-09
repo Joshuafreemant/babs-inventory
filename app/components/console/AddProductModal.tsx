@@ -126,7 +126,7 @@ export function AddProductModal({
     stock: totalBoxes,
     lowStockThreshold: parseInt(f.threshold, 10) || 0,
     forceLowStock: false,
-    showStock: true,
+    showStock: false,
     backorder: f.backorder,
     imageUrl: photoPreview || undefined,
   };

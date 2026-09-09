@@ -19,7 +19,7 @@ const productSchema = new Mongoose.Schema(
     stock: { type: Number, required: true, min: 0, default: 0 }, // boxes
     lowStockThreshold: { type: Number, required: true, min: 0, default: 0 }, // boxes
     forceLowStock: { type: Boolean, default: false }, // manual "Selling fast" flag (auto below threshold too)
-    showStock: { type: Boolean, default: true }, // reveal the remaining box count to customers on the storefront
+    showStock: { type: Boolean, default: false }, // reveal the remaining box count to customers on the storefront (opt-in per product)
     backorder: { type: Boolean, default: false }, // "Ships when out"
     archived: { type: Boolean, default: false },
     imageUrl: { type: String, default: "" }, // Cloudinary secure_url, one photo per product

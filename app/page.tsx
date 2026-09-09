@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteHeader } from "./components/SiteHeader";
 import { ProductCard } from "./components/ProductCard";
 import { useToast } from "./components/Toast";
@@ -38,6 +38,27 @@ export default function Storefront() {
   const [query, setQuery] = useState("");
   const PAGE = 50;
   const [visible, setVisible] = useState(PAGE);
+
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!showTrack) return;
+    // `body` has overflow-y:auto (side-effect of overflow-x:hidden), which
+    // confuses scrollIntoView — scroll the window explicitly instead.
+    const scrollToPanel = (smooth: boolean) => {
+      const el = trackRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 14;
+      window.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
+    };
+    // one settle tick for the panel to mount, a hard jump, then a smooth
+    // pass so it lands cleanly even if scroll-anchoring nudged it
+    const t1 = setTimeout(() => scrollToPanel(false), 50);
+    const t2 = setTimeout(() => scrollToPanel(true), 120);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [showTrack]);
 
   const loadProducts = () =>
     apiGet<Product[]>("/api/products")
@@ -195,7 +216,11 @@ export default function Storefront() {
       </div>
 
       <div style={{ padding: "32px var(--gutter) 100px", marginTop: -20 }}>
-        {showTrack && <TrackPanel initialPhone={trackPhone} />}
+        {showTrack && (
+          <div ref={trackRef} style={{ scrollMarginTop: 14 }}>
+            <TrackPanel initialPhone={trackPhone} />
+          </div>
+        )}
 
         {loadError && (
           <div className="card" style={{ padding: "14px 18px", marginBottom: 20, color: "var(--rose)" }}>
