@@ -1,45 +1,38 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
+import type { Metadata, Viewport } from "next";
+import { Inter, Newsreader } from "next/font/google";
+import "./globals.css";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+});
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
+  adjustFontFallback: false,
+});
 
 export const metadata: Metadata = {
-  title: 'PharmTrack - Mobile Sales Manager',
-  description: 'Mobile-responsive pharmaceutical sales management system with personal business tracking',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
-}
+  title: "Embassy Pharmaceutical & Chemicals Limited",
+  description: "Your Visa to Healthy Living — trade catalogue and rep console.",
+};
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-gray-50">
-      <body className="font-sans antialiased">
+    <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
+      <body style={{ fontFamily: "var(--font-inter), Inter, system-ui, sans-serif" }}>
+        <style>{`.serif{font-family:var(--font-newsreader),Georgia,serif}`}</style>
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
-  )
+  );
 }
