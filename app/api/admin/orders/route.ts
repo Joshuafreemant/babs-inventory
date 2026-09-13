@@ -1,11 +1,12 @@
 import { dbConnect } from "@/app/lib/db";
-import OrderModel from "@/models/Order";
+import OrderModel, { ORDER_STATUSES } from "@/models/Order";
 import { requireStaff } from "@/app/lib/auth";
 import { orderForConsole } from "@/app/lib/serialize";
 
 export const dynamic = "force-dynamic";
 
 const OPEN_STATUSES = ["reserved", "awaiting_transfer"];
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 async function headlineStats() {
   return {
@@ -28,7 +29,14 @@ async function headlineStats() {
   };
 }
 
-/** Order feed — paginated newest-first with an `_id` cursor. Stats on page 1. */
+/**
+ * Order feed — paginated newest-first with an `_id` cursor. Stats on page 1
+ * (always over ALL orders, unaffected by the filters below).
+ *   ?status=<one of ORDER_STATUSES>   narrow to one status
+ *   ?q=<text>                        match order code (e.g. "EMB-0007") or phone,
+ *                                     digits-only comparison for phone so any
+ *                                     formatting the rep types still matches
+ */
 export async function GET(req: Request) {
   try {
     await requireStaff();
@@ -37,9 +45,20 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "20", 10)));
     const cursor = url.searchParams.get("cursor");
+    const status = url.searchParams.get("status");
+    const q = url.searchParams.get("q")?.trim();
 
     const filter: any = {};
     if (cursor) filter._id = { $lt: cursor };
+    if (status && (ORDER_STATUSES as readonly string[]).includes(status)) {
+      filter.status = status;
+    }
+    if (q) {
+      const digits = q.replace(/\D/g, "");
+      const or: any[] = [{ code: new RegExp(escapeRe(q), "i") }];
+      if (digits) or.push({ phone: new RegExp(escapeRe(digits)) });
+      filter.$or = or;
+    }
 
     const docs = await OrderModel.find(filter)
       .sort({ _id: -1 })

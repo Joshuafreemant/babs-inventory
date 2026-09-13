@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "../components/SiteHeader";
 import { useToast } from "../components/Toast";
 import { StatusPill } from "../components/StatusPill";
@@ -71,8 +71,26 @@ export default function ConsolePage() {
       if (first && typeof res.total === "number") setProductTotal(res.total);
     },
   });
+
+  // order feed filters — status dropdown + free-text search (order code or phone)
+  const [orderStatusFilter, setOrderStatusFilter] = useState("");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderSearchDebounced, setOrderSearchDebounced] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setOrderSearchDebounced(orderSearch.trim()), 350);
+    return () => clearTimeout(t);
+  }, [orderSearch]);
+  const ordersFiltered = !!(orderStatusFilter || orderSearchDebounced);
+  const ordersEndpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    if (orderStatusFilter) params.set("status", orderStatusFilter);
+    if (orderSearchDebounced) params.set("q", orderSearchDebounced);
+    const qs = params.toString();
+    return `/api/admin/orders${qs ? `?${qs}` : ""}`;
+  }, [orderStatusFilter, orderSearchDebounced]);
+
   const ordersList = useInfiniteList<ConsoleOrder>({
-    endpoint: "/api/admin/orders",
+    endpoint: ordersEndpoint,
     key: "orders",
     limit: 20,
     enabled: !!session,
@@ -95,8 +113,10 @@ export default function ConsolePage() {
       if (document.visibilityState === "visible") ordersList.reload();
     }, ORDERS_POLL_MS);
     return () => clearInterval(id);
+    // re-arm whenever `reload` changes identity (i.e. the filter/search
+    // changed the endpoint) so the poll always refreshes the *current* view
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session, ordersList.reload]);
 
   const refreshStats = () =>
     apiGet<{ stats: ConsoleStats }>("/api/admin/orders?limit=1")
@@ -417,7 +437,11 @@ export default function ConsolePage() {
               <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
                 {stats && (
                   <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
-                    {ordersOpen ? `${orders.length} of ${stats.ordersTotal}` : `${stats.ordersTotal} orders`}
+                    {!ordersOpen
+                      ? `${stats.ordersTotal} orders`
+                      : ordersFiltered
+                      ? `${orders.length}${ordersList.hasMore ? "+" : ""} match${orders.length === 1 ? "" : "es"}`
+                      : `${orders.length} of ${stats.ordersTotal}`}
                   </span>
                 )}
                 <button
@@ -446,6 +470,42 @@ export default function ConsolePage() {
               </div>
             </div>
             {ordersOpen && (
+            <>
+            <div
+              className="flex items-center gap-2 flex-wrap"
+              style={{ padding: "10px 18px", borderBottom: "1px solid var(--line)", background: "var(--cream-soft)" }}
+            >
+              <select
+                value={orderStatusFilter}
+                onChange={(e) => setOrderStatusFilter(e.target.value)}
+                style={{ border: "1px solid var(--line)", padding: "7px 8px", fontSize: 13, background: "#fff" }}
+              >
+                <option value="">All statuses</option>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={orderSearch}
+                onChange={(e) => setOrderSearch(e.target.value)}
+                placeholder="Search order ID or phone…"
+                style={{ flex: "1 1 180px", border: "1px solid var(--line)", padding: "7px 10px", fontSize: 13, background: "#fff" }}
+              />
+              {ordersFiltered && (
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => {
+                    setOrderStatusFilter("");
+                    setOrderSearch("");
+                    setOrderSearchDebounced("");
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {orders.map((o) => (
               <div key={o.id} style={{ padding: "11px 18px", borderBottom: "1px solid var(--line)" }}>
@@ -484,15 +544,16 @@ export default function ConsolePage() {
             ))}
             {ordersList.ready && orders.length === 0 && (
               <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
-                No orders yet.
+                {ordersFiltered ? "No orders match that filter." : "No orders yet."}
               </p>
             )}
             <InfiniteFooter
               list={ordersList}
               noun="orders"
-              count={stats?.ordersTotal ?? orders.length}
+              count={ordersFiltered ? orders.length : stats?.ordersTotal ?? orders.length}
             />
             </div>
+            </>
             )}
           </div>
         </div>

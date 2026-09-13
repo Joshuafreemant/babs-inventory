@@ -66,9 +66,13 @@ export function useInfiniteList<T>({
     setError("");
     const tick = reloadTick.current;
     try {
-      const q = new URLSearchParams({ limit: String(limit) });
+      // `endpoint` may already carry its own query string (e.g. filters) —
+      // merge into it rather than appending a second "?"
+      const [base, existingQs] = endpoint.split("?");
+      const q = new URLSearchParams(existingQs || "");
+      q.set("limit", String(limit));
       if (cursorRef.current) q.set("cursor", cursorRef.current);
-      const res = await apiGet<any>(`${endpoint}?${q.toString()}`);
+      const res = await apiGet<any>(`${base}?${q.toString()}`);
       if (tick !== reloadTick.current) return;
       const batch: T[] = Array.isArray(res?.[key]) ? res[key] : [];
       const isFirst = cursorRef.current === null;
