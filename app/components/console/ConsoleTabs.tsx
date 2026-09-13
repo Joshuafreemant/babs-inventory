@@ -7,7 +7,7 @@ export function ConsoleTabs({ active }: { active: "desk" | "reports" | "settings
   const item = (isActive: boolean) => ({
     padding: "8px 2px",
     marginRight: 22,
-    fontSize: 13,
+    fontSize: 14.5,
     fontWeight: 600,
     color: isActive ? "var(--navy)" : "var(--ink-soft)",
     borderBottom: isActive ? "2px solid var(--gold)" : "2px solid transparent",

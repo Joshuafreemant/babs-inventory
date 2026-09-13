@@ -51,7 +51,7 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
         <div>
           <p
             className="serif site-brand"
-            style={{ fontWeight: 700, fontSize: 18, margin: 0, letterSpacing: "0.02em" }}
+            style={{ fontWeight: 700, fontSize: 19.5, margin: 0, letterSpacing: "0.02em" }}
           >
             Embassy Pharm. &amp; Chem. LTD
           </p>

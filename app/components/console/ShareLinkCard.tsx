@@ -19,10 +19,10 @@ export function ShareLinkCard({ session }: { session: StaffSession }) {
 
   return (
     <div className="card" style={{ marginTop: 24, padding: "16px 18px" }}>
-      <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: "0 0 4px" }}>
+      <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: "0 0 4px" }}>
         Your share link
       </p>
-      <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "0 0 14px", lineHeight: 1.5 }}>
+      <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 14px", lineHeight: 1.5 }}>
         Hand this to buyers who aren&apos;t at the stand. Every order placed through it is
         credited to <strong>{session.name}</strong> in the sales report.
       </p>
@@ -32,7 +32,7 @@ export function ShareLinkCard({ session }: { session: StaffSession }) {
         <div className="flex flex-col gap-2" style={{ minWidth: 0 }}>
           <p
             style={{
-              fontSize: 12.5,
+              fontSize: 14,
               fontFamily: "ui-monospace, Menlo, monospace",
               background: "var(--cream-soft)",
               border: "1px solid var(--line)",
@@ -66,7 +66,7 @@ export function ShareLinkCard({ session }: { session: StaffSession }) {
               </a>
             )}
           </div>
-          <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: 0 }}>
+          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
             Print the QR on your stand banner &mdash; buyers scan it to open the catalogue.
           </p>
         </div>

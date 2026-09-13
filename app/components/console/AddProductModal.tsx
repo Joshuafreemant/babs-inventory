@@ -142,10 +142,10 @@ export function AddProductModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 17.5, margin: 0 }}>
             Add a product to inventory
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 17, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18.5, color: "#fff" }}>
             &times;
           </button>
         </div>
@@ -167,7 +167,7 @@ export function AddProductModal({
               </select>
             </div>
 
-            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
               Boxes per carton (how it&apos;s packed for delivery)
             </p>
             <div className="flex items-center gap-2 flex-wrap">
@@ -203,7 +203,7 @@ export function AddProductModal({
               />
             </div>
 
-            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
               Opening stock received
             </p>
             <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
@@ -228,7 +228,7 @@ export function AddProductModal({
                 />
               </div>
             </div>
-            <p style={{ fontSize: 12, color: "var(--ink-soft)", margin: "2px 0 0" }}>
+            <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
               {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {loose} loose ={" "}
               <strong>{totalBoxes.toLocaleString("en-NG")} boxes in stock</strong>
             </p>
@@ -243,7 +243,7 @@ export function AddProductModal({
                 onChange={(e) => patch({ threshold: e.target.value, thresholdManual: true })}
               />
             </div>
-            <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: 0 }}>
+            <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
               Auto-suggested from opening stock &mdash; edit for a different cut-off. Below this, the product
               automatically shows as &quot;Selling fast&quot;.
             </p>
@@ -257,7 +257,7 @@ export function AddProductModal({
               Allow orders once stock hits zero (ships from regional store)
             </label>
 
-            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", margin: "10px 0 2px" }}>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "10px 0 2px" }}>
               Product photo <span style={{ fontWeight: 400 }}>(optional &middot; JPG, PNG or WebP)</span>
             </p>
             <div className="flex items-center gap-2">
@@ -275,11 +275,11 @@ export function AddProductModal({
               </label>
               {photo && (
                 <>
-                  <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>{photo.name}</span>
+                  <span style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>{photo.name}</span>
                   <button
                     type="button"
                     onClick={() => pickPhoto(null)}
-                    style={{ background: "none", border: "none", color: "var(--rose)", fontSize: 15 }}
+                    style={{ background: "none", border: "none", color: "var(--rose)", fontSize: 16.5 }}
                     aria-label="Remove photo"
                   >
                     &times;
@@ -288,7 +288,7 @@ export function AddProductModal({
               )}
             </div>
 
-            {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "6px 0 0" }}>{error}</p>}
+            {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "6px 0 0" }}>{error}</p>}
             <button className="btn btn-primary" style={{ padding: "11px 0", marginTop: 10 }} disabled={busy} onClick={submit}>
               {busy ? "Adding…" : "Add to inventory"}
             </button>

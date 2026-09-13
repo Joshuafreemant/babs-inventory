@@ -186,13 +186,13 @@ export default function Storefront() {
 
       {/* hero */}
       <div style={{ background: "var(--navy)", color: "#fff", padding: "38px var(--gutter) 46px" }}>
-        <p className="small-caps" style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 13 }}>
+        <p className="small-caps" style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 14.5 }}>
           {hero.eyebrow}
         </p>
         <p
           className="serif"
           style={{
-            fontSize: "clamp(25px, 6.2vw, 32px)",
+            fontSize: "clamp(26.5px, 6.2vw, 33.5px)",
             fontWeight: 600,
             margin: "0 0 10px",
             maxWidth: 620,
@@ -202,14 +202,14 @@ export default function Storefront() {
         >
           {hero.headline}
         </p>
-        <p style={{ fontSize: 17.5, color: "rgba(255,255,255,0.78)", maxWidth: 560, margin: "0 0 18px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 19, color: "rgba(255,255,255,0.78)", maxWidth: 560, margin: "0 0 18px", lineHeight: 1.5 }}>
           {hero.subtext}
         </p>
         <div className="flex items-center gap-2 flex-wrap">
-          <button className="btn btn-ghost-navy" style={{ fontSize: 15 }} onClick={() => setShowTrack((v) => !v)}>
+          <button className="btn btn-ghost-navy" style={{ fontSize: 16.5 }} onClick={() => setShowTrack((v) => !v)}>
             Track my orders
           </button>
-          <button className="btn btn-ghost-navy" style={{ fontSize: 15 }} onClick={() => setShowShare(true)}>
+          <button className="btn btn-ghost-navy" style={{ fontSize: 16.5 }} onClick={() => setShowShare(true)}>
             Share catalogue link
           </button>
         </div>
@@ -235,7 +235,7 @@ export default function Storefront() {
           className="flex items-center justify-between flex-wrap gap-2"
           style={{ margin: "0 0 14px" }}
         >
-          <p className="small-caps" style={{ color: "var(--ink-soft)", margin: 0, fontSize: 13 }}>
+          <p className="small-caps" style={{ color: "var(--ink-soft)", margin: 0, fontSize: 14.5 }}>
             Product Catalogue
           </p>
           <input
@@ -248,7 +248,7 @@ export default function Storefront() {
               border: "1px solid var(--line)",
               background: "#fff",
               padding: "9px 12px",
-              fontSize: 15,
+              fontSize: 16.5,
               minWidth: 200,
               flex: "0 1 280px",
             }}
@@ -256,7 +256,7 @@ export default function Storefront() {
         </div>
 
         {query.trim() && (
-          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 12px" }}>
+          <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 12px" }}>
             {filtered.length} result{filtered.length === 1 ? "" : "s"} for &ldquo;{query.trim()}&rdquo;
           </p>
         )}
@@ -276,7 +276,7 @@ export default function Storefront() {
         </div>
 
         {!loadError && filtered.length === 0 && products.length > 0 && (
-          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "20px 0 0" }}>
+          <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "20px 0 0" }}>
             No products match your search.
           </p>
         )}
@@ -286,7 +286,7 @@ export default function Storefront() {
             <button
               className="btn btn-outline"
               onClick={() => setVisible((v) => v + PAGE)}
-              style={{ fontSize: 15 }}
+              style={{ fontSize: 16.5 }}
             >
               Show more ({filtered.length - visible} more)
             </button>
@@ -306,12 +306,12 @@ export default function Storefront() {
               boxShadow: "0 10px 30px rgba(10,31,46,0.25)",
             }}
           >
-            <span style={{ fontSize: 15.5 }}>
+            <span style={{ fontSize: 17 }}>
               {totalQty} box{totalQty > 1 ? "es" : ""} in your order &middot; {naira(subtotal)}
             </span>
             <button
               className="btn btn-gold"
-              style={{ flexShrink: 0, fontSize: 15 }}
+              style={{ flexShrink: 0, fontSize: 16.5 }}
               onClick={() => setShowCheckout(true)}
             >
               Review order &rsaquo;
@@ -338,17 +338,17 @@ export default function Storefront() {
       {confirmed && (
         <div className="modal-backdrop" style={{ zIndex: 45 }}>
           <div className="card" style={{ width: "100%", maxWidth: 340, padding: 28, textAlign: "center" }}>
-            <p style={{ fontSize: 30, margin: "0 0 8px", color: "var(--sage)" }}>&#10003;</p>
-            <p className="serif" style={{ fontWeight: 700, fontSize: 19, margin: "0 0 5px" }}>
+            <p style={{ fontSize: 31.5, margin: "0 0 8px", color: "var(--sage)" }}>&#10003;</p>
+            <p className="serif" style={{ fontWeight: 700, fontSize: 20.5, margin: "0 0 5px" }}>
               Order placed
             </p>
-            <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 16px" }}>
+            <p style={{ fontSize: 16.5, color: "var(--ink-soft)", margin: "0 0 16px" }}>
               {confirmed.code} &middot; {naira(confirmed.total)} &middot; {confirmed.methodLabel}
             </p>
             <div className="flex flex-col gap-2">
               <button
                 className="btn btn-primary"
-                style={{ padding: "10px 0", fontSize: 15 }}
+                style={{ padding: "10px 0", fontSize: 16.5 }}
                 onClick={() => {
                   setConfirmed(null);
                   setShowTrack(true);
@@ -358,7 +358,7 @@ export default function Storefront() {
               </button>
               <button
                 className="btn btn-outline"
-                style={{ padding: "10px 0", fontSize: 15 }}
+                style={{ padding: "10px 0", fontSize: 16.5 }}
                 onClick={() => setConfirmed(null)}
               >
                 Continue shopping

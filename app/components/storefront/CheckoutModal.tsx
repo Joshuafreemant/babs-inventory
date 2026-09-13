@@ -60,10 +60,10 @@ export function CheckoutModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 18, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 19.5, margin: 0 }}>
             Review your order
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 19, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20.5, color: "#fff" }}>
             &times;
           </button>
         </div>
@@ -71,18 +71,18 @@ export function CheckoutModal({
         <div style={{ padding: "18px 20px" }}>
           {items.map((i) => (
             <div key={i.id} className="flex items-center justify-between" style={{ marginBottom: 9 }}>
-              <span style={{ fontSize: 15.5 }}>
+              <span style={{ fontSize: 17 }}>
                 {i.name} &times;{i.qty} box{i.qty > 1 ? "es" : ""}
               </span>
-              <span style={{ fontSize: 15.5, fontWeight: 600 }}>{naira(i.price * i.qty)}</span>
+              <span style={{ fontSize: 17, fontWeight: 600 }}>{naira(i.price * i.qty)}</span>
             </div>
           ))}
           <div
             className="flex items-center justify-between"
             style={{ borderTop: "1px solid var(--line)", paddingTop: 10, marginTop: 6 }}
           >
-            <span style={{ fontSize: 16, fontWeight: 700 }}>Total</span>
-            <span className="serif" style={{ fontSize: 19, fontWeight: 700, color: "var(--navy)" }}>
+            <span style={{ fontSize: 17.5, fontWeight: 700 }}>Total</span>
+            <span className="serif" style={{ fontSize: 20.5, fontWeight: 700, color: "var(--navy)" }}>
               {naira(subtotal)}
             </span>
           </div>
@@ -90,14 +90,14 @@ export function CheckoutModal({
           {hasBackorder && (
             <div className="flex items-start gap-2" style={{ background: "#F3E9D6", padding: "10px 12px", marginTop: 14 }}>
               <span>&#9888;</span>
-              <p style={{ fontSize: 14, color: "#7A5210", margin: 0 }}>
+              <p style={{ fontSize: 15.5, color: "#7A5210", margin: 0 }}>
                 Some items are out of current stock &mdash; we&apos;ll dispatch those from our regional store.
               </p>
             </div>
           )}
 
-          <p style={{ fontSize: 15.5, fontWeight: 700, margin: "18px 0 8px" }}>Your details</p>
-          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 10px" }}>
+          <p style={{ fontSize: 17, fontWeight: 700, margin: "18px 0 8px" }}>Your details</p>
+          <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "0 0 10px" }}>
             We only need this to confirm your order and reach you about delivery.
           </p>
           <div className="flex flex-col gap-2" style={{ marginBottom: 6 }}>
@@ -126,9 +126,9 @@ export function CheckoutModal({
               />
             </div>
           </div>
-          {error && <p style={{ fontSize: 14, color: "var(--rose)", margin: "0 0 6px" }}>{error}</p>}
+          {error && <p style={{ fontSize: 15.5, color: "var(--rose)", margin: "0 0 6px" }}>{error}</p>}
 
-          <p style={{ fontSize: 15.5, fontWeight: 700, margin: "18px 0 10px" }}>How would you like to pay?</p>
+          <p style={{ fontSize: 17, fontWeight: 700, margin: "18px 0 10px" }}>How would you like to pay?</p>
           {METHODS.map((m) => (
             <label
               key={m.id}
@@ -148,21 +148,21 @@ export function CheckoutModal({
                 style={{ marginTop: 2 }}
               />
               <span>
-                <p style={{ fontSize: 15.5, fontWeight: 600, margin: 0 }}>{m.title}</p>
-                <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>{m.desc}</p>
+                <p style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{m.title}</p>
+                <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "2px 0 0" }}>{m.desc}</p>
               </span>
             </label>
           ))}
           {method === "transfer" && (
             <div style={{ background: "var(--cream-soft)", border: "1px solid var(--line)", padding: "11px 13px", marginBottom: 6 }}>
-              <p style={{ fontSize: 14.5, margin: 0 }}>Embassy Pharmaceutical &amp; Chemicals Ltd</p>
-              <p style={{ fontSize: 14.5, margin: "2px 0 0" }}>Account 0123456789 &middot; Zenith Bank</p>
+              <p style={{ fontSize: 16, margin: 0 }}>Embassy Pharmaceutical &amp; Chemicals Ltd</p>
+              <p style={{ fontSize: 16, margin: "2px 0 0" }}>Account 0123456789 &middot; Zenith Bank</p>
             </div>
           )}
 
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "12px 0", fontSize: 16, marginTop: 10 }}
+            style={{ width: "100%", padding: "12px 0", fontSize: 17.5, marginTop: 10 }}
             disabled={placing}
             onClick={onPlace}
           >

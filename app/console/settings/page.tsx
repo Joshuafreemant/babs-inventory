@@ -115,7 +115,7 @@ export default function SettingsPage() {
         <label className="small-caps" style={{ color: "var(--ink-soft)" }}>
           {label}
         </label>
-        <span style={{ fontSize: 11, color: "var(--ink-soft)", fontVariantNumeric: "tabular-nums" }}>
+        <span style={{ fontSize: 12.5, color: "var(--ink-soft)", fontVariantNumeric: "tabular-nums" }}>
           {hero[k].length}/{LIMITS[k]}
         </span>
       </div>
@@ -135,7 +135,7 @@ export default function SettingsPage() {
           style={{ width: "100%", marginTop: 5 }}
         />
       )}
-      <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "5px 0 0" }}>{help}</p>
+      <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "5px 0 0" }}>{help}</p>
     </div>
   );
 
@@ -145,10 +145,10 @@ export default function SettingsPage() {
       <ConsoleTabs active="settings" />
 
       <div style={{ padding: "32px var(--gutter)", maxWidth: 760 }}>
-        <p className="serif" style={{ fontWeight: 700, fontSize: 22, margin: "0 0 4px" }}>
+        <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: "0 0 4px" }}>
           Storefront hero
         </p>
-        <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 22px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 22px", lineHeight: 1.5 }}>
           The navy banner customers see first on the catalogue page. Edit it for the current
           conference, then save — changes go live immediately.
         </p>
@@ -185,14 +185,14 @@ export default function SettingsPage() {
             >
               <p
                 className="small-caps"
-                style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 13 }}
+                style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 14.5 }}
               >
                 {hero.eyebrow || "—"}
               </p>
               <p
                 className="serif"
                 style={{
-                  fontSize: "clamp(24px, 5vw, 30px)",
+                  fontSize: "clamp(25.5px, 5vw, 31.5px)",
                   fontWeight: 600,
                   margin: "0 0 10px",
                   maxWidth: 620,
@@ -204,7 +204,7 @@ export default function SettingsPage() {
               </p>
               <p
                 style={{
-                  fontSize: 16.5,
+                  fontSize: 18,
                   color: "rgba(255,255,255,0.78)",
                   maxWidth: 560,
                   margin: 0,
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                 Reset to default
               </button>
               {dirty && !busy && (
-                <span style={{ fontSize: 12, color: "var(--gold)" }}>Unsaved changes</span>
+                <span style={{ fontSize: 13.5, color: "var(--gold)" }}>Unsaved changes</span>
               )}
             </div>
           </>

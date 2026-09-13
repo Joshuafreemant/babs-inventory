@@ -102,7 +102,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
   const statusChip = (ok: boolean, label: string) => (
     <span
       style={{
-        fontSize: 11.5,
+        fontSize: 13,
         fontWeight: 600,
         padding: "2px 8px",
         borderRadius: 20,
@@ -120,7 +120,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
         className="flex items-center justify-between flex-wrap gap-2"
         style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)" }}
       >
-        <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
+        <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
           Order alert recipients
         </p>
         <button
@@ -133,7 +133,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
       </div>
 
       <div style={{ padding: "16px 18px" }}>
-        <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "0 0 8px" }}>
+        <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 8px" }}>
           Everyone here gets an SMS and/or an email the moment a new order comes in.
         </p>
         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 14 }}>
@@ -144,7 +144,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
           )}
         </div>
         {!anyChannel && (
-          <p style={{ fontSize: 11.5, color: "#7A5210", margin: "0 0 12px" }}>
+          <p style={{ fontSize: 13, color: "#7A5210", margin: "0 0 12px" }}>
             Add <code>RESEND_API_KEY</code> + <code>RESEND_FROM</code> (email) or a provider key
             (SMS) to <code>.env</code> and restart. You can still build the list now.
           </p>
@@ -152,7 +152,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
 
         {/* list */}
         {recipients.length === 0 ? (
-          <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "0 0 14px" }}>
+          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 14px" }}>
             No recipients yet. Add the people who should be alerted on every order.
           </p>
         ) : (
@@ -164,10 +164,10 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
                 style={{ padding: "8px 0", borderTop: "1px solid var(--line)" }}
               >
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0, opacity: r.active ? 1 : 0.5 }}>
+                  <p style={{ fontSize: 14.5, fontWeight: 600, margin: 0, opacity: r.active ? 1 : 0.5 }}>
                     {r.name}
                   </p>
-                  <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: 0 }}>
+                  <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
                     {[r.display, r.email].filter(Boolean).join(" · ")}
                   </p>
                 </div>
@@ -177,7 +177,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
                   </label>
                   <button
                     onClick={() => remove(r)}
-                    style={{ background: "none", border: "none", color: "var(--rose)", fontSize: 16 }}
+                    style={{ background: "none", border: "none", color: "var(--rose)", fontSize: 17.5 }}
                     aria-label={`Remove ${r.name}`}
                   >
                     &times;
@@ -223,8 +223,8 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
             {busy ? "Adding…" : "Add recipient"}
           </button>
         </div>
-        {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "6px 0 0" }}>{error}</p>}
-        {testMsg && <p style={{ fontSize: 12, color: "var(--ink-soft)", margin: "6px 0 0" }}>{testMsg}</p>}
+        {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "6px 0 0" }}>{error}</p>}
+        {testMsg && <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "6px 0 0" }}>{testMsg}</p>}
       </div>
     </div>
   );

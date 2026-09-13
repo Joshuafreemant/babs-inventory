@@ -89,10 +89,10 @@ export function ImportProductsModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 17.5, margin: 0 }}>
             Import products
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 17, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18.5, color: "#fff" }}>
             &times;
           </button>
         </div>
@@ -100,7 +100,7 @@ export function ImportProductsModal({
         <div style={{ padding: 20 }}>
           {result ? (
             <div>
-              <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>
+              <p style={{ fontSize: 15.5, fontWeight: 700, margin: "0 0 8px" }}>
                 {result.summary.created} added, {result.summary.skipped} skipped of {result.summary.total}
               </p>
               {result.created.length > 0 && (
@@ -108,7 +108,7 @@ export function ImportProductsModal({
                   <p className="small-caps" style={{ color: "var(--sage)", margin: "0 0 4px" }}>
                     Added
                   </p>
-                  <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: 0 }}>
+                  <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: 0 }}>
                     {result.created.map((p) => p.name).join(", ")}
                   </p>
                 </div>
@@ -119,13 +119,13 @@ export function ImportProductsModal({
                     Skipped
                   </p>
                   {result.skipped.map((s, i) => (
-                    <p key={i} style={{ fontSize: 12, color: "var(--ink-soft)", margin: "2px 0" }}>
+                    <p key={i} style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "2px 0" }}>
                       {s.name} &mdash; {s.reason}
                     </p>
                   ))}
                 </div>
               )}
-              <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "10px 0 12px" }}>
+              <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "10px 0 12px" }}>
                 Products came in without photos &mdash; add them from the ledger row thumbnails.
               </p>
               <button className="btn btn-primary" style={{ padding: "10px 16px" }} onClick={onClose}>
@@ -134,7 +134,7 @@ export function ImportProductsModal({
             </div>
           ) : (
             <div>
-              <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 10px", lineHeight: 1.55 }}>
+              <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 10px", lineHeight: 1.55 }}>
                 Paste a JSON array. Each product needs a <strong>name</strong>,{" "}
                 <strong>price</strong> (per box) and <strong>boxesPerCarton</strong>. Optional:{" "}
                 <code>category</code>, <code>stock</code> or <code>cartons</code>+<code>loose</code>,{" "}
@@ -152,7 +152,7 @@ export function ImportProductsModal({
                   border: "1px solid var(--line)",
                   padding: "10px 12px",
                   fontFamily: "ui-monospace, Menlo, monospace",
-                  fontSize: 12.5,
+                  fontSize: 14,
                   lineHeight: 1.5,
                   resize: "vertical",
                   background: "#fff",
@@ -171,7 +171,7 @@ export function ImportProductsModal({
                   {busy ? "Importing…" : "Import"}
                 </button>
               </div>
-              {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "10px 0 0" }}>{error}</p>}
+              {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "10px 0 0" }}>{error}</p>}
             </div>
           )}
         </div>

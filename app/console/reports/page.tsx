@@ -146,7 +146,7 @@ export default function ReportsPage() {
 
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 8 }}>
-          <p className="serif" style={{ fontWeight: 700, fontSize: 22, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
             Sales report
           </p>
           <div className="flex items-center gap-2 flex-wrap">
@@ -190,7 +190,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 22px" }}>
+        <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 22px" }}>
           {report ? report.range.label : "…"}
           {report ? ` · ${report.range.from} to ${report.range.to}` : ""}.{" "}
           {basis === "paid"
@@ -213,7 +213,7 @@ export default function ReportsPage() {
               </p>
               <p
                 className="serif"
-                style={{ fontWeight: 700, fontSize: 21, margin: 0, fontVariantNumeric: "tabular-nums" }}
+                style={{ fontWeight: 700, fontSize: 22.5, margin: 0, fontVariantNumeric: "tabular-nums" }}
               >
                 {loading ? "…" : tile.value}
               </p>
@@ -225,10 +225,10 @@ export default function ReportsPage() {
         {t && report && basis === "all" && (
           <div className="card" style={{ padding: "16px 18px", marginBottom: 16 }}>
             <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
-              <p className="serif" style={{ fontWeight: 700, fontSize: 14.5, margin: 0 }}>
+              <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
                 Money in vs. still owed
               </p>
-              <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
+              <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
                 {collectedPct.toFixed(0)}% collected
               </span>
             </div>
@@ -236,7 +236,7 @@ export default function ReportsPage() {
               <div style={{ width: `${collectedPct}%`, background: "var(--sage)" }} />
               <div style={{ width: `${100 - collectedPct}%`, background: "var(--gold)" }} />
             </div>
-            <div className="flex items-center gap-3" style={{ marginTop: 8, fontSize: 12 }}>
+            <div className="flex items-center gap-3" style={{ marginTop: 8, fontSize: 13.5 }}>
               <span style={{ color: "var(--sage)", fontWeight: 600 }}>
                 ● Paid {naira(t.collectedRevenue)}
               </span>
@@ -251,7 +251,7 @@ export default function ReportsPage() {
             className="card"
             style={{ padding: "14px 18px", marginBottom: 16, borderLeft: "2px solid var(--gold-bright)" }}
           >
-            <p style={{ fontSize: 13, margin: 0, color: "var(--ink-soft)", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 14.5, margin: 0, color: "var(--ink-soft)", lineHeight: 1.5 }}>
               <strong style={{ color: "var(--ink)" }}>{naira(report.pipeline.revenue)}</strong> in{" "}
               {report.pipeline.orders} reserved / unpaid order
               {report.pipeline.orders === 1 ? "" : "s"} in this period &mdash; not counted above. Mark
@@ -271,7 +271,7 @@ export default function ReportsPage() {
             className="flex items-center justify-between"
             style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)" }}
           >
-            <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
+            <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
               Sales by product
             </p>
             <button
@@ -284,7 +284,7 @@ export default function ReportsPage() {
           </div>
 
           {report && report.perProduct.length === 0 && (
-            <p style={{ padding: "16px 18px", fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
+            <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
               No sales in this range.
             </p>
           )}
@@ -299,8 +299,8 @@ export default function ReportsPage() {
               }}
             >
               <div className="flex items-baseline justify-between gap-2">
-                <p style={{ fontSize: 13.5, fontWeight: 600, margin: "0 0 6px" }}>{p.name}</p>
-                <span style={{ fontSize: 13.5, fontWeight: 700, flexShrink: 0 }}>
+                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>{p.name}</p>
+                <span style={{ fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                   {naira(p.revenue)}
                 </span>
               </div>
@@ -314,7 +314,7 @@ export default function ReportsPage() {
                   }}
                 />
               </div>
-              <p style={{ fontSize: 11, color: "var(--ink-soft)", margin: "5px 0 0" }}>
+              <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "5px 0 0" }}>
                 {p.sharePct}% of sales &middot; {p.boxes.toLocaleString("en-NG")} box
                 {p.boxes === 1 ? "" : "es"} &middot; {p.orders} order{p.orders === 1 ? "" : "s"}
               </p>
@@ -326,10 +326,10 @@ export default function ReportsPage() {
         {report && report.bySource.length > 0 && (
           <div className="card" style={{ marginTop: 16 }}>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)" }}>
-              <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
+              <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
                 Sales by referral source
               </p>
-              <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "3px 0 0" }}>
+              <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "3px 0 0" }}>
                 Which rep&apos;s shared link the buyer came through.
               </p>
             </div>
@@ -343,8 +343,8 @@ export default function ReportsPage() {
                 }}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <p style={{ fontSize: 13.5, fontWeight: 600, margin: "0 0 6px" }}>{s.name}</p>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, flexShrink: 0 }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>{s.name}</p>
+                  <span style={{ fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                     {naira(s.revenue)}
                   </span>
                 </div>
@@ -358,7 +358,7 @@ export default function ReportsPage() {
                     }}
                   />
                 </div>
-                <p style={{ fontSize: 11, color: "var(--ink-soft)", margin: "5px 0 0" }}>
+                <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "5px 0 0" }}>
                   {s.sharePct}% of sales &middot; {s.orders} order{s.orders === 1 ? "" : "s"} &middot;{" "}
                   {s.boxes.toLocaleString("en-NG")} box{s.boxes === 1 ? "" : "es"}
                 </p>
@@ -380,10 +380,10 @@ export default function ReportsPage() {
                   <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 6px" }}>
                     {m.label}
                   </p>
-                  <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
+                  <p className="serif" style={{ fontWeight: 700, fontSize: 18.5, margin: 0 }}>
                     {naira(d.revenue)}
                   </p>
-                  <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
+                  <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "2px 0 0" }}>
                     {d.orders} order{d.orders === 1 ? "" : "s"}
                   </p>
                 </div>

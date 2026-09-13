@@ -25,7 +25,7 @@ export function SalesBars({ series, bucket }: { series: Point[]; bucket: "day" |
     return (
       <div
         className="card"
-        style={{ padding: "20px 18px", fontSize: 13, color: "var(--ink-soft)" }}
+        style={{ padding: "20px 18px", fontSize: 14.5, color: "var(--ink-soft)" }}
       >
         No sales in this range yet.
       </div>
@@ -37,10 +37,10 @@ export function SalesBars({ series, bucket }: { series: Point[]; bucket: "day" |
   return (
     <div className="card" style={{ padding: "16px 18px" }}>
       <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
-        <p className="serif" style={{ fontWeight: 700, fontSize: 14.5, margin: 0 }}>
+        <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
           Sales over time
         </p>
-        <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
+        <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
           {active
             ? `${fmtDate(active.date)} · ${naira(active.revenue)} · ${active.orders} order${
                 active.orders === 1 ? "" : "s"
@@ -92,7 +92,7 @@ export function SalesBars({ series, bucket }: { series: Point[]; bucket: "day" |
 
       <div
         className="flex items-center justify-between"
-        style={{ marginTop: 6, fontSize: 10.5, color: "var(--ink-soft)" }}
+        style={{ marginTop: 6, fontSize: 12, color: "var(--ink-soft)" }}
       >
         <span>{fmtDate(series[0].date)}</span>
         <span>{fmtDate(series[series.length - 1].date)}</span>

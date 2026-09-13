@@ -164,7 +164,7 @@ export default function ConsolePage() {
 
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 4 }}>
-          <p className="serif" style={{ fontWeight: 700, fontSize: 22, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
             Rep console
           </p>
           <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function ConsolePage() {
             </button>
           </div>
         </div>
-        <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 22px" }}>
+        <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 22px" }}>
           Signed in as {session.name}. Stock is tracked in boxes &mdash; the unit customers actually order.
         </p>
 
@@ -186,7 +186,7 @@ export default function ConsolePage() {
               <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 6px" }}>
                 {s.label}
               </p>
-              <p className="serif" style={{ fontWeight: 700, fontSize: 22, margin: 0 }}>
+              <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
                 {s.value}
               </p>
             </div>
@@ -222,15 +222,15 @@ export default function ConsolePage() {
               aria-expanded={ledgerOpen}
             >
               <span className="flex items-center gap-2">
-                <span style={{ fontSize: 11, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+                <span style={{ fontSize: 12.5, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
                   {ledgerOpen ? "▾" : "▸"}
                 </span>
-                <span className="serif" style={{ fontWeight: 700, fontSize: 15.5 }}>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 17 }}>
                   Inventory ledger
                 </span>
               </span>
               {productTotal != null && (
-                <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
+                <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
                   {ledgerOpen ? `${products.length} of ${productTotal}` : `${productTotal} products`}
                 </span>
               )}
@@ -246,8 +246,8 @@ export default function ConsolePage() {
                     className="flex items-start justify-between flex-wrap gap-2"
                   >
                     <div style={{ minWidth: 0, flex: "1 1 180px" }}>
-                      <p style={{ fontSize: 13.5, fontWeight: 600, margin: 0 }}>{p.name}</p>
-                      <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: 0 }}>
+                      <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{p.name}</p>
+                      <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
                         <strong>{p.stock.toLocaleString("en-NG")} boxes</strong> ({bd.cartons} carton
                         {bd.cartons === 1 ? "" : "s"}
                         {bd.loose ? ` + ${bd.loose} loose box${bd.loose === 1 ? "" : "es"}` : ""},{" "}
@@ -303,7 +303,7 @@ export default function ConsolePage() {
                           background: "none",
                           border: "none",
                           color: "var(--navy)",
-                          fontSize: 11.5,
+                          fontSize: 13,
                           fontWeight: 600,
                         }}
                       >
@@ -315,7 +315,7 @@ export default function ConsolePage() {
                           background: "none",
                           border: "none",
                           color: "var(--rose)",
-                          fontSize: 11.5,
+                          fontSize: 13,
                           fontWeight: 600,
                         }}
                       >
@@ -327,7 +327,7 @@ export default function ConsolePage() {
               );
             })}
             {productsList.ready && products.length === 0 && (
-              <p style={{ padding: "16px 18px", fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
+              <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
                 No products yet. Use &quot;+ Add product&quot; to start the catalogue.
               </p>
             )}
@@ -364,15 +364,15 @@ export default function ConsolePage() {
               aria-expanded={ordersOpen}
             >
               <span className="flex items-center gap-2">
-                <span style={{ fontSize: 11, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+                <span style={{ fontSize: 12.5, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
                   {ordersOpen ? "▾" : "▸"}
                 </span>
-                <span className="serif" style={{ fontWeight: 700, fontSize: 15.5 }}>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 17 }}>
                   Recent orders
                 </span>
               </span>
               {stats && (
-                <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
+                <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
                   {ordersOpen ? `${orders.length} of ${stats.ordersTotal}` : `${stats.ordersTotal} orders`}
                 </span>
               )}
@@ -382,17 +382,17 @@ export default function ConsolePage() {
             {orders.map((o) => (
               <div key={o.id} style={{ padding: "11px 18px", borderBottom: "1px solid var(--line)" }}>
                 <div className="flex items-center justify-between">
-                  <p style={{ fontSize: 13.5, fontWeight: 600, margin: 0 }}>{o.customerName}</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{o.customerName}</p>
                   <StatusPill status={o.status} label={STATUS_LABEL[o.status] || o.status} />
                 </div>
-                <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "4px 0 0" }}>{o.itemsSummary}</p>
+                <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "4px 0 0" }}>{o.itemsSummary}</p>
                 <div className="flex items-center justify-between" style={{ marginTop: 5 }}>
-                  <span style={{ fontSize: 11, color: "var(--ink-soft)" }}>
+                  <span style={{ fontSize: 12.5, color: "var(--ink-soft)" }}>
                     {o.code} &middot; {o.phone}
                     {o.email ? " · " + o.email : ""}
                     {o.refSource ? ` · via ${o.refSource}` : ""}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700 }}>{naira(o.total)}</span>
+                  <span style={{ fontSize: 14.5, fontWeight: 700 }}>{naira(o.total)}</span>
                 </div>
                 <select
                   value={o.status}
@@ -402,7 +402,7 @@ export default function ConsolePage() {
                     width: "100%",
                     border: "1px solid var(--line)",
                     padding: "6px 8px",
-                    fontSize: 12,
+                    fontSize: 13.5,
                     background: "#fff",
                   }}
                 >
@@ -415,7 +415,7 @@ export default function ConsolePage() {
               </div>
             ))}
             {ordersList.ready && orders.length === 0 && (
-              <p style={{ padding: "16px 18px", fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
+              <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
                 No orders yet.
               </p>
             )}

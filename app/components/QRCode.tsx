@@ -50,7 +50,7 @@ export function QRCode({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="QR code" width={size - 12} height={size - 12} />
       ) : (
-        <span style={{ fontSize: 11, color: "var(--ink-soft)" }}>…</span>
+        <span style={{ fontSize: 12.5, color: "var(--ink-soft)" }}>…</span>
       )}
     </div>
   );

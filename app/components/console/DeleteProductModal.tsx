@@ -39,19 +39,19 @@ export function DeleteProductModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
             Remove {product.name}?
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 17, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18.5, color: "#fff" }}>
             &times;
           </button>
         </div>
         <div style={{ padding: "18px 20px" }}>
-          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 14px", lineHeight: 1.55 }}>
+          <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 14px", lineHeight: 1.55 }}>
             It disappears from the catalogue and this ledger straight away. If it has
             past orders, those and your sales reports keep their record.
           </p>
-          {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "0 0 10px" }}>{error}</p>}
+          {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "0 0 10px" }}>{error}</p>}
           <div className="flex items-center gap-2">
             <button
               className="btn"

@@ -34,10 +34,10 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         )}
       </div>
       <div style={{ padding: "15px 16px", borderTop: "1px solid var(--line)" }}>
-        <p className="serif" style={{ fontWeight: 600, fontSize: 17.5, margin: 0, lineHeight: 1.3 }}>
+        <p className="serif" style={{ fontWeight: 600, fontSize: 19, margin: 0, lineHeight: 1.3 }}>
           {p.name || "Untitled product"}
         </p>
-        <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "4px 0 9px" }}>
+        <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "4px 0 9px" }}>
           Sold per box &middot; packed {p.boxesPerCarton} to a carton
         </p>
         <div
@@ -46,12 +46,12 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         >
           <p
             className="serif"
-            style={{ fontWeight: 700, fontSize: 17, color: "var(--navy)", margin: 0, whiteSpace: "nowrap" }}
+            style={{ fontWeight: 700, fontSize: 18.5, color: "var(--navy)", margin: 0, whiteSpace: "nowrap" }}
           >
             {naira(p.price || 0)}{" "}
-            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
+            <span style={{ fontSize: 14.5, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
           </p>
-          <p style={{ fontSize: 13, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
+          <p style={{ fontSize: 14.5, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
             {s.label}
             {p.showStock && p.stock > 0 ? ` · ${p.stock} left` : ""}
           </p>
@@ -59,8 +59,8 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
 
         {!preview && (
           <div className="flex items-center gap-2" style={{ flexWrap: "nowrap" }}>
-            <div className="stepper" style={{ fontSize: 15, flexShrink: 0 }}>
-              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 17 }}>
+            <div className="stepper" style={{ fontSize: 16.5, flexShrink: 0 }}>
+              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 18.5 }}>
                 &minus;
               </button>
               <input
@@ -76,7 +76,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
                 }}
                 onFocus={(e) => e.currentTarget.select()}
               />
-              <button onClick={onInc} aria-label="increase" style={{ fontSize: 17 }}>
+              <button onClick={onInc} aria-label="increase" style={{ fontSize: 18.5 }}>
                 +
               </button>
             </div>
@@ -84,7 +84,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
               className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
               disabled={qty === 0}
               onClick={onAdd}
-              style={{ fontSize: 15, flex: 1, whiteSpace: "nowrap", padding: "10px 12px" }}
+              style={{ fontSize: 16.5, flex: 1, whiteSpace: "nowrap", padding: "10px 12px" }}
             >
               Add to order
             </button>

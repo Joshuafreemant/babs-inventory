@@ -111,10 +111,10 @@ export function EditProductModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 17.5, margin: 0 }}>
             Edit product
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 17, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18.5, color: "#fff" }}>
             &times;
           </button>
         </div>
@@ -174,12 +174,12 @@ export function EditProductModal({
             Allow orders once stock hits zero (ships from regional store)
           </label>
 
-          <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "6px 0 0" }}>
+          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "6px 0 0" }}>
             Stock is changed with the +/&minus; stepper and Restock, not here.
           </p>
 
           {/* photo */}
-          <p style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", margin: "10px 0 4px" }}>
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "10px 0 4px" }}>
             Photo
           </p>
           <div className="flex items-center gap-3 flex-wrap">
@@ -201,7 +201,7 @@ export function EditProductModal({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={shownImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
-                <span style={{ fontSize: 18, color: "var(--ink-soft)" }}>+</span>
+                <span style={{ fontSize: 19.5, color: "var(--ink-soft)" }}>+</span>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export function EditProductModal({
             />
           </div>
 
-          {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "8px 0 0" }}>{error}</p>}
+          {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "8px 0 0" }}>{error}</p>}
           <button className="btn btn-primary" style={{ padding: "11px 0", marginTop: 10 }} disabled={busy} onClick={save}>
             {busy ? "Saving…" : "Save changes"}
           </button>

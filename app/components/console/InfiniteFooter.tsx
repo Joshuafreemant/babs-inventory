@@ -18,22 +18,22 @@ export function InfiniteFooter<T>({
         <button
           className="btn btn-sm btn-outline"
           onClick={() => list.loadMore()}
-          style={{ fontSize: 11.5 }}
+          style={{ fontSize: 13 }}
         >
           {list.error} — retry
         </button>
       ) : list.loading ? (
-        <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>Loading more…</span>
+        <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>Loading more…</span>
       ) : list.hasMore ? (
         <button
           className="btn btn-sm btn-outline"
           onClick={() => list.loadMore()}
-          style={{ fontSize: 11.5 }}
+          style={{ fontSize: 13 }}
         >
           Load more {noun}
         </button>
       ) : count > 0 ? (
-        <span style={{ fontSize: 11.5, color: "var(--ink-soft)" }}>
+        <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
           All {count} {noun} loaded
         </span>
       ) : null}

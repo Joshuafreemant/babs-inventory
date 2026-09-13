@@ -22,10 +22,10 @@ export function ShareModal({ repRef, onClose }: { repRef?: string; onClose: () =
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
-          <p className="serif" style={{ fontWeight: 700, fontSize: 17.5, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 19, margin: 0 }}>
             Share catalogue link
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 19 }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20.5 }}>
             &times;
           </button>
         </div>
@@ -34,7 +34,7 @@ export function ShareModal({ repRef, onClose }: { repRef?: string; onClose: () =
 
         <p
           style={{
-            fontSize: 12,
+            fontSize: 13.5,
             color: "var(--ink-soft)",
             margin: "12px 0 4px",
             wordBreak: "break-all",
@@ -42,7 +42,7 @@ export function ShareModal({ repRef, onClose }: { repRef?: string; onClose: () =
         >
           {link.replace(/^https?:\/\//, "")}
         </p>
-        <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 14px" }}>
+        <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 14px" }}>
           Anyone with this link can browse and order, wherever they are.
         </p>
 

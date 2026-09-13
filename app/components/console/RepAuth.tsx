@@ -29,10 +29,10 @@ export function RepAuth({ onSignedIn }: { onSignedIn: (s: StaffSession) => void 
       style={{ padding: "80px 20px", minHeight: "calc(100vh - 78px)" }}
     >
       <div className="card" style={{ padding: 28, width: "100%", maxWidth: 360 }}>
-        <p className="serif" style={{ fontWeight: 700, fontSize: 19, margin: "0 0 4px" }}>
+        <p className="serif" style={{ fontWeight: 700, fontSize: 20.5, margin: "0 0 4px" }}>
           Rep console sign-in
         </p>
-        <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 18px" }}>Staff access only.</p>
+        <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 18px" }}>Staff access only.</p>
         <div className="flex flex-col gap-2">
           <div className="field">
             <span className="icon">&#128100;</span>
@@ -52,7 +52,7 @@ export function RepAuth({ onSignedIn }: { onSignedIn: (s: StaffSession) => void 
               onKeyDown={(e) => e.key === "Enter" && submit()}
             />
           </div>
-          {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: 0 }}>{error}</p>}
+          {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: 0 }}>{error}</p>}
           <button className="btn btn-primary" style={{ padding: "11px 0" }} disabled={busy} onClick={submit}>
             {busy ? "Signing in…" : "Sign in"}
           </button>

@@ -48,15 +48,15 @@ export function RestockModal({
           className="flex items-center justify-between"
           style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
         >
-          <p className="serif" style={{ fontWeight: 700, fontSize: 15.5, margin: 0 }}>
+          <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
             Restock &mdash; {product.name}
           </p>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 17, color: "#fff" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18.5, color: "#fff" }}>
             &times;
           </button>
         </div>
         <div style={{ padding: "18px 20px" }}>
-          <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "0 0 12px" }}>
+          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 12px" }}>
             Currently {product.stock.toLocaleString("en-NG")} boxes in stock. Count what arrived and enter it below.
           </p>
           <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: 8 }}>
@@ -69,11 +69,11 @@ export function RestockModal({
               <input type="number" min={0} placeholder="Loose boxes" value={loose} onChange={(e) => setLoose(e.target.value)} />
             </div>
           </div>
-          <p style={{ fontSize: 12, color: "var(--ink-soft)", margin: "0 0 14px" }}>
+          <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 14px" }}>
             Adding <strong>{adding.toLocaleString("en-NG")} boxes</strong> &middot; new total will be{" "}
             <strong>{(product.stock + adding).toLocaleString("en-NG")} boxes</strong>
           </p>
-          {error && <p style={{ fontSize: 12, color: "var(--rose)", margin: "0 0 8px" }}>{error}</p>}
+          {error && <p style={{ fontSize: 13.5, color: "var(--rose)", margin: "0 0 8px" }}>{error}</p>}
           <button className="btn btn-primary" style={{ width: "100%", padding: "10px 0" }} disabled={busy} onClick={submit}>
             {busy ? "Adding…" : "Add to stock"}
           </button>
