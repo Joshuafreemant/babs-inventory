@@ -142,7 +142,7 @@ export default function ReportsPage() {
   return (
     <div>
       <SiteHeader onStaffSignout={signOut} />
-      <ConsoleTabs active="reports" />
+      <ConsoleTabs active="reports" role={session.role} />
 
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 8 }}>

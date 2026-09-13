@@ -11,6 +11,19 @@ import { Product, PlacedOrder } from "./types";
 import { apiGet, apiPost } from "./lib/api";
 import { naira } from "./lib/money";
 import { Hero, DEFAULT_HERO } from "./lib/heroDefaults";
+import { displayPhone } from "./lib/phone";
+
+interface Contact {
+  phone: string;
+  email: string;
+}
+interface Payment {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+const EMPTY_CONTACT: Contact = { phone: "", email: "" };
+const EMPTY_PAYMENT: Payment = { bankName: "", accountNumber: "", accountName: "" };
 
 const CART_KEY = "embassy_cart";
 const REF_KEY = "embassy_ref";
@@ -34,6 +47,8 @@ export default function Storefront() {
   const [trackPhone, setTrackPhone] = useState("");
   const [ref, setRef] = useState<string>("");
   const [hero, setHero] = useState<Hero>(DEFAULT_HERO);
+  const [contact, setContact] = useState<Contact>(EMPTY_CONTACT);
+  const [payment, setPayment] = useState<Payment>(EMPTY_PAYMENT);
 
   const [query, setQuery] = useState("");
   const PAGE = 50;
@@ -70,8 +85,12 @@ export default function Storefront() {
 
   useEffect(() => {
     loadProducts();
-    apiGet<{ hero: Hero }>("/api/settings")
-      .then((d) => d.hero && setHero(d.hero))
+    apiGet<{ hero: Hero; contact: Contact; payment: Payment }>("/api/settings")
+      .then((d) => {
+        if (d.hero) setHero(d.hero);
+        if (d.contact) setContact(d.contact);
+        if (d.payment) setPayment(d.payment);
+      })
       .catch(() => {});
     try {
       const saved = localStorage.getItem(CART_KEY);
@@ -144,11 +163,37 @@ export default function Storefront() {
 
   const addToCart = (p: Product) => {
     const q = draft[p.id] || 0;
-    if (q === 0) return;
+    if (q === 0) {
+      showToast("Select a quantity before adding to order.");
+      return;
+    }
     setCart((c) => ({ ...c, [p.id]: (c[p.id] || 0) + q }));
     setDraft((d) => ({ ...d, [p.id]: 0 }));
     showToast("Added to your order");
   };
+
+  /** Edit or remove a line item from inside the "Review order" modal. */
+  const setCartQty = (id: string, n: number) => {
+    const p = byId.get(id);
+    const capped = Math.max(0, Math.min(p ? cap(p) : 9999, Math.floor(n) || 0));
+    setCart((c) => {
+      if (capped === 0) {
+        const { [id]: _drop, ...rest } = c;
+        return rest;
+      }
+      return { ...c, [id]: capped };
+    });
+  };
+  const removeFromCart = (id: string) =>
+    setCart((c) => {
+      const { [id]: _drop, ...rest } = c;
+      return rest;
+    });
+
+  // if the last line item is removed inside the review modal, fall back to the catalogue
+  useEffect(() => {
+    if (showCheckout && cartItems.length === 0) setShowCheckout(false);
+  }, [showCheckout, cartItems.length]);
 
   const placeOrder = async () => {
     if (!form.name.trim() || !form.phone.trim()) {
@@ -244,13 +289,12 @@ export default function Storefront() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products…"
             aria-label="Search products"
+            className="catalogue-search"
             style={{
               border: "1px solid var(--line)",
               background: "#fff",
               padding: "9px 12px",
               fontSize: 16.5,
-              minWidth: 200,
-              flex: "0 1 280px",
             }}
           />
         </div>
@@ -320,6 +364,32 @@ export default function Storefront() {
         )}
       </div>
 
+      {(contact.phone || contact.email) && (
+        <div
+          style={{
+            borderTop: "1px solid var(--line)",
+            padding: "20px var(--gutter) 28px",
+            textAlign: "center",
+          }}
+        >
+          <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 8px", fontSize: 12.5 }}>
+            Questions about your order?
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            {contact.phone && (
+              <a href={`tel:+${contact.phone}`} style={{ fontSize: 16, color: "var(--navy)", fontWeight: 600 }}>
+                &#9742; {displayPhone(contact.phone)}
+              </a>
+            )}
+            {contact.email && (
+              <a href={`mailto:${contact.email}`} style={{ fontSize: 16, color: "var(--navy)", fontWeight: 600 }}>
+                &#9993; {contact.email}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {showCheckout && (
         <CheckoutModal
           items={cartItems}
@@ -330,6 +400,9 @@ export default function Storefront() {
           setForm={setForm}
           error={checkoutError}
           placing={placing}
+          payment={payment}
+          onQtyChange={setCartQty}
+          onRemove={removeFromCart}
           onClose={() => setShowCheckout(false)}
           onPlace={placeOrder}
         />

@@ -29,6 +29,17 @@ export function productForConsole(p: any) {
   };
 }
 
+export function staffForConsole(s: any) {
+  return {
+    id: String(s._id),
+    name: s.name,
+    staffId: s.staffId,
+    role: s.role,
+    active: s.active,
+    createdAt: s.createdAt,
+  };
+}
+
 export function orderForConsole(o: any) {
   return {
     id: String(o._id),

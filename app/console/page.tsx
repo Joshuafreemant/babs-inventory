@@ -86,6 +86,18 @@ export default function ConsolePage() {
   const setProducts = productsList.setItems;
   const setOrders = ordersList.setItems;
 
+  // auto-refresh the order feed while the tab is actually visible — the
+  // manual refresh button next to it still covers "check right now"
+  const ORDERS_POLL_MS = 60_000;
+  useEffect(() => {
+    if (!session) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") ordersList.reload();
+    }, ORDERS_POLL_MS);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
   const refreshStats = () =>
     apiGet<{ stats: ConsoleStats }>("/api/admin/orders?limit=1")
       .then((d) => d.stats && setStats(d.stats))
@@ -160,7 +172,7 @@ export default function ConsolePage() {
     <div>
       {toastNode}
       <SiteHeader onStaffSignout={signOut} />
-      <ConsoleTabs active="desk" />
+      <ConsoleTabs active="desk" role={session.role} />
 
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 4 }}>
@@ -168,9 +180,11 @@ export default function ConsolePage() {
             Rep console
           </p>
           <div className="flex items-center gap-2">
+            {/* Import — temporarily hidden
             <button className="btn btn-outline btn-sm" onClick={() => setShowImport(true)}>
               Import
             </button>
+            */}
             <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
               + Add product
             </button>
@@ -203,38 +217,52 @@ export default function ConsolePage() {
               maxHeight: ledgerOpen ? "68vh" : undefined,
             }}
           >
-            <button
-              type="button"
-              onClick={() => setLedgerOpen((v) => !v)}
+            <div
               className="flex items-center justify-between"
               style={{
-                padding: "14px 18px",
-                borderTop: "none",
-                borderLeft: "none",
-                borderRight: "none",
-                borderBottom: ledgerOpen ? "1px solid var(--line)" : "1px solid transparent",
+                padding: "10px 12px 10px 18px",
+                borderBottom: ledgerOpen ? "1px solid var(--line)" : "none",
                 background: "#fff",
                 flexShrink: 0,
-                width: "100%",
-                cursor: "pointer",
-                textAlign: "left",
               }}
-              aria-expanded={ledgerOpen}
             >
-              <span className="flex items-center gap-2">
-                <span style={{ fontSize: 12.5, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+              <button
+                type="button"
+                onClick={() => setLedgerOpen((v) => !v)}
+                className="flex items-center gap-2"
+                style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", textAlign: "left" }}
+                aria-expanded={ledgerOpen}
+                aria-label={ledgerOpen ? "Collapse inventory ledger" : "Expand inventory ledger"}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    border: "1px solid var(--line)",
+                    background: "var(--cream-soft)",
+                    color: "var(--navy)",
+                    fontSize: 15,
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
                   {ledgerOpen ? "▾" : "▸"}
                 </span>
                 <span className="serif" style={{ fontWeight: 700, fontSize: 17 }}>
                   Inventory ledger
                 </span>
-              </span>
+              </button>
               {productTotal != null && (
                 <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
                   {ledgerOpen ? `${products.length} of ${productTotal}` : `${productTotal} products`}
                 </span>
               )}
-            </button>
+            </div>
             {ledgerOpen && (
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {products.map((p) => {
@@ -345,38 +373,78 @@ export default function ConsolePage() {
               maxHeight: ordersOpen ? "68vh" : undefined,
             }}
           >
-            <button
-              type="button"
-              onClick={() => setOrdersOpen((v) => !v)}
+            <div
               className="flex items-center justify-between"
               style={{
-                padding: "14px 18px",
-                borderTop: "none",
-                borderLeft: "none",
-                borderRight: "none",
-                borderBottom: ordersOpen ? "1px solid var(--line)" : "1px solid transparent",
+                padding: "10px 12px 10px 18px",
+                borderBottom: ordersOpen ? "1px solid var(--line)" : "none",
                 background: "#fff",
                 flexShrink: 0,
-                width: "100%",
-                cursor: "pointer",
-                textAlign: "left",
+                gap: 8,
               }}
-              aria-expanded={ordersOpen}
             >
-              <span className="flex items-center gap-2">
-                <span style={{ fontSize: 12.5, color: "var(--ink-soft)", width: 10, display: "inline-block" }}>
+              <button
+                type="button"
+                onClick={() => setOrdersOpen((v) => !v)}
+                className="flex items-center gap-2"
+                style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", textAlign: "left", minWidth: 0 }}
+                aria-expanded={ordersOpen}
+                aria-label={ordersOpen ? "Collapse recent orders" : "Expand recent orders"}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    border: "1px solid var(--line)",
+                    background: "var(--cream-soft)",
+                    color: "var(--navy)",
+                    fontSize: 15,
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
                   {ordersOpen ? "▾" : "▸"}
                 </span>
-                <span className="serif" style={{ fontWeight: 700, fontSize: 17 }}>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 17, whiteSpace: "nowrap" }}>
                   Recent orders
                 </span>
-              </span>
-              {stats && (
-                <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
-                  {ordersOpen ? `${orders.length} of ${stats.ordersTotal}` : `${stats.ordersTotal} orders`}
-                </span>
-              )}
-            </button>
+              </button>
+              <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                {stats && (
+                  <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
+                    {ordersOpen ? `${orders.length} of ${stats.ordersTotal}` : `${stats.ordersTotal} orders`}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => ordersList.reload()}
+                  disabled={ordersList.loading}
+                  aria-label="Refresh recent orders"
+                  title="Refresh"
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    border: "1px solid var(--line)",
+                    background: "#fff",
+                    color: "var(--navy)",
+                    fontSize: 14,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: ordersList.loading ? "default" : "pointer",
+                    opacity: ordersList.loading ? 0.5 : 1,
+                  }}
+                >
+                  &#8635;
+                </button>
+              </div>
+            </div>
             {ordersOpen && (
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {orders.map((o) => (

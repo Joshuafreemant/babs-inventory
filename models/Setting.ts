@@ -8,6 +8,13 @@ const settingSchema = new Mongoose.Schema(
     heroEyebrow: { type: String, default: "" },
     heroHeadline: { type: String, default: "" },
     heroSubtext: { type: String, default: "" },
+    // customer-facing contact info shown on the storefront
+    contactPhone: { type: String, default: "" }, // normalised digits, e.g. "2348032219087"
+    contactEmail: { type: String, default: "" },
+    // bank transfer details shown at checkout
+    bankName: { type: String, default: "" },
+    bankAccountNumber: { type: String, default: "" },
+    bankAccountName: { type: String, default: "" },
   },
   { timestamps: true }
 );
@@ -17,6 +24,11 @@ export interface ISetting {
   heroEyebrow: string;
   heroHeadline: string;
   heroSubtext: string;
+  contactPhone: string;
+  contactEmail: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountName: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

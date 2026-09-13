@@ -82,7 +82,6 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
             </div>
             <button
               className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
-              disabled={qty === 0}
               onClick={onAdd}
               style={{ fontSize: 16.5, flex: 1, whiteSpace: "nowrap", padding: "10px 12px" }}
             >

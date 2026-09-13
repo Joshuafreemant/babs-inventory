@@ -279,12 +279,20 @@ label.check {
   grid-template-columns: 1fr;
 }
 
+/* full-width on phones; a fixed, comfortable width once there's room beside the label */
+.catalogue-search {
+  width: 100%;
+}
+
 @media (min-width: 560px) {
   .catalogue-grid {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
   .grid-recipients {
     grid-template-columns: 1.1fr 1fr auto;
+  }
+  .catalogue-search {
+    width: 280px;
   }
 }
 

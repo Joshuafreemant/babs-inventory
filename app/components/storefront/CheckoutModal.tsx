@@ -9,6 +9,12 @@ export interface CheckoutForm {
   email: string;
 }
 
+export interface CheckoutPayment {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
 interface Props {
   items: (Product & { qty: number })[];
   subtotal: number;
@@ -18,6 +24,9 @@ interface Props {
   setForm: (f: CheckoutForm) => void;
   error: string;
   placing: boolean;
+  payment?: CheckoutPayment;
+  onQtyChange: (id: string, qty: number) => void;
+  onRemove: (id: string) => void;
   onClose: () => void;
   onPlace: () => void;
 }
@@ -44,10 +53,14 @@ export function CheckoutModal({
   setForm,
   error,
   placing,
+  payment,
+  onQtyChange,
+  onRemove,
   onClose,
   onPlace,
 }: Props) {
   const hasBackorder = items.some((i) => i.stock === 0 && i.backorder);
+  const hasPaymentDetails = !!(payment?.bankName || payment?.accountNumber || payment?.accountName);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -69,14 +82,49 @@ export function CheckoutModal({
         </div>
 
         <div style={{ padding: "18px 20px" }}>
-          {items.map((i) => (
-            <div key={i.id} className="flex items-center justify-between" style={{ marginBottom: 9 }}>
-              <span style={{ fontSize: 17 }}>
-                {i.name} &times;{i.qty} box{i.qty > 1 ? "es" : ""}
-              </span>
-              <span style={{ fontSize: 17, fontWeight: 600 }}>{naira(i.price * i.qty)}</span>
-            </div>
-          ))}
+          {items.length === 0 ? (
+            <p style={{ fontSize: 16, color: "var(--ink-soft)", margin: "0 0 12px" }}>Your order is empty.</p>
+          ) : (
+            items.map((i) => (
+              <div key={i.id} className="flex items-center justify-between gap-2" style={{ marginBottom: 10 }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{ fontSize: 16, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {i.name}
+                  </p>
+                  <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "2px 0 0" }}>
+                    {naira(i.price)} / box
+                  </p>
+                </div>
+                <div className="stepper" style={{ flexShrink: 0 }}>
+                  <button onClick={() => onQtyChange(i.id, i.qty - 1)} aria-label={`decrease ${i.name}`}>
+                    &minus;
+                  </button>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={i.qty}
+                    aria-label={`quantity for ${i.name}`}
+                    onChange={(e) => onQtyChange(i.id, parseInt(e.target.value, 10) || 0)}
+                    onFocus={(e) => e.currentTarget.select()}
+                  />
+                  <button onClick={() => onQtyChange(i.id, i.qty + 1)} aria-label={`increase ${i.name}`}>
+                    +
+                  </button>
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 600, flexShrink: 0, minWidth: 76, textAlign: "right" }}>
+                  {naira(i.price * i.qty)}
+                </span>
+                <button
+                  onClick={() => onRemove(i.id)}
+                  aria-label={`remove ${i.name}`}
+                  style={{ background: "none", border: "none", color: "var(--rose)", fontSize: 19, flexShrink: 0, lineHeight: 1 }}
+                >
+                  &times;
+                </button>
+              </div>
+            ))
+          )}
           <div
             className="flex items-center justify-between"
             style={{ borderTop: "1px solid var(--line)", paddingTop: 10, marginTop: 6 }}
@@ -155,15 +203,27 @@ export function CheckoutModal({
           ))}
           {method === "transfer" && (
             <div style={{ background: "var(--cream-soft)", border: "1px solid var(--line)", padding: "11px 13px", marginBottom: 6 }}>
-              <p style={{ fontSize: 16, margin: 0 }}>Embassy Pharmaceutical &amp; Chemicals Ltd</p>
-              <p style={{ fontSize: 16, margin: "2px 0 0" }}>Account 0123456789 &middot; Zenith Bank</p>
+              {hasPaymentDetails ? (
+                <>
+                  {payment?.accountName && <p style={{ fontSize: 16, margin: 0 }}>{payment.accountName}</p>}
+                  <p style={{ fontSize: 16, margin: "2px 0 0" }}>
+                    {payment?.accountNumber && <>Account {payment.accountNumber}</>}
+                    {payment?.accountNumber && payment?.bankName && " · "}
+                    {payment?.bankName}
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: 0 }}>
+                  We&apos;ll share our bank details with you once your order is placed.
+                </p>
+              )}
             </div>
           )}
 
           <button
             className="btn btn-primary"
             style={{ width: "100%", padding: "12px 0", fontSize: 17.5, marginTop: 10 }}
-            disabled={placing}
+            disabled={placing || items.length === 0}
             onClick={onPlace}
           >
             {placing ? "Placing order…" : "Place order"}

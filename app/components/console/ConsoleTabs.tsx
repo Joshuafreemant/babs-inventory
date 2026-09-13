@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 
-/** Secondary nav inside the rep console. */
-export function ConsoleTabs({ active }: { active: "desk" | "reports" | "settings" }) {
+/** Secondary nav inside the rep console. Settings is admin-only. */
+export function ConsoleTabs({
+  active,
+  role,
+}: {
+  active: "desk" | "reports" | "settings";
+  role?: "rep" | "admin";
+}) {
   const item = (isActive: boolean) => ({
     padding: "8px 2px",
     marginRight: 22,
@@ -29,9 +35,11 @@ export function ConsoleTabs({ active }: { active: "desk" | "reports" | "settings
       <Link href="/console/reports" style={item(active === "reports")}>
         Reports
       </Link>
-      <Link href="/console/settings" style={item(active === "settings")}>
-        Settings
-      </Link>
+      {role === "admin" && (
+        <Link href="/console/settings" style={item(active === "settings")}>
+          Settings
+        </Link>
+      )}
     </div>
   );
 }

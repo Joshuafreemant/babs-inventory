@@ -69,3 +69,15 @@ export async function requireStaff(): Promise<StaffSession> {
   }
   return s;
 }
+
+/** Guard for admin-only routes (settings, staff management). 401 if signed out, 403 if not admin. */
+export async function requireAdmin(): Promise<StaffSession> {
+  const s = await requireStaff();
+  if (s.role !== "admin") {
+    throw new Response(JSON.stringify({ error: "Admins only." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return s;
+}
