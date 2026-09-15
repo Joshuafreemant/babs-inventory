@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Product } from "../types";
 import { ProductArt } from "./ProductArt";
-import { naira, stockStripe } from "../lib/money";
+import { naira } from "../lib/money";
 
 interface Props {
   product: Product;
@@ -17,11 +17,6 @@ interface Props {
 }
 
 export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, preview }: Props) {
-  const s = stockStripe(p);
-  // "In stock" / "Selling fast" are routine noise on a 2-up card — only the
-  // states that actually change what a buyer can do (out of stock, backorder)
-  // are worth a line here.
-  const hideRoutineLabel = s.label === "In stock" || s.label === "Selling fast";
   const [zoomed, setZoomed] = useState(false);
 
   return (
@@ -135,11 +130,9 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
             {naira(p.price || 0)}{" "}
             <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
           </p>
-          {(!hideRoutineLabel || (p.showStock && p.stock > 0)) && (
-            <p style={{ fontSize: 13, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
-              {!hideRoutineLabel && s.label}
-              {!hideRoutineLabel && p.showStock && p.stock > 0 ? " · " : ""}
-              {p.showStock && p.stock > 0 ? `${p.stock} left` : ""}
+          {p.showStock && p.stock > 0 && (
+            <p style={{ fontSize: 13, color: "var(--ink-soft)", fontWeight: 600, margin: 0, textAlign: "right" }}>
+              {p.stock} left
             </p>
           )}
         </div>
