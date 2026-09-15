@@ -400,6 +400,22 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   }
 }
 
+/* Storefront / Rep console pill toggle in the header — grouped with a
+   rounded outline on desktop; on phones the border is dropped since the
+   two pill buttons already read as their own control */
+.nav-toggle {
+  border: 1px solid rgba(233, 217, 184, 0.35);
+  border-radius: var(--r-pill);
+  padding: 3px;
+  gap: 2px;
+}
+@media (max-width: 560px) {
+  .nav-toggle {
+    border: none;
+    padding: 0;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

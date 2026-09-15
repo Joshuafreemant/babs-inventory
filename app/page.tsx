@@ -40,7 +40,7 @@ export default function Storefront() {
   const [showShare, setShowShare] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [method, setMethod] = useState<"stand" | "transfer">("stand");
-  const [form, setForm] = useState<CheckoutForm>({ name: "", phone: "", email: "" });
+  const [form, setForm] = useState<CheckoutForm>({ name: "", phone: "" });
   const [checkoutError, setCheckoutError] = useState("");
   const [placing, setPlacing] = useState(false);
   const [confirmed, setConfirmed] = useState<PlacedOrder | null>(null);
@@ -206,7 +206,6 @@ export default function Storefront() {
       const order = await apiPost<PlacedOrder>("/api/orders", {
         customerName: form.name,
         phone: form.phone,
-        email: form.email,
         method,
         ref,
         items: cartItems.map((i) => ({ productId: i.id, qty: i.qty })),

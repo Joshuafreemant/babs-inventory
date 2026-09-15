@@ -62,7 +62,7 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex" style={{ border: "1px solid rgba(233,217,184,0.35)" }}>
+        <div className="flex nav-toggle">
           <Link href="/" className="btn" style={tab(!onConsole)}>
             Storefront
           </Link>
