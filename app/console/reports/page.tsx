@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SiteHeader } from "../../components/SiteHeader";
 import { RepAuth } from "../../components/console/RepAuth";
-import { ConsoleTabs } from "../../components/console/ConsoleTabs";
+import { ConsoleShell } from "../../components/console/ConsoleShell";
 import { SalesBars } from "../../components/console/SalesBars";
 import { useInfiniteList } from "../../components/console/useInfiniteList";
 import { InfiniteFooter } from "../../components/console/InfiniteFooter";
@@ -166,8 +166,7 @@ export default function ReportsPage() {
   return (
     <div>
       <SiteHeader onStaffSignout={signOut} />
-      <ConsoleTabs active="reports" role={session.role} />
-
+      <ConsoleShell title="Reports" session={session}>
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 8 }}>
           <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
@@ -424,6 +423,7 @@ export default function ReportsPage() {
           </div>
         )}
       </div>
+      </ConsoleShell>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { apiPost } from "../../lib/api";
 import { toBoxes, suggestThreshold } from "../../lib/money";
 import { ProductCard } from "../ProductCard";
 import { uploadProductPhoto, IMAGE_ACCEPT, MAX_IMAGE_BYTES } from "./uploadProductPhoto";
+import { CurrencyInput } from "./CurrencyInput";
 
 interface Form {
   name: string;
@@ -194,13 +195,7 @@ export function AddProductModal({
 
             <div className="field" style={{ marginTop: 8 }}>
               <span className="icon">&#8358;</span>
-              <input
-                type="number"
-                min={0}
-                placeholder="Price per box"
-                value={f.price}
-                onChange={(e) => patch({ price: e.target.value })}
-              />
+              <CurrencyInput value={f.price} onChange={(v) => patch({ price: v })} placeholder="Price per box" />
             </div>
 
             <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>

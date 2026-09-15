@@ -7,7 +7,12 @@ import { suggestThreshold, toBoxes } from "@/app/lib/money";
 
 export const dynamic = "force-dynamic";
 
-/** Inventory ledger — paginated with an `_id` cursor (creation order). */
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Inventory ledger — paginated with an `_id` cursor (creation order).
+ *   ?q=<text>   narrow to products whose name contains this (case-insensitive)
+ */
 export async function GET(req: Request) {
   try {
     await requireStaff();
@@ -16,8 +21,10 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "20", 10)));
     const cursor = url.searchParams.get("cursor");
+    const q = url.searchParams.get("q")?.trim();
 
     const filter: any = { archived: { $ne: true } };
+    if (q) filter.name = new RegExp(escapeRe(q), "i");
     if (cursor) filter._id = { $gt: cursor };
 
     const docs = await ProductModel.find(filter)
@@ -27,9 +34,11 @@ export async function GET(req: Request) {
 
     const hasMore = docs.length > limit;
     const page = hasMore ? docs.slice(0, limit) : docs;
+    // total always reflects the current search — recount is cheap here since
+    // the products collection is small and this only runs on page 1
     const total = cursor
       ? undefined
-      : await ProductModel.countDocuments({ archived: { $ne: true } });
+      : await ProductModel.countDocuments(q ? filter : { archived: { $ne: true } });
 
     return Response.json({
       products: page.map(productForConsole),

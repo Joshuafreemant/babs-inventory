@@ -25,7 +25,6 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
       <div
         className="art-panel"
         style={{
-          height: 180,
           padding: p.imageUrl ? 14 : "20px 0",
           overflow: "hidden",
           position: "relative",
@@ -138,7 +137,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         </div>
 
         {!preview && (
-          <div className="flex items-center gap-2" style={{ flexWrap: "nowrap" }}>
+          <div className="flex items-center gap-2" style={{ flexWrap: "wrap" }}>
             <div className="stepper" style={{ fontSize: 16.5, flexShrink: 0 }}>
               <button onClick={onDec} aria-label="decrease" style={{ fontSize: 18.5 }}>
                 &minus;
@@ -163,7 +162,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
             <button
               className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
               onClick={onAdd}
-              style={{ fontSize: 16.5, flex: 1, whiteSpace: "nowrap", padding: "10px 12px" }}
+              style={{ fontSize: 16.5, flex: "1 1 100px", whiteSpace: "nowrap", padding: "10px 12px" }}
             >
               Add to order
             </button>

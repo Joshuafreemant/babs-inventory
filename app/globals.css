@@ -254,6 +254,14 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   align-items: center;
   justify-content: center;
   padding: 18px 0;
+  height: 180px;
+}
+
+@media (max-width: 559px) {
+  /* narrower at 2-up on phones — still plenty of room, nothing gets cropped */
+  .catalogue-grid .art-panel {
+    height: 128px;
+  }
 }
 
 .modal-backdrop {
@@ -347,11 +355,11 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   grid-template-columns: 1fr;
 }
 
-/* catalogue: single column on phones */
+/* catalogue: 2 columns on phones so products sit side by side */
 .catalogue-grid {
   display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 /* full-width on phones; a fixed, comfortable width once there's room beside the label */
@@ -478,5 +486,163 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Console navigation — a left rail from ~900px up, a slide-out
+   drawer behind a hamburger below it.
+   ───────────────────────────────────────────────────────────── */
+.console-mobile-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--gutter);
+  background: var(--navy);
+  color: #fff;
+}
+.console-hamburger {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.console-shell {
+  display: flex;
+  align-items: flex-start;
+}
+.console-rail {
+  display: none;
+}
+.console-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.console-rail-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.console-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--r-sm);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+}
+.console-rail-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.console-rail-item.active {
+  background: rgba(233, 217, 184, 0.14);
+  color: #fff;
+}
+.console-rail-item.active::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 0 3px 3px 0;
+}
+.console-rail-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-top: auto;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.console-rail-who strong {
+  display: block;
+  font-size: 13.5px;
+  color: #fff;
+}
+.console-rail-who span {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11.5px;
+}
+.console-rail-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--navy-deep);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.console-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 28, 0.45);
+  z-index: 35;
+}
+.console-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(78%, 300px);
+  background: var(--navy-deep);
+  padding: 56px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.console-drawer-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .console-mobile-bar {
+    display: none;
+  }
+  .console-shell {
+    gap: 0;
+  }
+  .console-rail {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--navy-deep);
+    padding: 18px 12px;
+    min-height: calc(100vh - 80px);
+  }
+  .console-main {
+    padding-left: 4px;
   }
 }

@@ -10,11 +10,12 @@ import { RestockModal } from "../components/console/RestockModal";
 import { AlertRecipients } from "../components/console/AlertRecipients";
 import { ShareLinkCard } from "../components/console/ShareLinkCard";
 import { ProductPhotoCell } from "../components/console/ProductPhotoCell";
-import { ConsoleTabs } from "../components/console/ConsoleTabs";
+import { ConsoleShell } from "../components/console/ConsoleShell";
 import { DeleteProductModal } from "../components/console/DeleteProductModal";
 import { EditProductModal } from "../components/console/EditProductModal";
 import { ImportProductsModal } from "../components/console/ImportProductsModal";
 import { PushToggle } from "../components/console/PushToggle";
+import { StockStepper } from "../components/console/StockStepper";
 import { useInfiniteList } from "../components/console/useInfiniteList";
 import { InfiniteFooter } from "../components/console/InfiniteFooter";
 import { Product, ConsoleOrder, ConsoleStats, StaffSession } from "../types";
@@ -62,8 +63,23 @@ export default function ConsolePage() {
     } catch {}
   }, [ledgerOpen, ordersOpen]);
 
+  // ledger search — free-text product name
+  const [productSearch, setProductSearch] = useState("");
+  const [productSearchDebounced, setProductSearchDebounced] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setProductSearchDebounced(productSearch.trim()), 350);
+    return () => clearTimeout(t);
+  }, [productSearch]);
+  const productsFiltered = !!productSearchDebounced;
+  const productsEndpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    if (productSearchDebounced) params.set("q", productSearchDebounced);
+    const qs = params.toString();
+    return `/api/admin/products${qs ? `?${qs}` : ""}`;
+  }, [productSearchDebounced]);
+
   const productsList = useInfiniteList<Product>({
-    endpoint: "/api/admin/products",
+    endpoint: productsEndpoint,
     key: "products",
     limit: 20,
     enabled: !!session,
@@ -135,6 +151,15 @@ export default function ConsolePage() {
     }
   };
 
+  const setStockExact = async (p: Product, stock: number) => {
+    try {
+      const updated = await apiPatch<Product>(`/api/admin/products/${p.id}`, { op: "set", stock });
+      replaceProduct(updated);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const setFlag = async (
     p: Product,
     flag: "forceLowStock" | "showStock" | "backorder",
@@ -191,8 +216,7 @@ export default function ConsolePage() {
   return (
     <div>
       <SiteHeader onStaffSignout={signOut} />
-      <ConsoleTabs active="desk" role={session.role} />
-
+      <ConsoleShell title="Order desk" session={session}>
       <div style={{ padding: "32px var(--gutter)" }}>
         <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 4 }}>
           <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
@@ -279,11 +303,32 @@ export default function ConsolePage() {
               </button>
               {productTotal != null && (
                 <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>
-                  {ledgerOpen ? `${products.length} of ${productTotal}` : `${productTotal} products`}
+                  {!ledgerOpen
+                    ? `${productTotal} products`
+                    : productsFiltered
+                    ? `${products.length}${productsList.hasMore ? "+" : ""} match${products.length === 1 ? "" : "es"}`
+                    : `${products.length} of ${productTotal}`}
                 </span>
               )}
             </div>
             {ledgerOpen && (
+            <>
+            <div
+              className="flex items-center gap-2"
+              style={{ padding: "10px 18px", borderBottom: "1px solid var(--line)", background: "var(--cream-soft)" }}
+            >
+              <input
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Search products…"
+                style={{ flex: 1, border: "1px solid var(--line)", borderRadius: "var(--r-pill)", padding: "7px 14px", fontSize: 13, background: "#fff" }}
+              />
+              {productsFiltered && (
+                <button className="btn btn-outline btn-sm" onClick={() => setProductSearch("")}>
+                  Clear
+                </button>
+              )}
+            </div>
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
             {products.map((p) => {
               const bd = cartonBreakdown(p.stock, p.boxesPerCarton);
@@ -309,11 +354,11 @@ export default function ConsolePage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                      <div className="stepper">
-                        <button onClick={() => adjustStock(p, -1)}>&minus;</button>
-                        <span>{p.stock}</span>
-                        <button onClick={() => adjustStock(p, 1)}>+</button>
-                      </div>
+                      <StockStepper
+                        stock={p.stock}
+                        onAdjust={(delta) => adjustStock(p, delta)}
+                        onSetExact={(value) => setStockExact(p, value)}
+                      />
                       <button className="btn btn-outline btn-sm" onClick={() => setRestockFor(p)}>
                         Restock
                       </button>
@@ -376,11 +421,18 @@ export default function ConsolePage() {
             })}
             {productsList.ready && products.length === 0 && (
               <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
-                No products yet. Use &quot;+ Add product&quot; to start the catalogue.
+                {productsFiltered
+                  ? "No products match that search."
+                  : 'No products yet. Use "+ Add product" to start the catalogue.'}
               </p>
             )}
-            <InfiniteFooter list={productsList} noun="products" count={productTotal ?? products.length} />
+            <InfiniteFooter
+              list={productsList}
+              noun="products"
+              count={productsFiltered ? products.length : productTotal ?? products.length}
+            />
             </div>
+            </>
             )}
           </div>
 
@@ -583,6 +635,7 @@ export default function ConsolePage() {
         <ShareLinkCard session={session} />
         <AlertRecipients onToast={(msg: string) => toast(msg)} />
       </div>
+      </ConsoleShell>
 
       {showAdd && (
         <AddProductModal

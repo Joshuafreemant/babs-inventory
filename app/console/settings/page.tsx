@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SiteHeader } from "../../components/SiteHeader";
 import { RepAuth } from "../../components/console/RepAuth";
-import { ConsoleTabs } from "../../components/console/ConsoleTabs";
+import { ConsoleShell } from "../../components/console/ConsoleShell";
 import { StaffSession } from "../../types";
 import { apiGet, apiPost, apiPatch, apiDelete } from "../../lib/api";
 import { Hero, DEFAULT_HERO } from "../../lib/heroDefaults";
@@ -239,7 +239,7 @@ export default function SettingsPage() {
     return (
       <div>
         <SiteHeader onStaffSignout={signOut} />
-        <ConsoleTabs active="settings" role={session.role} />
+        <ConsoleShell title="Settings" session={session}>
         <div style={{ padding: "60px var(--gutter)", textAlign: "center" }}>
           <p className="serif" style={{ fontWeight: 700, fontSize: 21.5, margin: "0 0 8px" }}>
             Admins only
@@ -249,6 +249,7 @@ export default function SettingsPage() {
             changed by an admin. Ask an admin on your team if something needs updating.
           </p>
         </div>
+        </ConsoleShell>
       </div>
     );
   }
@@ -286,8 +287,7 @@ export default function SettingsPage() {
   return (
     <div>
       <SiteHeader onStaffSignout={signOut} />
-      <ConsoleTabs active="settings" role={session.role} />
-
+      <ConsoleShell title="Settings" session={session}>
       <div style={{ padding: "32px var(--gutter) 60px", maxWidth: 760, display: "flex", flexDirection: "column", gap: 36 }}>
         {/* ───────── hero ───────── */}
         <section>
@@ -543,6 +543,7 @@ export default function SettingsPage() {
           </div>
         </section>
       </div>
+      </ConsoleShell>
     </div>
   );
 }

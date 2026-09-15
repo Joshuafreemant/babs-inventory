@@ -16,6 +16,7 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /**
  * One endpoint for every ledger edit, chosen by `op`:
  *  - "adjust"  { delta }                       single-box +/- stepper
+ *  - "set"     { stock }                       type an exact count directly
  *  - "restock" { cartons, loose }              count a fresh delivery, add exactly
  *  - "flags"   { forceLowStock?, showStock?, backorder? }
  *  - "edit"    { name?, category?, price?, boxesPerCarton?, lowStockThreshold?, backorder? }
@@ -43,6 +44,22 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         action: "stock.adjust",
         target: product.name,
         detail: `${delta > 0 ? "+" : ""}${delta} box -> ${product.stock}`,
+      });
+    } else if (op === "set") {
+      const stock = Math.max(0, Math.floor(Number(b.stock)));
+      if (!Number.isFinite(stock))
+        return Response.json({ error: "Enter a valid stock count." }, { status: 400 });
+      if (stock === product.stock)
+        return Response.json({ error: "Nothing to change." }, { status: 400 });
+      const before = product.stock;
+      product.stock = stock;
+      await product.save();
+      await writeAudit({
+        staffId: staff.staffId,
+        staffName: staff.name,
+        action: "stock.set",
+        target: product.name,
+        detail: `${before} -> ${stock} (typed in)`,
       });
     } else if (op === "restock") {
       const cartons = Math.max(0, Math.floor(Number(b.cartons) || 0));

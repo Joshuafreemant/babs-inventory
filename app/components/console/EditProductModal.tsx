@@ -9,6 +9,7 @@ import {
   IMAGE_ACCEPT,
   MAX_IMAGE_BYTES,
 } from "./uploadProductPhoto";
+import { CurrencyInput } from "./CurrencyInput";
 
 export function EditProductModal({
   product,
@@ -138,7 +139,7 @@ export function EditProductModal({
           <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
             <div className="field">
               <span className="icon">&#8358;</span>
-              <input type="number" min={0} placeholder="Price / box" value={price} onChange={(e) => setPrice(e.target.value)} />
+              <CurrencyInput value={price} onChange={setPrice} placeholder="Price / box" />
             </div>
             <div className="field">
               <span className="icon">&#128230;</span>
