@@ -20,14 +20,14 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
 
   return (
     <div className="card flex flex-col">
-      <div className="art-panel" style={{ height: 180, padding: p.imageUrl ? 0 : "20px 0", overflow: "hidden" }}>
+      <div className="art-panel" style={{ height: 180, padding: p.imageUrl ? 14 : "20px 0", overflow: "hidden" }}>
         {p.imageUrl ? (
-          // plain <img> avoids next/image remote-domain config
+          // contain, not cover — the whole photo shows, nothing gets cropped off
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={p.imageUrl}
             alt={p.name}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
           />
         ) : (
           <ProductArt kind={p.category} />
