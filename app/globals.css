@@ -254,14 +254,10 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   align-items: center;
   justify-content: center;
   padding: 18px 0;
-  height: 180px;
-}
-
-@media (max-width: 559px) {
-  /* narrower at 2-up on phones — still plenty of room, nothing gets cropped */
-  .catalogue-grid .art-panel {
-    height: 128px;
-  }
+  /* a square scales with the card's own width, so it's never "too tall" for
+     however many columns the grid currently has — a fixed px height wasn't */
+  aspect-ratio: 1 / 1;
+  height: auto;
 }
 
 .modal-backdrop {

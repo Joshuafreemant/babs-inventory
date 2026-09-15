@@ -25,7 +25,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
       <div
         className="art-panel"
         style={{
-          padding: p.imageUrl ? 14 : "20px 0",
+          padding: p.imageUrl ? 0 : "20px 0",
           overflow: "hidden",
           position: "relative",
           cursor: p.imageUrl ? "zoom-in" : "default",
@@ -34,12 +34,13 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
       >
         {p.imageUrl ? (
           <>
-            {/* contain, not cover — the whole photo shows, nothing gets cropped off */}
+            {/* cover — fills the tile edge to edge; tap to zoom shows the
+                full, uncropped photo (below) so nothing is ever hidden */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={p.imageUrl}
               alt={p.name}
-              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
             <span
               aria-hidden="true"
