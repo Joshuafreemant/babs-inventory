@@ -478,7 +478,7 @@ export default function ConsolePage() {
               <select
                 value={orderStatusFilter}
                 onChange={(e) => setOrderStatusFilter(e.target.value)}
-                style={{ border: "1px solid var(--line)", padding: "7px 8px", fontSize: 13, background: "#fff" }}
+                style={{ border: "1px solid var(--line)", borderRadius: "var(--r-pill)", padding: "7px 12px", fontSize: 13, background: "#fff" }}
               >
                 <option value="">All statuses</option>
                 {STATUS_OPTIONS.map((s) => (
@@ -491,7 +491,7 @@ export default function ConsolePage() {
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
                 placeholder="Search order ID or phone…"
-                style={{ flex: "1 1 180px", border: "1px solid var(--line)", padding: "7px 10px", fontSize: 13, background: "#fff" }}
+                style={{ flex: "1 1 180px", border: "1px solid var(--line)", borderRadius: "var(--r-pill)", padding: "7px 14px", fontSize: 13, background: "#fff" }}
               />
               {ordersFiltered && (
                 <button
@@ -529,7 +529,8 @@ export default function ConsolePage() {
                     marginTop: 8,
                     width: "100%",
                     border: "1px solid var(--line)",
-                    padding: "6px 8px",
+                    borderRadius: "var(--r-sm)",
+                    padding: "8px 10px",
                     fontSize: 13.5,
                     background: "#fff",
                   }}

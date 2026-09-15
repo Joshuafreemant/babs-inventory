@@ -136,7 +136,7 @@ export function CheckoutModal({
           </div>
 
           {hasBackorder && (
-            <div className="flex items-start gap-2" style={{ background: "#F3E9D6", padding: "10px 12px", marginTop: 14 }}>
+            <div className="flex items-start gap-2" style={{ background: "#F3E9D6", borderRadius: "var(--r-sm)", padding: "10px 12px", marginTop: 14 }}>
               <span>&#9888;</span>
               <p style={{ fontSize: 15.5, color: "#7A5210", margin: 0 }}>
                 Some items are out of current stock &mdash; we&apos;ll dispatch those from our regional store.
@@ -182,7 +182,8 @@ export function CheckoutModal({
               key={m.id}
               className="flex items-start gap-2"
               style={{
-                border: `1px solid ${method === m.id ? "var(--navy)" : "var(--line)"}`,
+                border: `1.5px solid ${method === m.id ? "var(--navy)" : "var(--line)"}`,
+                borderRadius: "var(--r-sm)",
                 padding: "10px 12px",
                 marginBottom: 9,
                 cursor: "pointer",
@@ -202,7 +203,7 @@ export function CheckoutModal({
             </label>
           ))}
           {method === "transfer" && (
-            <div style={{ background: "var(--cream-soft)", border: "1px solid var(--line)", padding: "11px 13px", marginBottom: 6 }}>
+            <div style={{ background: "var(--cream-soft)", border: "1px solid var(--line)", borderRadius: "var(--r-sm)", padding: "11px 13px", marginBottom: 6 }}>
               {hasPaymentDetails ? (
                 <>
                   {payment?.accountName && <p style={{ fontSize: 16, margin: 0 }}>{payment.accountName}</p>}

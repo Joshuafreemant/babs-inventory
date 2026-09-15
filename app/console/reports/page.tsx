@@ -166,11 +166,11 @@ export default function ReportsPage() {
           <span className="small-caps" style={{ color: "var(--ink-soft)" }}>
             Count
           </span>
-          <div className="flex" style={{ border: "1px solid var(--line)" }}>
+          <div className="flex" style={{ background: "var(--cream-soft)", borderRadius: "var(--r-pill)", padding: 3, gap: 2 }}>
             <button
               className="btn btn-sm"
               style={{
-                background: basis === "paid" ? "var(--navy)" : "#fff",
+                background: basis === "paid" ? "var(--navy)" : "transparent",
                 color: basis === "paid" ? "var(--gold-light)" : "var(--ink-soft)",
               }}
               onClick={() => setBasis("paid")}
@@ -180,7 +180,7 @@ export default function ReportsPage() {
             <button
               className="btn btn-sm"
               style={{
-                background: basis === "all" ? "var(--navy)" : "#fff",
+                background: basis === "all" ? "var(--navy)" : "transparent",
                 color: basis === "all" ? "var(--gold-light)" : "var(--ink-soft)",
               }}
               onClick={() => setBasis("all")}
