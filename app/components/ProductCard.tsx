@@ -18,6 +18,10 @@ interface Props {
 
 export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, preview }: Props) {
   const s = stockStripe(p);
+  // "In stock" / "Selling fast" are routine noise on a 2-up card — only the
+  // states that actually change what a buyer can do (out of stock, backorder)
+  // are worth a line here.
+  const hideRoutineLabel = s.label === "In stock" || s.label === "Selling fast";
   const [zoomed, setZoomed] = useState(false);
 
   return (
@@ -117,8 +121,8 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         <p className="serif" style={{ fontWeight: 600, fontSize: 19, margin: 0, lineHeight: 1.3 }}>
           {p.name || "Untitled product"}
         </p>
-        <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "4px 0 9px" }}>
-          Sold per box &middot; packed {p.boxesPerCarton} to a carton
+        <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "4px 0 7px" }}>
+          Sold per box &middot; {p.boxesPerCarton} boxes/carton
         </p>
         <div
           className="flex items-baseline justify-between flex-wrap"
@@ -131,16 +135,19 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
             {naira(p.price || 0)}{" "}
             <span style={{ fontSize: 14.5, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
           </p>
-          <p style={{ fontSize: 14.5, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
-            {s.label}
-            {p.showStock && p.stock > 0 ? ` · ${p.stock} left` : ""}
-          </p>
+          {(!hideRoutineLabel || (p.showStock && p.stock > 0)) && (
+            <p style={{ fontSize: 13, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
+              {!hideRoutineLabel && s.label}
+              {!hideRoutineLabel && p.showStock && p.stock > 0 ? " · " : ""}
+              {p.showStock && p.stock > 0 ? `${p.stock} left` : ""}
+            </p>
+          )}
         </div>
 
         {!preview && (
           <div className="flex items-center gap-2" style={{ flexWrap: "wrap" }}>
-            <div className="stepper" style={{ fontSize: 16.5, flexShrink: 0 }}>
-              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 18.5 }}>
+            <div className="stepper" style={{ fontSize: 15, flexShrink: 0 }}>
+              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 16 }}>
                 &minus;
               </button>
               <input
@@ -156,14 +163,14 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
                 }}
                 onFocus={(e) => e.currentTarget.select()}
               />
-              <button onClick={onInc} aria-label="increase" style={{ fontSize: 18.5 }}>
+              <button onClick={onInc} aria-label="increase" style={{ fontSize: 16 }}>
                 +
               </button>
             </div>
             <button
               className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
               onClick={onAdd}
-              style={{ fontSize: 16.5, flex: "1 1 100px", whiteSpace: "nowrap", padding: "10px 12px" }}
+              style={{ fontSize: 14.5, flex: "1 1 100px", whiteSpace: "nowrap", padding: "10px 12px" }}
             >
               Add to order
             </button>
