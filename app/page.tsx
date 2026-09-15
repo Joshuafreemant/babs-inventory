@@ -229,7 +229,7 @@ export default function Storefront() {
       <SiteHeader />
 
       {/* hero */}
-      <div style={{ background: "var(--navy)", color: "#fff", padding: "38px var(--gutter) 46px" }}>
+      <div className="hero-panel" style={{ background: "var(--navy)", color: "#fff", padding: "38px var(--gutter) 46px" }}>
         <p className="small-caps" style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 14.5 }}>
           {hero.eyebrow}
         </p>
@@ -259,7 +259,19 @@ export default function Storefront() {
         </div>
       </div>
 
-      <div style={{ padding: "32px var(--gutter) 100px", marginTop: -20 }}>
+      {/* floats over the hero's rounded bottom edge on phones only; the
+          desktop search field lives inline next to the section label below */}
+      <div className="search-float">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search products…"
+          aria-label="Search products"
+        />
+      </div>
+
+      <div className="storefront-body" style={{ padding: "32px var(--gutter) 100px", marginTop: -20 }}>
         {showTrack && (
           <div ref={trackRef} style={{ scrollMarginTop: 14 }}>
             <TrackPanel initialPhone={trackPhone} />
@@ -276,7 +288,7 @@ export default function Storefront() {
         )}
 
         <div
-          className="flex items-center justify-between flex-wrap gap-2"
+          className="search-inline flex items-center justify-between flex-wrap gap-2"
           style={{ margin: "0 0 14px" }}
         >
           <p className="small-caps" style={{ color: "var(--ink-soft)", margin: 0, fontSize: 14.5 }}>
@@ -297,6 +309,12 @@ export default function Storefront() {
             }}
           />
         </div>
+
+        {/* phones show the section label on its own line — the search box
+            already floated up over the hero above */}
+        <p className="small-caps catalogue-label-mobile" style={{ color: "var(--ink-soft)", margin: "0 0 14px", fontSize: 14.5, display: "none" }}>
+          Product Catalogue
+        </p>
 
         {query.trim() && (
           <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 12px" }}>
@@ -338,7 +356,7 @@ export default function Storefront() {
 
         {totalQty > 0 && (
           <div
-            className="flex items-center justify-between flex-wrap gap-2"
+            className="cart-bar flex items-center justify-between flex-wrap gap-2"
             style={{
               position: "sticky",
               bottom: 12,

@@ -416,6 +416,58 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Mobile storefront: read like the app-mockup — rounded hero,
+   a search bar that floats and overlaps the hero, a pill-shaped
+   floating cart bar instead of a flush bottom bar.
+   Desktop keeps the current flat/edge-to-edge layout.
+   ───────────────────────────────────────────────────────────── */
+.search-float {
+  display: none;
+}
+@media (max-width: 560px) {
+  .hero-panel {
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    padding-bottom: 56px !important;
+  }
+  .search-float {
+    display: block;
+    margin: -38px var(--gutter) 22px;
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-md);
+    padding: 5px 8px;
+  }
+  .search-float input {
+    border: none;
+    background: transparent;
+    padding: 10px 6px;
+    font-size: 16.5px;
+    width: 100%;
+    outline: none;
+    color: var(--ink);
+  }
+  .search-inline {
+    display: none;
+  }
+  .catalogue-label-mobile {
+    display: block !important;
+  }
+  .storefront-body {
+    margin-top: 0 !important;
+  }
+  .cart-bar {
+    left: 16px !important;
+    right: 16px !important;
+    bottom: 16px !important;
+    width: auto !important;
+    border-radius: var(--r-pill) !important;
+    padding: 10px 10px 10px 20px !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
