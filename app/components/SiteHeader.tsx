@@ -2,11 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 /** Shared top bar. `onStaffSignout` shows the Sign out button when on the console. */
 export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) {
   const pathname = usePathname();
   const onConsole = pathname?.startsWith("/console");
+
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    setOffline(!navigator.onLine);
+    const goOnline = () => setOffline(false);
+    const goOffline = () => setOffline(true);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
 
   const tab = (active: boolean) => ({
     background: active ? "var(--gold)" : "transparent",
@@ -14,6 +28,21 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
   });
 
   return (
+    <>
+    {offline && (
+      <div
+        style={{
+          padding: "7px var(--gutter)",
+          background: "var(--gold)",
+          color: "var(--navy-deep)",
+          fontSize: 13.5,
+          fontWeight: 600,
+          textAlign: "center",
+        }}
+      >
+        You&apos;re offline — showing the last saved catalogue. Orders need a connection.
+      </div>
+    )}
     <div
       className="flex items-center justify-between"
       style={{
@@ -81,5 +110,6 @@ export function SiteHeader({ onStaffSignout }: { onStaffSignout?: () => void }) 
         )}
       </div>
     </div>
+    </>
   );
 }

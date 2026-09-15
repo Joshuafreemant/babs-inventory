@@ -14,6 +14,7 @@ import { ConsoleTabs } from "../components/console/ConsoleTabs";
 import { DeleteProductModal } from "../components/console/DeleteProductModal";
 import { EditProductModal } from "../components/console/EditProductModal";
 import { ImportProductsModal } from "../components/console/ImportProductsModal";
+import { PushToggle } from "../components/console/PushToggle";
 import { useInfiniteList } from "../components/console/useInfiniteList";
 import { InfiniteFooter } from "../components/console/InfiniteFooter";
 import { Product, ConsoleOrder, ConsoleStats, StaffSession } from "../types";
@@ -203,6 +204,7 @@ export default function ConsolePage() {
               Import
             </button>
             */}
+            <PushToggle />
             <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
               + Add product
             </button>

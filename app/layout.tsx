@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { PwaRegister } from "./components/PwaRegister";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,12 +20,22 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Embassy Pharmaceutical & Chemicals Limited",
   description: "Your Visa to Healthy Living — trade catalogue and rep console.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Embassy",
+  },
+  icons: {
+    apple: "/pwa/icon-192.png",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#0F2A3D",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -32,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
       <body style={{ fontFamily: "var(--font-inter), Inter, system-ui, sans-serif" }}>
         <style>{`.serif{font-family:var(--font-newsreader),Georgia,serif}`}</style>
+        <PwaRegister />
         {children}
         <Toaster
           position="top-center"

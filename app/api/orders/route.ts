@@ -126,6 +126,7 @@ export async function POST(req: Request) {
         const fails: string[] = [];
         if (!r.sms.ok && !r.sms.skipped) fails.push(`SMS: ${r.sms.error || "failed"}`);
         if (!r.email.ok && !r.email.skipped) fails.push(`Email: ${r.email.error || "failed"}`);
+        if (!r.push.ok && !r.push.skipped) fails.push(`Push: ${r.push.error || "failed"}`);
         if (fails.length) {
           writeAudit({
             staffId: "system",

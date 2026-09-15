@@ -21,4 +21,5 @@ export const apiPost = <T>(url: string, body?: unknown) =>
 export const apiPatch = <T>(url: string, body?: unknown) =>
   request<T>(url, { method: "PATCH", body: body ? JSON.stringify(body) : undefined });
 
-export const apiDelete = <T>(url: string) => request<T>(url, { method: "DELETE" });
+export const apiDelete = <T>(url: string, body?: unknown) =>
+  request<T>(url, { method: "DELETE", body: body ? JSON.stringify(body) : undefined });

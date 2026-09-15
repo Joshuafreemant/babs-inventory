@@ -14,6 +14,8 @@ import {
   testEmailContent,
   OrderEmailInput,
 } from "./email";
+import { sendPushToAllStaff, pushConfigured } from "./webpush";
+import { naira } from "./money";
 
 function envNumbers(): string[] {
   return (process.env.ADMIN_ALERT_NUMBERS || "")
@@ -43,6 +45,7 @@ export function notifyStatus() {
   return {
     sms: { configured: smsConfigured(), provider: providerLabel(), senderId: senderId() },
     email: { configured: emailConfigured(), from: emailFrom() },
+    push: { configured: pushConfigured() },
   };
 }
 
@@ -67,11 +70,16 @@ export async function notifyNewOrder(o: NewOrderInfo) {
   });
   const mail = orderEmailContent(o);
 
-  const [sms, email] = await Promise.all([
+  const [sms, email, push] = await Promise.all([
     phones.length ? sendSms(phones, smsText) : Promise.resolve(skipped),
     emails.length ? sendEmail(emails, mail.subject, mail.html, mail.text) : Promise.resolve(skipped),
+    sendPushToAllStaff({
+      title: `New order · ${o.code}`,
+      body: `${o.customerName} · ${o.boxes} box${o.boxes === 1 ? "" : "es"} · ${naira(o.total)}`,
+      url: "/console",
+    }),
   ]);
-  return { sms, email, phones: phones.length, emails: emails.length };
+  return { sms, email, push, phones: phones.length, emails: emails.length };
 }
 
 /** Send a test SMS + test email to every active recipient. */
