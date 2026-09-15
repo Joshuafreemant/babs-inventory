@@ -130,10 +130,10 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         >
           <p
             className="serif"
-            style={{ fontWeight: 700, fontSize: 18.5, color: "var(--navy)", margin: 0, whiteSpace: "nowrap" }}
+            style={{ fontWeight: 700, fontSize: 16.5, color: "var(--navy)", margin: 0, whiteSpace: "nowrap" }}
           >
             {naira(p.price || 0)}{" "}
-            <span style={{ fontSize: 14.5, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
           </p>
           {(!hideRoutineLabel || (p.showStock && p.stock > 0)) && (
             <p style={{ fontSize: 13, color: s.color, fontWeight: 600, margin: 0, textAlign: "right" }}>
@@ -146,8 +146,8 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
 
         {!preview && (
           <div className="flex items-center gap-2" style={{ flexWrap: "wrap" }}>
-            <div className="stepper" style={{ fontSize: 15, flexShrink: 0 }}>
-              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 16 }}>
+            <div className="stepper" style={{ fontSize: 13.5, flexShrink: 0 }}>
+              <button onClick={onDec} aria-label="decrease" style={{ fontSize: 14 }}>
                 &minus;
               </button>
               <input
@@ -163,14 +163,14 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
                 }}
                 onFocus={(e) => e.currentTarget.select()}
               />
-              <button onClick={onInc} aria-label="increase" style={{ fontSize: 16 }}>
+              <button onClick={onInc} aria-label="increase" style={{ fontSize: 14 }}>
                 +
               </button>
             </div>
             <button
               className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
               onClick={onAdd}
-              style={{ fontSize: 14.5, flex: "1 1 100px", whiteSpace: "nowrap", padding: "10px 12px" }}
+              style={{ fontSize: 13, flex: "1 1 100px", whiteSpace: "nowrap", padding: "9px 12px" }}
             >
               Add to order
             </button>
