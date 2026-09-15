@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Product } from "../types";
 import { ProductArt } from "./ProductArt";
-import { naira } from "../lib/money";
+import { naira, stockStripe } from "../lib/money";
 
 interface Props {
   product: Product;
@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, preview }: Props) {
+  const s = stockStripe(p);
   const [zoomed, setZoomed] = useState(false);
 
   return (
@@ -31,6 +32,25 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         }}
         onClick={() => p.imageUrl && setZoomed(true)}
       >
+        <span
+          style={{
+            position: "absolute",
+            top: 6,
+            left: 6,
+            zIndex: 1,
+            fontSize: 7,
+            fontWeight: 700,
+            color: "#fff",
+            background: s.color,
+            padding: "2px 6px",
+            borderRadius: "var(--r-pill)",
+            letterSpacing: "0.02em",
+            textTransform: "uppercase",
+          }}
+        >
+          {s.label}
+          {p.showStock && p.stock > 0 ? ` · ${p.stock} left` : ""}
+        </span>
         {p.imageUrl ? (
           <>
             {/* cover — fills the tile edge to edge; tap to zoom shows the
@@ -119,23 +139,13 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "4px 0 7px" }}>
           Sold per box &middot; {p.boxesPerCarton} boxes/carton
         </p>
-        <div
-          className="flex items-baseline justify-between flex-wrap"
-          style={{ marginBottom: 10, gap: "2px 10px" }}
+        <p
+          className="serif"
+          style={{ fontWeight: 700, fontSize: 16.5, color: "var(--navy)", margin: "0 0 10px", whiteSpace: "nowrap" }}
         >
-          <p
-            className="serif"
-            style={{ fontWeight: 700, fontSize: 16.5, color: "var(--navy)", margin: 0, whiteSpace: "nowrap" }}
-          >
-            {naira(p.price || 0)}{" "}
-            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
-          </p>
-          {p.showStock && p.stock > 0 && (
-            <p style={{ fontSize: 13, color: "var(--ink-soft)", fontWeight: 600, margin: 0, textAlign: "right" }}>
-              {p.stock} left
-            </p>
-          )}
-        </div>
+          {naira(p.price || 0)}{" "}
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
+        </p>
 
         {!preview && (
           <div className="flex items-center gap-2" style={{ flexWrap: "wrap" }}>
