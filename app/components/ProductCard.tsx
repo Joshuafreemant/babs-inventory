@@ -170,13 +170,15 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
                 +
               </button>
             </div>
+            {qty > 0 && (
             <button
-              className={`btn ${qty === 0 ? "btn-disabled" : "btn-primary"}`}
+              className="btn btn-primary"
               onClick={onAdd}
               style={{ fontSize: 13, flex: "1 1 100px", whiteSpace: "nowrap", padding: "9px 12px" }}
             >
               Add to order
             </button>
+            )}
           </div>
         )}
       </div>
