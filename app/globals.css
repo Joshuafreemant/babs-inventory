@@ -411,6 +411,15 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   }
 }
 
+/* Product card: on phones "Add to order" only appears once a qty is set,
+   keeping the card short while browsing. Desktop always shows it (greyed
+   out until a qty is chosen), matching the previous behaviour there. */
+@media (max-width: 560px) {
+  .add-to-order-btn.btn-disabled {
+    display: none;
+  }
+}
+
 /* Storefront / Rep console pill toggle in the header — grouped with a
    rounded outline on desktop; on phones the border is dropped since the
    two pill buttons already read as their own control */
