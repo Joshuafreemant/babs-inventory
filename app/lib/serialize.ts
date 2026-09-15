@@ -53,6 +53,7 @@ export function orderForConsole(o: any) {
       unitPrice: i.unitPrice,
       lineTotal: i.lineTotal,
       backordered: i.backordered,
+      boxesPerCarton: i.boxesPerCarton || 1,
     })),
     itemsSummary: o.items.map((i: any) => `${i.name} x${i.qty}`).join(", "),
     total: o.total,

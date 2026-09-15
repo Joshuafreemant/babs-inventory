@@ -69,6 +69,7 @@ export async function POST(req: Request) {
         unitPrice: p.price,
         lineTotal,
         backordered,
+        boxesPerCarton: p.boxesPerCarton,
       });
     }
 

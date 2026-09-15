@@ -385,6 +385,13 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   }
 }
 
+/* stacked (phone/tablet) layout only: recent orders read before the ledger */
+@media (max-width: 899px) {
+  .orders-panel {
+    order: -1;
+  }
+}
+
 /* modals hug the top and use the full width on small screens */
 @media (max-width: 560px) {
   .modal-backdrop {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Product } from "../types";
 import { ProductArt } from "./ProductArt";
 import { naira, stockStripe } from "../lib/money";
@@ -17,22 +18,101 @@ interface Props {
 
 export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, preview }: Props) {
   const s = stockStripe(p);
+  const [zoomed, setZoomed] = useState(false);
 
   return (
     <div className="card flex flex-col">
-      <div className="art-panel" style={{ height: 180, padding: p.imageUrl ? 14 : "20px 0", overflow: "hidden" }}>
+      <div
+        className="art-panel"
+        style={{
+          height: 180,
+          padding: p.imageUrl ? 14 : "20px 0",
+          overflow: "hidden",
+          position: "relative",
+          cursor: p.imageUrl ? "zoom-in" : "default",
+        }}
+        onClick={() => p.imageUrl && setZoomed(true)}
+      >
         {p.imageUrl ? (
-          // contain, not cover — the whole photo shows, nothing gets cropped off
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.imageUrl}
-            alt={p.name}
-            style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
-          />
+          <>
+            {/* contain, not cover — the whole photo shows, nothing gets cropped off */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.imageUrl}
+              alt={p.name}
+              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+            />
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                bottom: 8,
+                right: 8,
+                width: 26,
+                height: 26,
+                borderRadius: "50%",
+                background: "rgba(15,42,61,0.72)",
+                color: "#fff",
+                fontSize: 13,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              &#128269;
+            </span>
+          </>
         ) : (
           <ProductArt kind={p.category} />
         )}
       </div>
+
+      {zoomed && p.imageUrl && (
+        <div
+          className="modal-backdrop"
+          style={{ zIndex: 300 }}
+          onClick={() => setZoomed(false)}
+        >
+          <div style={{ position: "relative", maxWidth: "92vw", maxHeight: "92vh" }} onClick={(e) => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.imageUrl}
+              alt={p.name}
+              style={{
+                maxWidth: "92vw",
+                maxHeight: "92vh",
+                objectFit: "contain",
+                display: "block",
+                borderRadius: "var(--r-md)",
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setZoomed(false)}
+              aria-label="Close"
+              style={{
+                position: "absolute",
+                top: -14,
+                right: -14,
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                border: "none",
+                background: "#fff",
+                color: "var(--navy)",
+                fontSize: 20,
+                cursor: "pointer",
+                boxShadow: "var(--shadow-md)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ padding: "15px 16px", borderTop: "1px solid var(--line)" }}>
         <p className="serif" style={{ fontWeight: 600, fontSize: 19, margin: 0, lineHeight: 1.3 }}>
           {p.name || "Untitled product"}

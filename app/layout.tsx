@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -32,6 +33,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: "var(--font-inter), Inter, system-ui, sans-serif" }}>
         <style>{`.serif{font-family:var(--font-newsreader),Georgia,serif}`}</style>
         {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "var(--navy)",
+              color: "#fff",
+              borderRadius: "var(--r-pill)",
+              padding: "10px 18px",
+              fontSize: "14.5px",
+              fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+              boxShadow: "var(--shadow-md)",
+            },
+            success: { iconTheme: { primary: "var(--sage)", secondary: "#fff" } },
+            error: { iconTheme: { primary: "var(--gold)", secondary: "var(--navy)" } },
+          }}
+        />
       </body>
     </html>
   );

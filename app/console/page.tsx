@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { SiteHeader } from "../components/SiteHeader";
-import { useToast } from "../components/Toast";
 import { StatusPill } from "../components/StatusPill";
 import { RepAuth } from "../components/console/RepAuth";
 import { AddProductModal } from "../components/console/AddProductModal";
@@ -23,7 +23,6 @@ import { naira, cartonBreakdown, isLowStock, STATUS_LABEL } from "../lib/money";
 const STATUS_OPTIONS = ["reserved", "awaiting_transfer", "paid", "dispatched", "collected", "cancelled"];
 
 export default function ConsolePage() {
-  const [toastNode, showToast] = useToast();
   const [session, setSession] = useState<StaffSession | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -131,7 +130,7 @@ export default function ConsolePage() {
       const updated = await apiPatch<Product>(`/api/admin/products/${p.id}`, { op: "adjust", delta });
       replaceProduct(updated);
     } catch (e: any) {
-      showToast(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -144,7 +143,7 @@ export default function ConsolePage() {
       const updated = await apiPatch<Product>(`/api/admin/products/${p.id}`, { op: "flags", [flag]: value });
       replaceProduct(updated);
     } catch (e: any) {
-      showToast(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -153,9 +152,9 @@ export default function ConsolePage() {
       const updated = await apiPatch<ConsoleOrder>(`/api/admin/orders/${o.id}`, { status });
       setOrders((list) => list.map((x) => (x.id === o.id ? updated : x)));
       refreshStats();
-      showToast(`${o.code} → ${STATUS_LABEL[status]}`);
+      toast.success(`${o.code} → ${STATUS_LABEL[status]}`);
     } catch (e: any) {
-      showToast(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -190,7 +189,6 @@ export default function ConsolePage() {
 
   return (
     <div>
-      {toastNode}
       <SiteHeader onStaffSignout={signOut} />
       <ConsoleTabs active="desk" role={session.role} />
 
@@ -230,7 +228,7 @@ export default function ConsolePage() {
         <div className="grid-split" style={{ alignItems: "start" }}>
           {/* inventory ledger */}
           <div
-            className="card"
+            className="card ledger-panel"
             style={{
               display: "flex",
               flexDirection: "column",
@@ -326,7 +324,7 @@ export default function ConsolePage() {
                     <ProductPhotoCell
                       product={p}
                       onChange={replaceProduct}
-                      onError={showToast}
+                      onError={(msg: string) => toast.error(msg)}
                     />
                     <label className="check">
                       <input
@@ -386,7 +384,7 @@ export default function ConsolePage() {
 
           {/* recent orders */}
           <div
-            className="card"
+            className="card orders-panel"
             style={{
               display: "flex",
               flexDirection: "column",
@@ -513,7 +511,28 @@ export default function ConsolePage() {
                   <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{o.customerName}</p>
                   <StatusPill status={o.status} label={STATUS_LABEL[o.status] || o.status} />
                 </div>
-                <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "4px 0 0" }}>{o.itemsSummary}</p>
+                <div style={{ margin: "4px 0 0" }}>
+                  {o.items.map((it, idx) => {
+                    const bpc = it.boxesPerCarton || 1;
+                    const bd = bpc > 1 ? cartonBreakdown(it.qty, bpc) : null;
+                    return (
+                      <p
+                        key={idx}
+                        style={{ fontSize: 13, color: "var(--ink-soft)", margin: idx === 0 ? 0 : "2px 0 0" }}
+                      >
+                        {it.name} <span style={{ fontWeight: 600, color: "var(--ink)" }}>x{it.qty}</span>
+                        {bd && bd.cartons > 0 && (
+                          <span>
+                            {" "}
+                            &middot; {bd.cartons} carton{bd.cartons === 1 ? "" : "s"}
+                            {bd.loose ? ` + ${bd.loose} box${bd.loose === 1 ? "" : "es"}` : ""}
+                          </span>
+                        )}
+                        {it.backordered && <span style={{ color: "var(--gold)" }}> &middot; backorder</span>}
+                      </p>
+                    );
+                  })}
+                </div>
                 <div className="flex items-center justify-between" style={{ marginTop: 5 }}>
                   <span style={{ fontSize: 12.5, color: "var(--ink-soft)" }}>
                     {o.code} &middot; {o.phone}
@@ -560,7 +579,7 @@ export default function ConsolePage() {
         </div>
 
         <ShareLinkCard session={session} />
-        <AlertRecipients onToast={showToast} />
+        <AlertRecipients onToast={(msg: string) => toast(msg)} />
       </div>
 
       {showAdd && (
@@ -569,7 +588,7 @@ export default function ConsolePage() {
           onAdded={(p, stock) => {
             setProducts((list) => [...list, p]);
             setProductTotal((n) => (n ?? 0) + 1);
-            showToast(`${p.name} added — ${stock.toLocaleString("en-NG")} boxes`);
+            toast.success(`${p.name} added — ${stock.toLocaleString("en-NG")} boxes`);
           }}
         />
       )}
@@ -579,7 +598,7 @@ export default function ConsolePage() {
           onClose={() => setRestockFor(null)}
           onRestocked={(p, added) => {
             replaceProduct(p);
-            showToast(`${p.name}: +${added.toLocaleString("en-NG")} boxes`);
+            toast.success(`${p.name}: +${added.toLocaleString("en-NG")} boxes`);
           }}
         />
       )}
@@ -592,7 +611,7 @@ export default function ConsolePage() {
             setProducts((list) => list.filter((x) => x.id !== id));
             setProductTotal((n) => (n == null ? n : Math.max(0, n - 1)));
             setDeleteFor(null);
-            showToast(hard ? `${name} removed` : `${name} hidden — kept for sales history`);
+            toast.success(hard ? `${name} removed` : `${name} hidden — kept for sales history`);
           }}
         />
       )}
@@ -602,7 +621,7 @@ export default function ConsolePage() {
           onClose={() => setEditFor(null)}
           onSaved={(p) => {
             replaceProduct(p);
-            showToast(`${p.name} updated`);
+            toast.success(`${p.name} updated`);
           }}
         />
       )}
@@ -612,7 +631,7 @@ export default function ConsolePage() {
           onImported={(created) => {
             setProducts((list) => [...list, ...created]);
             setProductTotal((n) => (n ?? 0) + created.length);
-            showToast(`${created.length} product${created.length === 1 ? "" : "s"} imported`);
+            toast.success(`${created.length} product${created.length === 1 ? "" : "s"} imported`);
           }}
         />
       )}

@@ -8,6 +8,7 @@ import { StaffSession } from "../../types";
 import { apiGet, apiPost, apiPatch, apiDelete } from "../../lib/api";
 import { Hero, DEFAULT_HERO } from "../../lib/heroDefaults";
 import { displayPhone } from "../../lib/phone";
+import { BankPicker } from "../../components/console/BankPicker";
 
 const HERO_LIMITS = { eyebrow: 80, headline: 240, subtext: 400 };
 
@@ -412,17 +413,13 @@ export default function SettingsPage() {
           {paymentNote && <p style={{ fontSize: 14, color: "var(--sage)", margin: "0 0 12px" }}>{paymentNote}</p>}
 
           <div className="flex flex-col gap-2" style={{ marginBottom: 14 }}>
-            <div className="field">
-              <span className="icon">&#127974;</span>
-              <input
-                placeholder="Bank name"
-                value={payment.bankName}
-                onChange={(e) => {
-                  setPayment((p) => ({ ...p, bankName: e.target.value }));
-                  setPaymentNote("");
-                }}
-              />
-            </div>
+            <BankPicker
+              value={payment.bankName}
+              onChange={(name) => {
+                setPayment((p) => ({ ...p, bankName: name }));
+                setPaymentNote("");
+              }}
+            />
             <div className="field">
               <span className="icon">&#128179;</span>
               <input

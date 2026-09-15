@@ -99,6 +99,70 @@ export function ProductArt({ kind }: { kind: Category }) {
           {label}
         </svg>
       );
+    case "granule":
+      // a crimped sachet, wider than tall
+      return (
+        <svg {...common}>
+          {grad}
+          <ellipse cx="40" cy="112" rx="30" ry="6" fill="#000" opacity="0.08" />
+          <path
+            d="M14 40 q0 -10 10 -12 l32 0 q10 2 10 12 v50 q0 12 -12 14 h-28 q-12 -2 -12 -14 z"
+            fill={`url(#${gid})`}
+          />
+          <rect x="14" y="38" width="52" height="6" fill="#8C6A3A" />
+          <rect x="14" y="94" width="52" height="6" fill="#8C6A3A" />
+          <rect x="18" y="58" width="44" height="24" fill="#F7F3EA" />
+          <rect x="18" y="68" width="44" height="2" fill="#B8935A" />
+          <text x="40" y="75" fontFamily="Newsreader,serif" fontSize="11" fill="#0F2A3D" textAnchor="middle">
+            E
+          </text>
+        </svg>
+      );
+    case "cream":
+      // a wide, shallow tub — flatter than the "jar" upright tub
+      return (
+        <svg {...common}>
+          {grad}
+          <ellipse cx="40" cy="108" rx="30" ry="6" fill="#000" opacity="0.08" />
+          <path d="M14 46 h52 v50 a10 10 0 0 1 -10 10 h-32 a10 10 0 0 1 -10 -10 z" fill={`url(#${gid})`} />
+          <rect x="10" y="34" width="60" height="16" rx="4" fill="#B8935A" />
+          <rect x="16" y="66" width="48" height="24" fill="#F7F3EA" />
+          <rect x="16" y="76" width="48" height="2" fill="#B8935A" />
+          <text x="40" y="83" fontFamily="Newsreader,serif" fontSize="11" fill="#0F2A3D" textAnchor="middle">
+            E
+          </text>
+        </svg>
+      );
+    case "powder":
+      // a tall cylindrical tin with a flat lid
+      return (
+        <svg {...common}>
+          {grad}
+          <ellipse cx="40" cy="122" rx="26" ry="6" fill="#000" opacity="0.08" />
+          <rect x="18" y="8" width="44" height="12" rx="2" fill="#B8935A" />
+          <path d="M20 20 h40 v96 a4 4 0 0 1 -4 4 h-32 a4 4 0 0 1 -4 -4 z" fill={`url(#${gid})`} />
+          <rect x="16" y="56" width="48" height="26" fill="#F7F3EA" />
+          <rect x="16" y="67" width="48" height="2" fill="#B8935A" />
+          <text x="40" y="74" fontFamily="Newsreader,serif" fontSize="11" fill="#0F2A3D" textAnchor="middle">
+            E
+          </text>
+        </svg>
+      );
+    case "condom":
+      // a small flat blister/box pack
+      return (
+        <svg {...common}>
+          {grad}
+          <ellipse cx="40" cy="100" rx="26" ry="6" fill="#000" opacity="0.08" />
+          <rect x="14" y="34" width="52" height="64" rx="4" fill={`url(#${gid})`} />
+          <rect x="14" y="34" width="52" height="14" rx="4" fill="#B8935A" />
+          <rect x="18" y="58" width="44" height="30" fill="#F7F3EA" />
+          <rect x="18" y="70" width="44" height="2" fill="#B8935A" />
+          <text x="40" y="78" fontFamily="Newsreader,serif" fontSize="11" fill="#0F2A3D" textAnchor="middle">
+            E
+          </text>
+        </svg>
+      );
     case "bottle":
     default:
       return (

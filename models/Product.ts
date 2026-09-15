@@ -11,7 +11,7 @@ const productSchema = new Mongoose.Schema(
     // art / category — drives which illustration the storefront renders
     category: {
       type: String,
-      enum: ["bottle", "syrup", "jar", "pump", "tube", "dropper"],
+      enum: ["bottle", "syrup", "jar", "pump", "tube", "dropper", "granule", "cream", "powder", "condom"],
       default: "bottle",
     },
     boxesPerCarton: { type: Number, required: true, min: 1 },
@@ -30,7 +30,7 @@ const productSchema = new Mongoose.Schema(
 
 export interface IProduct {
   name: string;
-  category: "bottle" | "syrup" | "jar" | "pump" | "tube" | "dropper";
+  category: "bottle" | "syrup" | "jar" | "pump" | "tube" | "dropper" | "granule" | "cream" | "powder" | "condom";
   boxesPerCarton: number;
   price: number;
   stock: number;

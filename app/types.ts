@@ -1,4 +1,14 @@
-export type Category = "bottle" | "syrup" | "jar" | "pump" | "tube" | "dropper";
+export type Category =
+  | "bottle"
+  | "syrup"
+  | "jar"
+  | "pump"
+  | "tube"
+  | "dropper"
+  | "granule"
+  | "cream"
+  | "powder"
+  | "condom";
 
 export interface Product {
   id: string;
@@ -29,7 +39,14 @@ export interface ConsoleOrder {
   customerName: string;
   phone: string;
   email: string;
-  items: { name: string; qty: number; unitPrice: number; lineTotal: number; backordered: boolean }[];
+  items: {
+    name: string;
+    qty: number;
+    unitPrice: number;
+    lineTotal: number;
+    backordered: boolean;
+    boxesPerCarton?: number;
+  }[];
   itemsSummary: string;
   total: number;
   method: "stand" | "transfer";
@@ -69,6 +86,10 @@ export const CATEGORIES: { id: Category; label: string }[] = [
   { id: "pump", label: "Pump bottle" },
   { id: "tube", label: "Tube" },
   { id: "dropper", label: "Dropper bottle" },
+  { id: "granule", label: "Granules sachet" },
+  { id: "cream", label: "Cream / ointment tub" },
+  { id: "powder", label: "Powder tin" },
+  { id: "condom", label: "Condom pack" },
 ];
 
 export const CARTON_PRESETS = [12, 20, 24, 30, 36, 48, 60];

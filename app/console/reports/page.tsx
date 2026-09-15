@@ -5,11 +5,22 @@ import { SiteHeader } from "../../components/SiteHeader";
 import { RepAuth } from "../../components/console/RepAuth";
 import { ConsoleTabs } from "../../components/console/ConsoleTabs";
 import { SalesBars } from "../../components/console/SalesBars";
+import { useInfiniteList } from "../../components/console/useInfiniteList";
+import { InfiniteFooter } from "../../components/console/InfiniteFooter";
 import { StaffSession } from "../../types";
 import { apiGet, apiPost } from "../../lib/api";
 import { naira } from "../../lib/money";
 
-interface Report {
+interface PerProductRow {
+  productId: string;
+  name: string;
+  boxes: number;
+  revenue: number;
+  orders: number;
+  sharePct: number;
+}
+
+interface ReportMeta {
   range: { from: string; to: string; label: string; bucket: "day" | "week"; basis: "paid" | "all" };
   totals: {
     revenue: number;
@@ -29,14 +40,7 @@ interface Report {
     sharePct: number;
   }[];
   byMethod: Record<string, { orders: number; revenue: number }>;
-  perProduct: {
-    productId: string;
-    name: string;
-    boxes: number;
-    revenue: number;
-    orders: number;
-    sharePct: number;
-  }[];
+  perProductTotal: number;
   series: { date: string; revenue: number; orders: number }[];
 }
 
@@ -53,9 +57,8 @@ export default function ReportsPage() {
   const [authChecked, setAuthChecked] = useState(false);
   const [range, setRange] = useState("30d");
   const [basis, setBasis] = useState<"paid" | "all">("paid");
-  const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [meta, setMeta] = useState<ReportMeta | null>(null);
+  const [csvBusy, setCsvBusy] = useState(false);
 
   useEffect(() => {
     apiGet<StaffSession>("/api/staff/me")
@@ -64,49 +67,71 @@ export default function ReportsPage() {
       .finally(() => setAuthChecked(true));
   }, []);
 
-  useEffect(() => {
-    if (!session) return;
-    setLoading(true);
-    setError("");
-    apiGet<Report>(`/api/admin/reports?range=${range}&basis=${basis}`)
-      .then(setReport)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [session, range, basis]);
+  // "Sales by product" is cursor-paginated; every other field in the
+  // response (totals, series, pipeline, …) always covers the whole range,
+  // so we just grab it off the first page each time range/basis changes.
+  const productsList = useInfiniteList<PerProductRow>({
+    endpoint: `/api/admin/reports?range=${range}&basis=${basis}`,
+    key: "perProduct",
+    limit: 10,
+    enabled: !!session,
+    onPage: (res) => {
+      setMeta({
+        range: res.range,
+        totals: res.totals,
+        pipeline: res.pipeline,
+        bySource: res.bySource,
+        byMethod: res.byMethod,
+        perProductTotal: res.perProductTotal,
+        series: res.series,
+      });
+    },
+  });
+  const products = productsList.items;
+  const loading = productsList.loading && !meta;
 
   const signOut = async () => {
     await apiPost("/api/staff/logout").catch(() => {});
     setSession(null);
   };
 
-  const downloadCsv = () => {
-    if (!report) return;
-    const rows = [
-      [
-        `Embassy sales — ${report.range.label} (${report.range.from} to ${report.range.to})`,
-        basis === "paid" ? "paid orders only" : "all non-cancelled orders",
-      ],
-      [],
-      ["Product", "Boxes sold", "Orders", "Revenue (NGN)", "Share %"],
-      ...report.perProduct.map((p) => [
-        p.name,
-        String(p.boxes),
-        String(p.orders),
-        String(p.revenue),
-        String(p.sharePct),
-      ]),
-      [],
-      ["Total sales", "", String(report.totals.orders), String(report.totals.revenue), "100"],
-    ];
-    const csv = rows
-      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `embassy-sales-${basis}-${report.range.from}-to-${report.range.to}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+  const downloadCsv = async () => {
+    if (!meta) return;
+    setCsvBusy(true);
+    try {
+      // pagination is for the on-screen list only — CSV always exports the full range
+      const full = await apiGet<{ perProduct: PerProductRow[] }>(
+        `/api/admin/reports?range=${range}&basis=${basis}&limit=2000`
+      );
+      const rows = [
+        [
+          `Embassy sales — ${meta.range.label} (${meta.range.from} to ${meta.range.to})`,
+          basis === "paid" ? "paid orders only" : "all non-cancelled orders",
+        ],
+        [],
+        ["Product", "Boxes sold", "Orders", "Revenue (NGN)", "Share %"],
+        ...full.perProduct.map((p) => [
+          p.name,
+          String(p.boxes),
+          String(p.orders),
+          String(p.revenue),
+          String(p.sharePct),
+        ]),
+        [],
+        ["Total sales", "", String(meta.totals.orders), String(meta.totals.revenue), "100"],
+      ];
+      const csv = rows
+        .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `embassy-sales-${basis}-${meta.range.from}-to-${meta.range.to}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setCsvBusy(false);
+    }
   };
 
   if (!authChecked) {
@@ -126,9 +151,8 @@ export default function ReportsPage() {
     );
   }
 
-  const t = report?.totals;
-  const collectedPct =
-    t && t.revenue > 0 ? (t.collectedRevenue / t.revenue) * 100 : 0;
+  const t = meta?.totals;
+  const collectedPct = t && t.revenue > 0 ? (t.collectedRevenue / t.revenue) * 100 : 0;
 
   const tiles = [
     { label: "Total sales", value: t ? naira(t.revenue) : "—" },
@@ -137,7 +161,7 @@ export default function ReportsPage() {
     { label: "Avg order value", value: t ? naira(t.avgOrderValue) : "—" },
   ];
 
-  const maxProductRevenue = Math.max(1, ...(report?.perProduct.map((p) => p.revenue) || [1]));
+  const maxProductRevenue = Math.max(1, ...products.map((p) => p.revenue));
 
   return (
     <div>
@@ -191,16 +215,16 @@ export default function ReportsPage() {
         </div>
 
         <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 22px" }}>
-          {report ? report.range.label : "…"}
-          {report ? ` · ${report.range.from} to ${report.range.to}` : ""}.{" "}
+          {meta ? meta.range.label : "…"}
+          {meta ? ` · ${meta.range.from} to ${meta.range.to}` : ""}.{" "}
           {basis === "paid"
             ? "Only orders marked paid, dispatched or collected count as a sale."
             : "Every non-cancelled order counts, reservations included."}
         </p>
 
-        {error && (
+        {productsList.error && (
           <div className="card" style={{ padding: "14px 18px", marginBottom: 20, color: "var(--rose)" }}>
-            {error}
+            {productsList.error}
           </div>
         )}
 
@@ -222,7 +246,7 @@ export default function ReportsPage() {
         </div>
 
         {/* money split / pipeline */}
-        {t && report && basis === "all" && (
+        {t && meta && basis === "all" && (
           <div className="card" style={{ padding: "16px 18px", marginBottom: 16 }}>
             <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
               <p className="serif" style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
@@ -246,15 +270,15 @@ export default function ReportsPage() {
             </div>
           </div>
         )}
-        {report && basis === "paid" && report.pipeline.orders > 0 && (
+        {meta && basis === "paid" && meta.pipeline.orders > 0 && (
           <div
             className="card"
-            style={{ padding: "14px 18px", marginBottom: 16, borderLeft: "2px solid var(--gold-bright)" }}
+            style={{ padding: "14px 18px", marginBottom: 16, borderLeft: "2px solid var(--gold)" }}
           >
             <p style={{ fontSize: 14.5, margin: 0, color: "var(--ink-soft)", lineHeight: 1.5 }}>
-              <strong style={{ color: "var(--ink)" }}>{naira(report.pipeline.revenue)}</strong> in{" "}
-              {report.pipeline.orders} reserved / unpaid order
-              {report.pipeline.orders === 1 ? "" : "s"} in this period &mdash; not counted above. Mark
+              <strong style={{ color: "var(--ink)" }}>{naira(meta.pipeline.revenue)}</strong> in{" "}
+              {meta.pipeline.orders} reserved / unpaid order
+              {meta.pipeline.orders === 1 ? "" : "s"} in this period &mdash; not counted above. Mark
               them paid on the Order desk once the money is in.
             </p>
           </div>
@@ -262,7 +286,7 @@ export default function ReportsPage() {
 
         {/* time series */}
         <div style={{ marginBottom: 16 }}>
-          {report && <SalesBars series={report.series} bucket={report.range.bucket} />}
+          {meta && <SalesBars series={meta.series} bucket={meta.range.bucket} />}
         </div>
 
         {/* per-product */}
@@ -271,25 +295,32 @@ export default function ReportsPage() {
             className="flex items-center justify-between"
             style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)" }}
           >
-            <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
-              Sales by product
-            </p>
+            <div>
+              <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
+                Sales by product
+              </p>
+              {meta && meta.perProductTotal > 0 && (
+                <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
+                  {products.length} of {meta.perProductTotal}
+                </p>
+              )}
+            </div>
             <button
               className="btn btn-outline btn-sm"
               onClick={downloadCsv}
-              disabled={!report || report.perProduct.length === 0}
+              disabled={!meta || meta.perProductTotal === 0 || csvBusy}
             >
-              Download CSV
+              {csvBusy ? "Preparing…" : "Download CSV"}
             </button>
           </div>
 
-          {report && report.perProduct.length === 0 && (
+          {productsList.ready && products.length === 0 && (
             <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
               No sales in this range.
             </p>
           )}
 
-          {report?.perProduct.map((p) => (
+          {products.map((p) => (
             <div
               key={p.productId}
               style={{
@@ -320,10 +351,11 @@ export default function ReportsPage() {
               </p>
             </div>
           ))}
+          <InfiniteFooter list={productsList} noun="products" count={meta?.perProductTotal ?? products.length} />
         </div>
 
         {/* sales by referral source */}
-        {report && report.bySource.length > 0 && (
+        {meta && meta.bySource.length > 0 && (
           <div className="card" style={{ marginTop: 16 }}>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)" }}>
               <p className="serif" style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>
@@ -333,7 +365,7 @@ export default function ReportsPage() {
                 Which rep&apos;s shared link the buyer came through.
               </p>
             </div>
-            {report.bySource.map((s) => (
+            {meta.bySource.map((s) => (
               <div
                 key={s.source}
                 style={{
@@ -368,13 +400,13 @@ export default function ReportsPage() {
         )}
 
         {/* payment method split */}
-        {report && (
+        {meta && (
           <div className="grid-tiles" style={{ marginTop: 16 }}>
             {[
               { key: "stand", label: "Reserved — pay at stand" },
               { key: "transfer", label: "Bank transfer" },
             ].map((m) => {
-              const d = report.byMethod[m.key] || { orders: 0, revenue: 0 };
+              const d = meta.byMethod[m.key] || { orders: 0, revenue: 0 };
               return (
                 <div key={m.key} className="card" style={{ padding: "14px 18px" }}>
                   <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 6px" }}>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { SiteHeader } from "./components/SiteHeader";
 import { ProductCard } from "./components/ProductCard";
-import { useToast } from "./components/Toast";
 import { TrackPanel } from "./components/storefront/TrackPanel";
 import { CheckoutModal, CheckoutForm } from "./components/storefront/CheckoutModal";
 import { ShareModal } from "./components/storefront/ShareModal";
@@ -29,7 +29,6 @@ const CART_KEY = "embassy_cart";
 const REF_KEY = "embassy_ref";
 
 export default function Storefront() {
-  const [toastNode, showToast] = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loadError, setLoadError] = useState("");
 
@@ -164,12 +163,12 @@ export default function Storefront() {
   const addToCart = (p: Product) => {
     const q = draft[p.id] || 0;
     if (q === 0) {
-      showToast("Select a quantity before adding to order.");
+      toast.error("Select a quantity before adding to order.");
       return;
     }
     setCart((c) => ({ ...c, [p.id]: (c[p.id] || 0) + q }));
     setDraft((d) => ({ ...d, [p.id]: 0 }));
-    showToast("Added to your order");
+    toast.success("Added to your order");
   };
 
   /** Edit or remove a line item from inside the "Review order" modal. */
@@ -225,7 +224,6 @@ export default function Storefront() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      {toastNode}
       <SiteHeader />
 
       {/* hero */}

@@ -31,6 +31,9 @@ const UNPAID = ["reserved", "awaiting_transfer"];
  *  `?range=7d|90d|mtd|all` (default 30d) or `?from=&to=` for a custom window.
  *  `?basis=paid` (default) counts only orders marked paid / dispatched / collected;
  *  `?basis=all` counts every non-cancelled order (reservations included).
+ *  `?cursor=&limit=` cursor-paginate the "sales by product" list only — every
+ *  other field in the response (totals, series, etc.) always reflects the
+ *  whole range, unaffected by these two.
  */
 export async function GET(req: Request) {
   try {
@@ -42,6 +45,11 @@ export async function GET(req: Request) {
     const fromParam = url.searchParams.get("from");
     const toParam = url.searchParams.get("to");
     const basis = url.searchParams.get("basis") === "all" ? "all" : "paid";
+    const productCursor = url.searchParams.get("cursor");
+    const productLimit = Math.min(
+      2000,
+      Math.max(5, parseInt(url.searchParams.get("limit") || "10", 10))
+    );
 
     const now = new Date();
     let from: Date;
@@ -167,8 +175,9 @@ export async function GET(req: Request) {
       }))
       .sort((a, b) => b.revenue - a.revenue);
 
-    // ---- per-product, sorted by revenue ----
-    const perProduct = Array.from(productMap.entries())
+    // ---- per-product, sorted by revenue (productId as a stable tiebreaker
+    // so the cursor never skips or repeats a row when revenue ties) ----
+    const perProductAll = Array.from(productMap.entries())
       .map(([productId, e]) => ({
         productId,
         name: e.name,
@@ -177,7 +186,16 @@ export async function GET(req: Request) {
         orders: e.orders.size,
         sharePct: revenue > 0 ? +((e.revenue / revenue) * 100).toFixed(1) : 0,
       }))
-      .sort((a, b) => b.revenue - a.revenue);
+      .sort((a, b) => b.revenue - a.revenue || a.productId.localeCompare(b.productId));
+
+    let productStart = 0;
+    if (productCursor) {
+      const idx = perProductAll.findIndex((p) => p.productId === productCursor);
+      productStart = idx >= 0 ? idx + 1 : 0;
+    }
+    const perProduct = perProductAll.slice(productStart, productStart + productLimit);
+    const productHasMore = productStart + productLimit < perProductAll.length;
+    const productNextCursor = productHasMore ? perProduct[perProduct.length - 1].productId : null;
 
     // ---- fill every bucket in the window ----
     const series: { date: string; revenue: number; orders: number }[] = [];
@@ -205,6 +223,9 @@ export async function GET(req: Request) {
       byStatus,
       bySource,
       perProduct,
+      perProductTotal: perProductAll.length,
+      nextCursor: productNextCursor,
+      hasMore: productHasMore,
       series,
     });
   } catch (err) {

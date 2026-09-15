@@ -9,6 +9,9 @@ const orderItemSchema = new Mongoose.Schema(
     unitPrice: { type: Number, required: true, min: 0 }, // naira per box, snapshot
     lineTotal: { type: Number, required: true, min: 0 },
     backordered: { type: Boolean, default: false },
+    // snapshot at order time, so the carton breakdown shown later never drifts
+    // if the product's packing is edited afterwards
+    boxesPerCarton: { type: Number, default: 1 },
   },
   { _id: false }
 );
@@ -48,6 +51,7 @@ export interface IOrderItem {
   unitPrice: number;
   lineTotal: number;
   backordered: boolean;
+  boxesPerCarton: number;
 }
 
 export interface IOrder {

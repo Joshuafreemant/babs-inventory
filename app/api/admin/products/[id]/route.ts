@@ -6,10 +6,11 @@ import { writeAudit } from "@/models/AuditLog";
 import { productForConsole } from "@/app/lib/serialize";
 import { toBoxes } from "@/app/lib/money";
 import { deleteProductImage } from "@/app/lib/cloudinary";
+import { CATEGORIES as CATEGORY_DEFS } from "@/app/types";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORIES = ["bottle", "syrup", "jar", "pump", "tube", "dropper"];
+const CATEGORIES: string[] = CATEGORY_DEFS.map((c) => c.id);
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
