@@ -7,7 +7,6 @@ export function recipientForConsole(r: any) {
     id: String(r._id),
     name: r.name,
     phone: r.phone || "",
-    email: r.email || "",
     display: r.phone ? displayPhone(r.phone) : "",
     active: r.active,
   };

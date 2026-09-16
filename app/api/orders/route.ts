@@ -104,7 +104,7 @@ export async function POST(req: Request) {
       refSource,
     });
 
-    // fire-and-forget admin alerts (SMS + email) — never blocks the order
+    // fire-and-forget admin alerts (SMS + push) — never blocks the order
     const boxes = items.reduce((s, i) => s + i.qty, 0);
     const refName = refSource
       ? (await StaffModel.findOne({ staffId: refSource }).select("name").lean())?.name || refSource
@@ -114,7 +114,6 @@ export async function POST(req: Request) {
       code,
       customerName: order.customerName,
       phone: order.phone,
-      email: order.email,
       items: items.map((i) => ({ name: i.name, qty: i.qty, lineTotal: i.lineTotal })),
       boxes,
       total,
@@ -125,7 +124,6 @@ export async function POST(req: Request) {
       .then((r) => {
         const fails: string[] = [];
         if (!r.sms.ok && !r.sms.skipped) fails.push(`SMS: ${r.sms.error || "failed"}`);
-        if (!r.email.ok && !r.email.skipped) fails.push(`Email: ${r.email.error || "failed"}`);
         if (!r.push.ok && !r.push.skipped) fails.push(`Push: ${r.push.error || "failed"}`);
         if (fails.length) {
           writeAudit({

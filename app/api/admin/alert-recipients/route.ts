@@ -8,9 +8,7 @@ import { recipientForConsole as serialize } from "@/app/lib/serialize";
 
 export const dynamic = "force-dynamic";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** List recipients + whether SMS and email are wired up. */
+/** List recipients + whether SMS is wired up. */
 export async function GET() {
   try {
     await requireStaff();
@@ -24,48 +22,26 @@ export async function GET() {
   }
 }
 
-/** Add a recipient — needs a name and at least one of phone / email. */
+/** Add a recipient — needs a name and a phone number. */
 export async function POST(req: Request) {
   try {
     const staff = await requireStaff();
     await dbConnect();
-    const { name, phone, email } = await req.json();
+    const { name, phone } = await req.json();
 
     if (!name?.trim()) return Response.json({ error: "Give the recipient a name." }, { status: 400 });
 
-    let normalizedPhone = "";
-    if (String(phone || "").trim()) {
-      const n = normalizePhone(String(phone));
-      if (!n)
-        return Response.json({ error: "That doesn't look like a valid phone number." }, { status: 400 });
-      normalizedPhone = n;
+    const normalizedPhone = normalizePhone(String(phone || ""));
+    if (!normalizedPhone) {
+      return Response.json({ error: "That doesn't look like a valid phone number." }, { status: 400 });
     }
 
-    let normalizedEmail = "";
-    if (String(email || "").trim()) {
-      const e = String(email).trim().toLowerCase();
-      if (!EMAIL_RE.test(e))
-        return Response.json({ error: "That doesn't look like a valid email address." }, { status: 400 });
-      normalizedEmail = e;
-    }
-
-    if (!normalizedPhone && !normalizedEmail) {
-      return Response.json({ error: "Add a phone number, an email, or both." }, { status: 400 });
-    }
-
-    const clash = await AlertRecipientModel.findOne({
-      $or: [
-        ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
-        ...(normalizedEmail ? [{ email: normalizedEmail }] : []),
-      ],
-    });
-    if (clash)
-      return Response.json({ error: "That phone or email is already on the list." }, { status: 409 });
+    const clash = await AlertRecipientModel.findOne({ phone: normalizedPhone });
+    if (clash) return Response.json({ error: "That phone number is already on the list." }, { status: 409 });
 
     const recipient = await AlertRecipientModel.create({
       name: name.trim(),
       phone: normalizedPhone,
-      email: normalizedEmail,
       active: true,
       addedBy: staff.staffId,
     });
@@ -75,7 +51,7 @@ export async function POST(req: Request) {
       staffName: staff.name,
       action: "alert.recipient.add",
       target: name.trim(),
-      detail: [normalizedPhone, normalizedEmail].filter(Boolean).join(" / "),
+      detail: normalizedPhone,
     });
 
     return Response.json(serialize(recipient));

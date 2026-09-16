@@ -2,14 +2,12 @@ import { Document, Model } from "mongoose";
 import * as Mongoose from "mongoose";
 
 /**
- * People who get notified on every new order — by SMS (phone), email, or both.
- * Managed from the console. A recipient needs at least one channel.
+ * People who get an SMS on every new order. Managed from the console.
  */
 const alertRecipientSchema = new Mongoose.Schema(
   {
     name: { type: String, required: true, trim: true }, // e.g. "Warehouse Manager"
-    phone: { type: String, default: "" }, // normalised, e.g. 2348030000000
-    email: { type: String, default: "", lowercase: true, trim: true },
+    phone: { type: String, required: true }, // normalised, e.g. 2348030000000
     active: { type: Boolean, default: true },
     addedBy: { type: String, default: "" }, // staffId
   },
@@ -19,7 +17,6 @@ const alertRecipientSchema = new Mongoose.Schema(
 export interface IAlertRecipient {
   name: string;
   phone: string;
-  email: string;
   active: boolean;
   addedBy: string;
   createdAt?: Date;

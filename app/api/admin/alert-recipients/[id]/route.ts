@@ -7,9 +7,7 @@ import { recipientForConsole as serialize } from "@/app/lib/serialize";
 
 export const dynamic = "force-dynamic";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** Toggle active, or edit name / phone / email. */
+/** Toggle active, or edit name / phone. */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const staff = await requireStaff();
@@ -30,20 +28,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (b.phone !== undefined) {
       const p = String(b.phone).trim();
-      if (p && !normalizePhone(p))
-        return Response.json({ error: "Invalid phone number." }, { status: 400 });
-      r.phone = p ? normalizePhone(p)! : "";
+      const normalized = normalizePhone(p);
+      if (!normalized) return Response.json({ error: "Invalid phone number." }, { status: 400 });
+      r.phone = normalized;
       changed.push("phone");
-    }
-    if (b.email !== undefined) {
-      const e = String(b.email).trim().toLowerCase();
-      if (e && !EMAIL_RE.test(e))
-        return Response.json({ error: "Invalid email address." }, { status: 400 });
-      r.email = e;
-      changed.push("email");
-    }
-    if (!r.phone && !r.email) {
-      return Response.json({ error: "A recipient needs a phone or an email." }, { status: 400 });
     }
 
     await r.save();
@@ -76,7 +64,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
       staffName: staff.name,
       action: "alert.recipient.remove",
       target: r.name,
-      detail: [r.phone, r.email].filter(Boolean).join(" / "),
+      detail: r.phone,
     });
 
     return Response.json({ ok: true });

@@ -7,23 +7,19 @@ interface Recipient {
   id: string;
   name: string;
   phone: string;
-  email: string;
   display: string;
   active: boolean;
 }
 interface Payload {
   recipients: Recipient[];
   sms: { configured: boolean; provider: string; senderId: string };
-  email: { configured: boolean; from: string };
 }
 
 export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [sms, setSms] = useState({ configured: false, provider: "SMS", senderId: "" });
-  const [email, setEmail] = useState({ configured: false, from: "" });
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [emailInput, setEmailInput] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -34,7 +30,6 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
       .then((d) => {
         setRecipients(d.recipients);
         setSms(d.sms);
-        setEmail(d.email);
       })
       .catch(() => {});
 
@@ -46,15 +41,10 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
     setBusy(true);
     setError("");
     try {
-      const r = await apiPost<Recipient>("/api/admin/alert-recipients", {
-        name,
-        phone,
-        email: emailInput,
-      });
+      const r = await apiPost<Recipient>("/api/admin/alert-recipients", { name, phone });
       setRecipients((list) => [...list, r]);
       setName("");
       setPhone("");
-      setEmailInput("");
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -97,7 +87,6 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
   };
 
   const activeCount = recipients.filter((r) => r.active).length;
-  const anyChannel = sms.configured || email.configured;
 
   const statusChip = (ok: boolean, label: string) => (
     <span
@@ -126,7 +115,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
         <button
           className="btn btn-outline btn-sm"
           onClick={sendTest}
-          disabled={testing || !anyChannel || activeCount === 0}
+          disabled={testing || !sms.configured || activeCount === 0}
         >
           {testing ? "Sending…" : "Send test alert"}
         </button>
@@ -134,19 +123,16 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
 
       <div style={{ padding: "16px 18px" }}>
         <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 8px" }}>
-          Everyone here gets an SMS and/or an email the moment a new order comes in.
+          Everyone here gets an SMS the moment a new order comes in. Staff who sign into the
+          console can also turn on push notifications for themselves, on the Order desk.
         </p>
         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 14 }}>
           {statusChip(sms.configured, sms.configured ? `SMS via ${sms.provider}` : "SMS not set up")}
-          {statusChip(
-            email.configured,
-            email.configured ? `Email from ${email.from.replace(/.*<|>.*/g, "") || email.from}` : "Email not set up"
-          )}
         </div>
-        {!anyChannel && (
+        {!sms.configured && (
           <p style={{ fontSize: 13, color: "#7A5210", margin: "0 0 12px" }}>
-            Add <code>RESEND_API_KEY</code> + <code>RESEND_FROM</code> (email) or a provider key
-            (SMS) to <code>.env</code> and restart. You can still build the list now.
+            Add a provider key (Termii or Africa&apos;s Talking) to <code>.env</code> and restart.
+            You can still build the list now.
           </p>
         )}
 
@@ -168,7 +154,7 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
                     {r.name}
                   </p>
                   <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
-                    {[r.display, r.email].filter(Boolean).join(" · ")}
+                    {r.display || "No phone on file"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3" style={{ flexShrink: 0 }}>
@@ -189,30 +175,19 @@ export function AlertRecipients({ onToast }: { onToast: (m: string) => void }) {
         )}
 
         {/* add form */}
-        <div className="grid gap-2" style={{ gridTemplateColumns: "1fr", maxWidth: 520 }}>
+        <div className="grid gap-2" style={{ gridTemplateColumns: "1fr", maxWidth: 380 }}>
           <div className="field">
             <span className="icon">&#128100;</span>
             <input placeholder="Name / role" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
-          <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
-            <div className="field">
-              <span className="icon">&#9742;</span>
-              <input
-                placeholder="Phone (optional)"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <span className="icon">&#9993;</span>
-              <input
-                placeholder="Email (optional)"
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && add()}
-              />
-            </div>
+          <div className="field">
+            <span className="icon">&#9742;</span>
+            <input
+              placeholder="Phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && add()}
+            />
           </div>
           <button
             className="btn btn-primary btn-sm"
