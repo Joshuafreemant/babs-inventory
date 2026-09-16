@@ -645,7 +645,10 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
     flex-shrink: 0;
     background: var(--navy-deep);
     padding: 18px 12px;
-    min-height: calc(100vh - 80px);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start;
   }
   .console-main {
     padding-left: 4px;
