@@ -224,6 +224,23 @@ export default function Storefront() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      {/* structured data — helps search engines show this as a pharmacy/store, not just a generic page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Store",
+            name: "Embassy Pharmaceutical & Chemicals Limited",
+            description:
+              "Wholesale pharmaceutical and healthcare products in Nigeria — trade catalogue, order by the box.",
+            image: "/og-image.png",
+            telephone: contact.phone || undefined,
+            email: contact.email || undefined,
+            areaServed: "NG",
+          }),
+        }}
+      />
       <SiteHeader />
 
       {/* hero */}
@@ -231,7 +248,7 @@ export default function Storefront() {
         <p className="small-caps" style={{ color: "var(--gold-light)", margin: "0 0 12px", fontSize: 14.5 }}>
           {hero.eyebrow}
         </p>
-        <p
+        <h1
           className="serif"
           style={{
             fontSize: "clamp(26.5px, 6.2vw, 33.5px)",
@@ -243,7 +260,7 @@ export default function Storefront() {
           }}
         >
           {hero.headline}
-        </p>
+        </h1>
         <p style={{ fontSize: 19, color: "rgba(255,255,255,0.78)", maxWidth: 560, margin: "0 0 18px", lineHeight: 1.5 }}>
           {hero.subtext}
         </p>

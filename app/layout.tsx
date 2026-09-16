@@ -17,16 +17,58 @@ const newsreader = Newsreader({
   adjustFontFallback: false,
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://babs-inventory.vercel.app";
+const SITE_TITLE = "Embassy Pharmaceutical & Chemicals Limited";
+const SITE_DESCRIPTION =
+  "Wholesale pharmaceutical and healthcare products in Nigeria. Browse the trade catalogue and order by the box online — no account needed.";
+
 export const metadata: Metadata = {
-  title: "Embassy Pharmaceutical & Chemicals Limited",
-  description: "Your Visa to Healthy Living — trade catalogue and rep console.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_TITLE}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "Embassy Pharmaceutical",
+    "wholesale pharmacy Nigeria",
+    "pharmaceutical distributor Nigeria",
+    "buy medicine wholesale",
+    "pharmacy trade catalogue",
+    "healthcare products Nigeria",
+  ],
+  applicationName: "Embassy",
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: SITE_TITLE,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: "en_NG",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: SITE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Embassy",
   },
   icons: {
+    icon: "/pwa/icon-192.png",
+    shortcut: "/pwa/icon-192.png",
     apple: "/pwa/icon-192.png",
   },
 };

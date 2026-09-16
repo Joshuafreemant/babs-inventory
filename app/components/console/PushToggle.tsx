@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { apiPost, apiDelete } from "../../lib/api";
 
@@ -15,24 +15,18 @@ function urlBase64ToUint8Array(base64: string) {
 
 /** Self-service "order alerts on this device" toggle — every signed-in staff
  * member (rep or admin) can turn this on for their own browser. Separate
- * from the admin-managed SMS/email recipient list in Settings. */
+ * from the admin-managed SMS/email recipient list in Settings. Defaults to
+ * "on": the first time a device has never been asked, it tries to subscribe
+ * automatically instead of waiting for a click — a browser can't grant
+ * notification permission without asking, so this is as close to on-by-
+ * default as the platform allows. */
 export function PushToggle() {
   const [supported, setSupported] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const autoTried = useRef(false);
 
-  useEffect(() => {
-    if (!PUBLIC_KEY || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
-    setSupported(true);
-    navigator.serviceWorker.ready
-      .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setSubscribed(!!sub))
-      .catch(() => {});
-  }, []);
-
-  if (!supported) return null;
-
-  const enable = async () => {
+  const enable = useCallback(async () => {
     setBusy(true);
     try {
       const permission = await Notification.requestPermission();
@@ -58,7 +52,26 @@ export function PushToggle() {
     } finally {
       setBusy(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!PUBLIC_KEY || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    setSupported(true);
+    navigator.serviceWorker.ready
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => {
+        setSubscribed(!!sub);
+        // never asked on this device yet — try to turn it on right away
+        // instead of waiting for the button to be noticed and clicked
+        if (!sub && !autoTried.current && Notification.permission === "default") {
+          autoTried.current = true;
+          enable();
+        }
+      })
+      .catch(() => {});
+  }, [enable]);
+
+  if (!supported) return null;
 
   const disable = async () => {
     setBusy(true);
