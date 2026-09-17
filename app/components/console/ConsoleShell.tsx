@@ -5,11 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StaffSession } from "../../types";
 
-type Tab = "desk" | "reports" | "settings";
+type Tab = "desk" | "reports" | "activity" | "settings";
 
 const NAV: { tab: Tab; href: string; label: string }[] = [
   { tab: "desk", href: "/console", label: "Order desk" },
   { tab: "reports", href: "/console/reports", label: "Reports" },
+  { tab: "activity", href: "/console/activity", label: "Activity" },
   { tab: "settings", href: "/console/settings", label: "Settings" },
 ];
 
@@ -29,6 +30,13 @@ function Icon({ tab }: { tab: Tab }) {
         <path d="M4 20V10M12 20V4M20 20v-7" />
       </svg>
     );
+  if (tab === "activity")
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3.5 2" />
+      </svg>
+    );
   return (
     <svg {...common}>
       <circle cx="12" cy="12" r="3" />
@@ -41,7 +49,7 @@ function NavItems({ role, onNavigate }: { role: "rep" | "admin"; onNavigate?: ()
   const pathname = usePathname();
   return (
     <div className="console-rail-nav">
-      {NAV.filter((n) => n.tab !== "settings" || role === "admin").map((n) => {
+      {NAV.filter((n) => (n.tab !== "settings" && n.tab !== "activity") || role === "admin").map((n) => {
         const active = pathname === n.href;
         return (
           <Link
