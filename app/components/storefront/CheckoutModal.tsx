@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Product } from "../../types";
 import { naira } from "../../lib/money";
 
@@ -61,16 +62,33 @@ export function CheckoutModal({
   const hasBackorder = items.some((i) => i.stock === 0 && i.backorder);
   const hasPaymentDetails = !!(payment?.bankName || payment?.accountNumber || payment?.accountName);
 
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+
+  // if the details are missing, bring them into view instead of leaving the
+  // error sitting next to a "Place order" button the fields have scrolled past
+  useEffect(() => {
+    if (!error) return;
+    const missingName = !form.name.trim();
+    const missingPhone = !form.phone.trim();
+    if (!missingName && !missingPhone) return;
+    detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    (missingName ? nameInputRef : phoneInputRef).current?.focus();
+    // only re-run when a fresh error comes in, not on every keystroke
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="card"
-        style={{ width: "100%", maxWidth: 440, maxHeight: "88%", overflowY: "auto" }}
+        className="card flex flex-col"
+        style={{ width: "100%", maxWidth: 440, maxHeight: "94%" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
           className="flex items-center justify-between"
-          style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff" }}
+          style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--navy)", color: "#fff", flexShrink: 0 }}
         >
           <p className="serif" style={{ fontWeight: 700, fontSize: 18, margin: 0 }}>
             Review your order
@@ -80,7 +98,7 @@ export function CheckoutModal({
           </button>
         </div>
 
-        <div style={{ padding: "18px 20px" }}>
+        <div style={{ padding: "18px 20px", overflowY: "auto", flex: 1 }}>
           {items.length === 0 ? (
             <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 12px" }}>Your order is empty.</p>
           ) : (
@@ -143,29 +161,32 @@ export function CheckoutModal({
             </div>
           )}
 
-          <p style={{ fontSize: 15.5, fontWeight: 700, margin: "18px 0 8px" }}>Your details</p>
-          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 10px" }}>
-            We only need this to confirm your order and reach you about delivery.
-          </p>
-          <div className="flex flex-col gap-2" style={{ marginBottom: 6 }}>
-            <div className="field">
-              <span className="icon">&#127970;</span>
-              <input
-                placeholder="Pharmacy or hospital name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-            <div className="field">
-              <span className="icon">&#9742;</span>
-              <input
-                placeholder="Phone number"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
+          <div ref={detailsRef}>
+            <p style={{ fontSize: 15.5, fontWeight: 700, margin: "18px 0 8px" }}>Your details</p>
+            <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "0 0 10px" }}>
+              We only need this to confirm your order and reach you about delivery.
+            </p>
+            <div className="flex flex-col gap-2" style={{ marginBottom: 6 }}>
+              <div className="field">
+                <span className="icon">&#127970;</span>
+                <input
+                  ref={nameInputRef}
+                  placeholder="Pharmacy or hospital name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </div>
+              <div className="field">
+                <span className="icon">&#9742;</span>
+                <input
+                  ref={phoneInputRef}
+                  placeholder="Phone number"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+              </div>
             </div>
           </div>
-          {error && <p style={{ fontSize: 14, color: "var(--rose)", margin: "0 0 6px" }}>{error}</p>}
 
           <p style={{ fontSize: 15.5, fontWeight: 700, margin: "18px 0 10px" }}>How would you like to pay?</p>
           {METHODS.map((m) => (
@@ -211,10 +232,13 @@ export function CheckoutModal({
               )}
             </div>
           )}
+        </div>
 
+        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--line)", background: "#fff", flexShrink: 0 }}>
+          {error && <p style={{ fontSize: 14, color: "var(--rose)", margin: "0 0 8px" }}>{error}</p>}
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "12px 0", fontSize: 16, marginTop: 10 }}
+            style={{ width: "100%", padding: "12px 0", fontSize: 16 }}
             disabled={placing || items.length === 0}
             onClick={onPlace}
           >

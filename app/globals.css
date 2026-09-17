@@ -285,7 +285,7 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
     max-width: 100% !important;
     border-radius: var(--r-lg) var(--r-lg) 0 0;
     animation: sheet-up 0.22s ease-out;
-    max-height: 92vh;
+    max-height: 96vh;
   }
 }
 @keyframes sheet-up {
