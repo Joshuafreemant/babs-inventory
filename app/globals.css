@@ -483,9 +483,14 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
     right: 16px !important;
     bottom: 16px !important;
     width: auto !important;
-    border-radius: var(--r-pill) !important;
+    border-radius: var(--r-md) !important;
     padding: 10px 10px 10px 20px !important;
   }
+}
+
+/* sits above the per-product stock badges (z-index: 1) while scrolling */
+.cart-bar {
+  z-index: 10;
 }
 
 @layer utilities {
