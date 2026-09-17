@@ -7,6 +7,7 @@ import { toBoxes, suggestThreshold } from "../../lib/money";
 import { ProductCard } from "../ProductCard";
 import { uploadProductPhoto, IMAGE_ACCEPT, MAX_IMAGE_BYTES } from "./uploadProductPhoto";
 import { CurrencyInput } from "./CurrencyInput";
+import { ProductNameAutocomplete } from "./ProductNameAutocomplete";
 
 interface Form {
   name: string;
@@ -153,10 +154,7 @@ export function AddProductModal({
 
         <div className="modal-2col">
           <div className="flex flex-col gap-2">
-            <div className="field">
-              <span className="icon">&#128137;</span>
-              <input placeholder="Product name" value={f.name} onChange={(e) => patch({ name: e.target.value })} />
-            </div>
+            <ProductNameAutocomplete value={f.name} onChange={(name) => patch({ name })} />
             <div className="field">
               <span className="icon">&#128193;</span>
               <select value={f.category} onChange={(e) => patch({ category: e.target.value as Category })}>
