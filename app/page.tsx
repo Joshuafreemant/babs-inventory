@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { SiteHeader } from "./components/SiteHeader";
 import { ProductCard } from "./components/ProductCard";
+import { ProductCardSkeleton } from "./components/ProductCardSkeleton";
 import { TrackPanel } from "./components/storefront/TrackPanel";
 import { CheckoutModal, CheckoutForm } from "./components/storefront/CheckoutModal";
 import { ShareModal } from "./components/storefront/ShareModal";
@@ -31,6 +32,7 @@ const REF_KEY = "embassy_ref";
 export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadError, setLoadError] = useState("");
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const [cart, setCart] = useState<Record<string, number>>({});
   const [draft, setDraft] = useState<Record<string, number>>({});
@@ -80,7 +82,13 @@ export default function Storefront() {
         setProducts(res);
         setLoadError("");
       })
-      .catch((e) => setLoadError(e.message));
+      .catch((e) => setLoadError(e.message))
+      .finally(() => setProductsLoading(false));
+
+  const retryLoadProducts = () => {
+    setProductsLoading(true);
+    loadProducts();
+  };
 
   useEffect(() => {
     loadProducts();
@@ -296,7 +304,7 @@ export default function Storefront() {
         {loadError && (
           <div className="card" style={{ padding: "14px 18px", marginBottom: 20, color: "var(--rose)" }}>
             {loadError}{" "}
-            <button className="btn btn-sm btn-outline" onClick={loadProducts} style={{ marginLeft: 8 }}>
+            <button className="btn btn-sm btn-outline" onClick={retryLoadProducts} style={{ marginLeft: 8 }}>
               Retry
             </button>
           </div>
@@ -338,20 +346,22 @@ export default function Storefront() {
         )}
 
         <div className="catalogue-grid">
-          {shown.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              qty={draft[p.id] || 0}
-              onDec={() => bumpDraft(p, -1)}
-              onInc={() => bumpDraft(p, 1)}
-              onSet={(n) => setDraftQty(p, n)}
-              onAdd={() => addToCart(p)}
-            />
-          ))}
+          {productsLoading
+            ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            : shown.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  qty={draft[p.id] || 0}
+                  onDec={() => bumpDraft(p, -1)}
+                  onInc={() => bumpDraft(p, 1)}
+                  onSet={(n) => setDraftQty(p, n)}
+                  onAdd={() => addToCart(p)}
+                />
+              ))}
         </div>
 
-        {!loadError && filtered.length === 0 && products.length > 0 && (
+        {!productsLoading && !loadError && filtered.length === 0 && products.length > 0 && (
           <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "20px 0 0" }}>
             No products match your search.
           </p>

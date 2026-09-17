@@ -18,6 +18,7 @@ import { PushToggle } from "../components/console/PushToggle";
 import { StockStepper } from "../components/console/StockStepper";
 import { useInfiniteList } from "../components/console/useInfiniteList";
 import { InfiniteFooter } from "../components/console/InfiniteFooter";
+import { LedgerRowSkeleton, OrderRowSkeleton } from "../components/console/RowSkeletons";
 import { Product, ConsoleOrder, ConsoleStats, StaffSession } from "../types";
 import { apiGet, apiPatch, apiPost } from "../lib/api";
 import { naira, cartonBreakdown, isLowStock, STATUS_LABEL } from "../lib/money";
@@ -193,7 +194,13 @@ export default function ConsolePage() {
     return (
       <div>
         <SiteHeader />
-        <p style={{ padding: "32px var(--gutter)", color: "var(--ink-soft)" }}>Loading…</p>
+        <div
+          className="flex flex-col items-center justify-center"
+          style={{ padding: "80px var(--gutter)", gap: 14 }}
+        >
+          <span className="spinner" aria-hidden="true" />
+          <p style={{ color: "var(--ink-soft)", fontSize: 14.5, margin: 0 }}>Loading console…</p>
+        </div>
       </div>
     );
   }
@@ -244,9 +251,13 @@ export default function ConsolePage() {
               <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 6px" }}>
                 {s.label}
               </p>
-              <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
-                {s.value}
-              </p>
+              {stats == null ? (
+                <div className="skeleton" style={{ height: 24, width: "60%" }} />
+              ) : (
+                <p className="serif" style={{ fontWeight: 700, fontSize: 23.5, margin: 0 }}>
+                  {s.value}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -330,6 +341,10 @@ export default function ConsolePage() {
               )}
             </div>
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
+            {!productsList.ready ? (
+              Array.from({ length: 6 }).map((_, i) => <LedgerRowSkeleton key={i} />)
+            ) : (
+            <>
             {products.map((p) => {
               const bd = cartonBreakdown(p.stock, p.boxesPerCarton);
               const auto = !p.forceLowStock && isLowStock(p);
@@ -419,7 +434,7 @@ export default function ConsolePage() {
                 </div>
               );
             })}
-            {productsList.ready && products.length === 0 && (
+            {products.length === 0 && (
               <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
                 {productsFiltered
                   ? "No products match that search."
@@ -431,6 +446,8 @@ export default function ConsolePage() {
               noun="products"
               count={productsFiltered ? products.length : productTotal ?? products.length}
             />
+            </>
+            )}
             </div>
             </>
             )}
@@ -559,6 +576,10 @@ export default function ConsolePage() {
               )}
             </div>
             <div style={{ overflowY: "auto", overscrollBehavior: "contain", flex: 1 }}>
+            {!ordersList.ready ? (
+              Array.from({ length: 5 }).map((_, i) => <OrderRowSkeleton key={i} />)
+            ) : (
+            <>
             {orders.map((o) => (
               <div key={o.id} style={{ padding: "11px 18px", borderBottom: "1px solid var(--line)" }}>
                 <div className="flex items-center justify-between">
@@ -616,7 +637,7 @@ export default function ConsolePage() {
                 </select>
               </div>
             ))}
-            {ordersList.ready && orders.length === 0 && (
+            {orders.length === 0 && (
               <p style={{ padding: "16px 18px", fontSize: 14.5, color: "var(--ink-soft)", margin: 0 }}>
                 {ordersFiltered ? "No orders match that filter." : "No orders yet."}
               </p>
@@ -626,6 +647,8 @@ export default function ConsolePage() {
               noun="orders"
               count={ordersFiltered ? orders.length : stats?.ordersTotal ?? orders.length}
             />
+            </>
+            )}
             </div>
             </>
             )}
