@@ -8,6 +8,7 @@ import { ProductCard } from "../ProductCard";
 import { uploadProductPhoto, IMAGE_ACCEPT, MAX_IMAGE_BYTES } from "./uploadProductPhoto";
 import { CurrencyInput } from "./CurrencyInput";
 import { ProductNameAutocomplete } from "./ProductNameAutocomplete";
+import { SearchableSelect } from "../SearchableSelect";
 
 interface Form {
   name: string;
@@ -21,8 +22,9 @@ interface Form {
   backorder: boolean;
 }
 
-const ACTIVE_DRUG_CATEGORIES = DRUG_CATEGORIES.filter((c) => c.active);
 
+const ACTIVE_DRUG_CATEGORIES = DRUG_CATEGORIES.filter((c) => c.active);
+const CATEGORY_OPTIONS = ACTIVE_DRUG_CATEGORIES.map((c) => ({ value: c.id, label: c.label }));
 const EMPTY: Form = {
   name: "",
   drugCategory: "cardiovascular",
@@ -158,19 +160,13 @@ export function AddProductModal({
         <div className="modal-2col">
           <div className="flex flex-col gap-2">
             <ProductNameAutocomplete value={f.name} onChange={(name) => patch({ name })} />
-            <div className="field">
-              <span className="icon">&#128138;</span>
-              <select
-                value={f.drugCategory}
-                onChange={(e) => patch({ drugCategory: e.target.value as DrugCategory })}
-              >
-                {ACTIVE_DRUG_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SearchableSelect
+  icon="💊"
+  value={f.drugCategory}
+  onChange={(v) => patch({ drugCategory: v as DrugCategory })}
+  options={CATEGORY_OPTIONS}
+  placeholder="Drug category"
+/>
             <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "-4px 0 0" }}>
               Only Cardiovascular is enabled while we test classification &mdash; the rest unlock after.
             </p>
