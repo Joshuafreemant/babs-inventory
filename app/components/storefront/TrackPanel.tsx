@@ -6,6 +6,7 @@ import { apiGet } from "../../lib/api";
 import { naira } from "../../lib/money";
 import { StatusPill } from "../StatusPill";
 import type { DocKind, OrderDocData } from "../OrderDoc";
+import { OrderRow } from "../Ordernow";
 
 /** Anything containing a letter is treated as an order code (EMB-0035); otherwise a phone number. */
 const isOrderCode = (s: string) => /[a-z]/i.test(s);
@@ -98,33 +99,19 @@ export function TrackPanel({ initialPhone = "" }: { initialPhone?: string }) {
           No orders found. Check the order code or phone number and try again.
         </p>
       ) : (
-        orders.map((o) => (
-          <div
-            key={o.code}
-            className="flex items-center justify-between"
-            style={{ padding: "9px 0", borderTop: "1px solid var(--line)" }}
-          >
-            <div>
-              <p style={{ fontSize: 17, margin: 0 }}>{o.items}</p>
-              <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "2px 0 0" }}>
-                {o.code} &middot; {naira(o.total)}
-              </p>
-              <StatusPill status={o.status} label={o.statusLabel} />
-            </div>
-            <button
-              type="button"
-              onClick={() => handleDownload(o)}
-              disabled={busyCode === o.code}
-              className="bg-[#0f2a3d] text-white text-xs px-4 py-2 rounded-md disabled:opacity-60"
-            >
-              {busyCode === o.code
-                ? "Preparing…"
-                : o.status === "paid"
-                ? "Download Receipt"
-                : "Download Invoice"}
-            </button>
-          </div>
-        ))
+       <div className="flex flex-col gap-3">
+  {orders.length > 1 && (
+    <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: 0 }}>{orders.length} orders found</p>
+  )}
+  {orders.map((o) => (
+    <OrderRow
+      key={o.code}
+      order={o}
+      busy={busyCode === o.code}
+      onDownload={() => handleDownload(o)}
+    />
+  ))}
+</div>
       )}
 
       {downloadError && (
