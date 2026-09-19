@@ -4,14 +4,36 @@ import { STATUS_LABEL } from "@/app/lib/money";
 
 export const dynamic = "force-dynamic";
 
-/** Look up a customer's orders by the phone number they ordered with. */
+/** "emb-35" / "EMB 0035" / "emb0035" -> "EMB-0035" */
+function normalizeCode(raw: string): string | null {
+  const m = raw.trim().match(/^([a-z]{2,5})[\s-]?(\d+)$/i);
+  return m ? `${m[1].toUpperCase()}-${m[2].padStart(4, "0")}` : null;
+}
+
+/**
+ * Look up orders.
+ *   ?code=EMB-0035   -> that single order
+ *   ?phone=0817...   -> every order placed with that phone number
+ */
 export async function GET(req: Request) {
   try {
-    const phone = new URL(req.url).searchParams.get("phone")?.trim();
-    if (!phone) return Response.json([]);
+    const sp = new URL(req.url).searchParams;
+    const rawCode = sp.get("code")?.trim();
+    const phone = sp.get("phone")?.trim();
+
+    let filter: Record<string, string>;
+    if (rawCode) {
+      const code = normalizeCode(rawCode);
+      if (!code) return Response.json([]);
+      filter = { code };
+    } else if (phone) {
+      filter = { phone };
+    } else {
+      return Response.json([]);
+    }
 
     await dbConnect();
-    const orders = await OrderModel.find({ phone })
+    const orders = await OrderModel.find(filter)
       .sort({ createdAt: -1 })
       .limit(50)
       .lean();

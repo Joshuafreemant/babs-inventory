@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Category, CATEGORIES, CARTON_PRESETS, Product } from "../../types";
+import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, Product } from "../../types";
+
+const ACTIVE_DRUG_CATEGORIES = DRUG_CATEGORIES.filter((c) => c.active);
 import { apiPatch } from "../../lib/api";
 import {
   uploadProductPhoto,
@@ -21,7 +23,7 @@ export function EditProductModal({
   onSaved: (p: Product) => void;
 }) {
   const [name, setName] = useState(product.name);
-  const [category, setCategory] = useState<Category>(product.category);
+  const [drugCategory, setDrugCategory] = useState<DrugCategory>(product.drugCategory);
   const [price, setPrice] = useState(String(product.price));
   const [bpc, setBpc] = useState(String(product.boxesPerCarton));
   const [threshold, setThreshold] = useState(String(product.lowStockThreshold));
@@ -61,7 +63,7 @@ export function EditProductModal({
       let updated: Product = await apiPatch<Product>(`/api/admin/products/${product.id}`, {
         op: "edit",
         name,
-        category,
+        drugCategory,
         price: parseInt(price, 10),
         boxesPerCarton: parseInt(bpc, 10),
         lowStockThreshold: threshold === "" ? undefined : parseInt(threshold, 10),
@@ -101,6 +103,14 @@ export function EditProductModal({
 
   const shownImg = preview || current;
 
+  // keep the product's current classification selectable even if it's since
+  // been hidden, so saving doesn't silently swap it to whatever's active
+  const drugCategoryOptions = ACTIVE_DRUG_CATEGORIES.some((c) => c.id === product.drugCategory)
+    ? ACTIVE_DRUG_CATEGORIES
+    : [DRUG_CATEGORIES.find((c) => c.id === product.drugCategory), ...ACTIVE_DRUG_CATEGORIES].filter(
+        (c): c is (typeof DRUG_CATEGORIES)[number] => !!c
+      );
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
@@ -126,9 +136,9 @@ export function EditProductModal({
             <input placeholder="Product name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="field">
-            <span className="icon">&#128193;</span>
-            <select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
-              {CATEGORIES.map((c) => (
+            <span className="icon">&#128138;</span>
+            <select value={drugCategory} onChange={(e) => setDrugCategory(e.target.value as DrugCategory)}>
+              {drugCategoryOptions.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.label}
                 </option>

@@ -6,11 +6,12 @@ import { writeAudit } from "@/models/AuditLog";
 import { productForConsole } from "@/app/lib/serialize";
 import { toBoxes } from "@/app/lib/money";
 import { deleteProductImage } from "@/app/lib/cloudinary";
-import { CATEGORIES as CATEGORY_DEFS } from "@/app/types";
+import { CATEGORIES as CATEGORY_DEFS, DRUG_CATEGORIES } from "@/app/types";
 
 export const dynamic = "force-dynamic";
 
 const CATEGORIES: string[] = CATEGORY_DEFS.map((c) => c.id);
+const DRUG_CATEGORY_IDS: string[] = DRUG_CATEGORIES.map((c) => c.id);
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
@@ -19,7 +20,7 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  *  - "set"     { stock }                       type an exact count directly
  *  - "restock" { cartons, loose }              count a fresh delivery, add exactly
  *  - "flags"   { forceLowStock?, showStock?, backorder? }
- *  - "edit"    { name?, category?, price?, boxesPerCarton?, lowStockThreshold?, backorder? }
+ *  - "edit"    { name?, category?, drugCategory?, price?, boxesPerCarton?, lowStockThreshold?, backorder? }
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -121,6 +122,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (typeof b.category === "string" && CATEGORIES.includes(b.category)) {
         if (b.category !== product.category) changed.push(`category ${b.category}`);
         product.category = b.category;
+      }
+      if (typeof b.drugCategory === "string" && DRUG_CATEGORY_IDS.includes(b.drugCategory)) {
+        if (b.drugCategory !== product.drugCategory) changed.push(`classification ${b.drugCategory}`);
+        product.drugCategory = b.drugCategory;
       }
       if (b.price !== undefined) {
         const price = Math.floor(Number(b.price));

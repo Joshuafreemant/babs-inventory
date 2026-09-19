@@ -10,10 +10,63 @@ export type Category =
   | "powder"
   | "condom";
 
+export type DrugCategory =
+  | "analgesics"
+  | "antibiotics"
+  | "antivirals"
+  | "antifungals"
+  | "antimalarials"
+  | "cardiovascular"
+  | "respiratory"
+  | "gastrointestinal"
+  | "endocrine_diabetes"
+  | "cns_neurological"
+  | "psychiatric"
+  | "dermatological"
+  | "ophthalmic"
+  | "ent"
+  | "vitamins_supplements"
+  | "vaccines_immunizations"
+  | "oncology_chemotherapy"
+  | "hormonal_reproductive"
+  | "urological"
+  | "anti_inflammatory_steroids"
+  | "anesthetics";
+
+/**
+ * Therapeutic classification shown to staff when adding/editing a product.
+ * `active: false` entries stay in the enum (so old data / the API keep validating
+ * them) but are hidden from the dropdown until the rest are turned on post-test.
+ */
+export const DRUG_CATEGORIES: { id: DrugCategory; label: string; active: boolean }[] = [
+  { id: "analgesics", label: "Analgesics / Pain Relief (NSAIDs, opioids, etc.)", active: false },
+  { id: "antibiotics", label: "Antibiotics / Antimicrobials", active: false },
+  { id: "antivirals", label: "Antivirals", active: false },
+  { id: "antifungals", label: "Antifungals", active: false },
+  { id: "antimalarials", label: "Antimalarials", active: false },
+  { id: "cardiovascular", label: "Cardiovascular (antihypertensives, statins, anticoagulants)", active: true },
+  { id: "respiratory", label: "Respiratory (bronchodilators, antihistamines, decongestants)", active: false },
+  { id: "gastrointestinal", label: "Gastrointestinal (antacids, laxatives, antiemetics)", active: false },
+  { id: "endocrine_diabetes", label: "Endocrine / Diabetes (insulin, oral hypoglycemics)", active: false },
+  { id: "cns_neurological", label: "CNS / Neurological (anticonvulsants, antidepressants, sedatives)", active: false },
+  { id: "psychiatric", label: "Psychiatric (antipsychotics, anxiolytics)", active: false },
+  { id: "dermatological", label: "Dermatological (topical creams, ointments)", active: false },
+  { id: "ophthalmic", label: "Ophthalmic (eye drops, ointments)", active: false },
+  { id: "ent", label: "ENT (ear/nose/throat preparations)", active: false },
+  { id: "vitamins_supplements", label: "Vitamins & Supplements", active: false },
+  { id: "vaccines_immunizations", label: "Vaccines / Immunizations", active: false },
+  { id: "oncology_chemotherapy", label: "Oncology / Chemotherapy", active: false },
+  { id: "hormonal_reproductive", label: "Hormonal / Reproductive (contraceptives, fertility drugs)", active: false },
+  { id: "urological", label: "Urological", active: false },
+  { id: "anti_inflammatory_steroids", label: "Anti-inflammatory / Steroids", active: false },
+  { id: "anesthetics", label: "Anesthetics", active: false },
+];
+
 export interface Product {
   id: string;
   name: string;
   category: Category;
+  drugCategory: DrugCategory;
   boxesPerCarton: number;
   price: number;
   stock: number;

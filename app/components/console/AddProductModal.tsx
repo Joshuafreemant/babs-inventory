@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Category, CATEGORIES, CARTON_PRESETS, Product } from "../../types";
+import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, Product } from "../../types";
 import { apiPost } from "../../lib/api";
 import { toBoxes, suggestThreshold } from "../../lib/money";
 import { ProductCard } from "../ProductCard";
@@ -11,7 +11,7 @@ import { ProductNameAutocomplete } from "./ProductNameAutocomplete";
 
 interface Form {
   name: string;
-  category: Category;
+  drugCategory: DrugCategory;
   boxesPerCarton: string;
   price: string;
   cartons: string;
@@ -21,9 +21,11 @@ interface Form {
   backorder: boolean;
 }
 
+const ACTIVE_DRUG_CATEGORIES = DRUG_CATEGORIES.filter((c) => c.active);
+
 const EMPTY: Form = {
   name: "",
-  category: "bottle",
+  drugCategory: "cardiovascular",
   boxesPerCarton: "24",
   price: "",
   cartons: "",
@@ -91,7 +93,7 @@ export function AddProductModal({
     try {
       let product = await apiPost<Product>("/api/admin/products", {
         name: f.name,
-        category: f.category,
+        drugCategory: f.drugCategory,
         boxesPerCarton: bpc,
         price,
         cartons,
@@ -122,7 +124,8 @@ export function AddProductModal({
   const previewProduct: Product = {
     id: "__preview",
     name: f.name || "Untitled product",
-    category: f.category,
+    category: "bottle",
+    drugCategory: f.drugCategory,
     boxesPerCarton: bpc || 1,
     price,
     stock: totalBoxes,
@@ -156,15 +159,21 @@ export function AddProductModal({
           <div className="flex flex-col gap-2">
             <ProductNameAutocomplete value={f.name} onChange={(name) => patch({ name })} />
             <div className="field">
-              <span className="icon">&#128193;</span>
-              <select value={f.category} onChange={(e) => patch({ category: e.target.value as Category })}>
-                {CATEGORIES.map((c) => (
+              <span className="icon">&#128138;</span>
+              <select
+                value={f.drugCategory}
+                onChange={(e) => patch({ drugCategory: e.target.value as DrugCategory })}
+              >
+                {ACTIVE_DRUG_CATEGORIES.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.label}
                   </option>
                 ))}
               </select>
             </div>
+            <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "-4px 0 0" }}>
+              Only Cardiovascular is enabled while we test classification &mdash; the rest unlock after.
+            </p>
 
             <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
               Boxes per carton (how it&apos;s packed for delivery)

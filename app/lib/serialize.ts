@@ -17,6 +17,7 @@ export function productForConsole(p: any) {
     id: String(p._id),
     name: p.name,
     category: p.category,
+    drugCategory: p.drugCategory || "cardiovascular",
     boxesPerCarton: p.boxesPerCarton,
     price: p.price,
     stock: p.stock,

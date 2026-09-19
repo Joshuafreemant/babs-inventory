@@ -8,11 +8,39 @@ import * as Mongoose from "mongoose";
 const productSchema = new Mongoose.Schema(
   {
     name: { type: String, required: true, unique: true, trim: true },
-    // art / category — drives which illustration the storefront renders
+    // art / category — drives which illustration the storefront renders when there's no photo
     category: {
       type: String,
       enum: ["bottle", "syrup", "jar", "pump", "tube", "dropper", "granule", "cream", "powder", "condom"],
       default: "bottle",
+    },
+    // therapeutic classification — shown to staff and (later) customers
+    drugCategory: {
+      type: String,
+      enum: [
+        "analgesics",
+        "antibiotics",
+        "antivirals",
+        "antifungals",
+        "antimalarials",
+        "cardiovascular",
+        "respiratory",
+        "gastrointestinal",
+        "endocrine_diabetes",
+        "cns_neurological",
+        "psychiatric",
+        "dermatological",
+        "ophthalmic",
+        "ent",
+        "vitamins_supplements",
+        "vaccines_immunizations",
+        "oncology_chemotherapy",
+        "hormonal_reproductive",
+        "urological",
+        "anti_inflammatory_steroids",
+        "anesthetics",
+      ],
+      default: "cardiovascular",
     },
     boxesPerCarton: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 }, // naira, per box
@@ -31,6 +59,28 @@ const productSchema = new Mongoose.Schema(
 export interface IProduct {
   name: string;
   category: "bottle" | "syrup" | "jar" | "pump" | "tube" | "dropper" | "granule" | "cream" | "powder" | "condom";
+  drugCategory:
+    | "analgesics"
+    | "antibiotics"
+    | "antivirals"
+    | "antifungals"
+    | "antimalarials"
+    | "cardiovascular"
+    | "respiratory"
+    | "gastrointestinal"
+    | "endocrine_diabetes"
+    | "cns_neurological"
+    | "psychiatric"
+    | "dermatological"
+    | "ophthalmic"
+    | "ent"
+    | "vitamins_supplements"
+    | "vaccines_immunizations"
+    | "oncology_chemotherapy"
+    | "hormonal_reproductive"
+    | "urological"
+    | "anti_inflammatory_steroids"
+    | "anesthetics";
   boxesPerCarton: number;
   price: number;
   stock: number;

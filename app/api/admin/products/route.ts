@@ -4,8 +4,11 @@ import { requireStaff } from "@/app/lib/auth";
 import { writeAudit } from "@/models/AuditLog";
 import { productForConsole } from "@/app/lib/serialize";
 import { suggestThreshold, toBoxes } from "@/app/lib/money";
+import { DRUG_CATEGORIES } from "@/app/types";
 
 export const dynamic = "force-dynamic";
+
+const DRUG_CATEGORY_IDS: string[] = DRUG_CATEGORIES.map((c) => c.id);
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -62,6 +65,7 @@ export async function POST(req: Request) {
 
     const name = String(b.name || "").trim();
     const category = String(b.category || "bottle");
+    const drugCategory = DRUG_CATEGORY_IDS.includes(b.drugCategory) ? b.drugCategory : "cardiovascular";
     const boxesPerCarton = Math.floor(Number(b.boxesPerCarton));
     const price = Math.floor(Number(b.price));
     const cartons = Math.max(0, Math.floor(Number(b.cartons) || 0));
@@ -90,6 +94,7 @@ export async function POST(req: Request) {
     const product = await ProductModel.create({
       name,
       category,
+      drugCategory,
       boxesPerCarton,
       price,
       stock,

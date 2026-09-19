@@ -705,3 +705,342 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
     padding-left: 4px;
   }
 }
+
+
+/* ===== Order Document (Invoice / Receipt) ===== */
+.order-doc {
+  position: relative;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border: 1.5px solid #000;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.doc-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 340px;
+  font-weight: 900;
+  color: rgba(200, 30, 60, 0.06);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.order-doc > *:not(.doc-watermark) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px 8px;
+  border-bottom: 1.5px solid #000;
+}
+
+.doc-logo {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin: 0;
+  font-family: Arial Black, Arial, sans-serif;
+}
+
+.doc-sub {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.doc-tagline {
+  margin: 8px 0 0;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.doc-logo-mark {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+.logo-ec {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #c81e3c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 16px;
+  color: #c81e3c;
+}
+
+.logo-c {
+  position: absolute;
+  top: 12px;
+  left: 22px;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #2a3a8a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  color: #2a3a8a;
+  background: #fff;
+}
+
+.logo-l {
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  width: 34px;
+  height: 3px;
+  background: #2a3a8a;
+}
+
+/* Address row */
+.doc-address-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 10px 20px;
+  border-bottom: 1.5px solid #000;
+  gap: 16px;
+}
+
+.doc-address p {
+  margin: 2px 0;
+  font-size: 12.5px;
+}
+
+.doc-date-box {
+  border: 1.5px solid #000;
+  padding: 6px 14px;
+  min-width: 190px;
+  text-align: center;
+  align-self: flex-start;
+}
+
+.doc-date-label {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin: 0 0 2px;
+}
+
+.doc-date-value {
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Title bar */
+.doc-title-bar {
+  background: #111;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  padding: 7px 20px;
+}
+
+/* Parties */
+.doc-parties {
+  display: flex;
+  border-bottom: 1.5px solid #000;
+}
+
+.doc-party {
+  flex: 1;
+  padding: 10px 20px;
+}
+
+.doc-party-right {
+  border-left: 1.5px solid #000;
+}
+
+.doc-party-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #444;
+  margin: 0 0 4px;
+}
+
+.doc-party-name {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.doc-party-sub {
+  font-size: 11.5px;
+  margin: 0;
+  color: #222;
+}
+
+/* Table */
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.doc-table th {
+  background: #f2f2f2;
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1.5px solid #000;
+}
+
+.doc-table th.col-qty,
+.doc-table td.col-qty {
+  width: 70px;
+  text-align: center;
+  border-right: 1.5px solid #000;
+}
+
+.doc-table th.col-amt,
+.doc-table td.col-amt {
+  width: 160px;
+  text-align: right;
+  border-left: 1.5px solid #000;
+}
+
+.doc-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ccc;
+  vertical-align: top;
+}
+
+.doc-table tbody tr:last-child td {
+  border-bottom: 1.5px solid #000;
+}
+
+.item-name {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.item-unit {
+  font-size: 11px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.col-amt {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* Footer totals */
+.doc-footer {
+  display: flex;
+  border-bottom: 1.5px solid #000;
+}
+
+.doc-words {
+  flex: 1;
+  padding: 12px 20px;
+  border-right: 1.5px solid #000;
+}
+
+.doc-words-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #444;
+  margin: 0 0 6px;
+}
+
+.doc-words-value {
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
+  margin: 0;
+}
+
+.doc-totals {
+  width: 260px;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-bottom: 1px solid #ccc;
+}
+
+.totals-row:last-child {
+  border-bottom: none;
+}
+
+.totals-due {
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+}
+
+/* Signatures */
+.doc-signatures {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 30px 20px;
+  gap: 40px;
+}
+
+.signature-block {
+  flex: 1;
+  text-align: center;
+}
+
+.signature-line {
+  border-top: 1.5px solid #000;
+  margin-bottom: 6px;
+}
+
+.signature-block p {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Print */
+@media print {
+  body * { visibility: hidden; }
+  #order-document, #order-document * { visibility: visible; }
+  #order-document {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    border: none;
+  }
+  @page { size: A4; margin: 12mm; }
+}
