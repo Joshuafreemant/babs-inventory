@@ -116,6 +116,7 @@ export interface ConsoleOrder {
   hasBackorder: boolean;
   refSource: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ConsoleStats {

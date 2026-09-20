@@ -22,8 +22,11 @@ import { LedgerRowSkeleton, OrderRowSkeleton } from "../components/console/RowSk
 import { Product, ConsoleOrder, ConsoleStats, StaffSession } from "../types";
 import { apiGet, apiPatch, apiPost } from "../lib/api";
 import { naira, cartonBreakdown, isLowStock, STATUS_LABEL } from "../lib/money";
+import type { DocKind, OrderDocData } from "../components/OrderDoc";
 
 const STATUS_OPTIONS = ["reserved", "awaiting_transfer", "paid", "dispatched", "collected", "cancelled"];
+// realised sales — matches the definition used on the Reports page
+const PAID_STATUSES = ["paid", "dispatched", "collected"];
 
 export default function ConsolePage() {
   const [session, setSession] = useState<StaffSession | null>(null);
@@ -171,6 +174,34 @@ export default function ConsolePage() {
       replaceProduct(updated);
     } catch (e: any) {
       toast.error(e.message);
+    }
+  };
+
+  const [printBusy, setPrintBusy] = useState<string | null>(null);
+
+  const printOrder = async (o: ConsoleOrder, kind: DocKind) => {
+    const busyKey = `${o.id}:${kind}`;
+    setPrintBusy(busyKey);
+    try {
+      const data: OrderDocData = {
+        code: o.code,
+        customerName: o.customerName,
+        phone: o.phone,
+        email: o.email,
+        items: o.items,
+        total: o.total,
+        method: o.method,
+        status: o.status,
+        createdAt: o.createdAt,
+        updatedAt: o.updatedAt,
+      };
+      // loaded on click so html2canvas / jsPDF stay out of the main bundle
+      const { downloadOrderDocument } = await import("../components/Downloadorderdocument");
+      await downloadOrderDocument(kind, data);
+    } catch (e: any) {
+      toast.error(e?.message || "Couldn't create the document.");
+    } finally {
+      setPrintBusy(null);
     }
   };
 
@@ -635,6 +666,31 @@ export default function ConsolePage() {
                     </option>
                   ))}
                 </select>
+                <div className="flex items-center gap-2" style={{ marginTop: 8 }}>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1 }}
+                    disabled={printBusy === `${o.id}:invoice`}
+                    onClick={() => printOrder(o, "invoice")}
+                  >
+                    {printBusy === `${o.id}:invoice` ? "Preparing…" : "Print invoice"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1 }}
+                    disabled={printBusy === `${o.id}:receipt` || !PAID_STATUSES.includes(o.status)}
+                    title={
+                      PAID_STATUSES.includes(o.status)
+                        ? undefined
+                        : "Only available once the order is marked paid, dispatched or collected"
+                    }
+                    onClick={() => printOrder(o, "receipt")}
+                  >
+                    {printBusy === `${o.id}:receipt` ? "Preparing…" : "Print receipt"}
+                  </button>
+                </div>
               </div>
             ))}
             {orders.length === 0 && (

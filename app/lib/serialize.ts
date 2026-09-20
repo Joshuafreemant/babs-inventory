@@ -62,5 +62,6 @@ export function orderForConsole(o: any) {
     hasBackorder: o.hasBackorder,
     refSource: o.refSource || "",
     createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
   };
 }
