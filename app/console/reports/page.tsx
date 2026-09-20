@@ -50,12 +50,15 @@ const RANGES = [
   { id: "90d", label: "90 days" },
   { id: "mtd", label: "This month" },
   { id: "all", label: "All time" },
+  { id: "custom", label: "Custom" },
 ];
 
 export default function ReportsPage() {
   const [session, setSession] = useState<StaffSession | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [range, setRange] = useState("30d");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [basis, setBasis] = useState<"paid" | "all">("paid");
   const [meta, setMeta] = useState<ReportMeta | null>(null);
   const [csvBusy, setCsvBusy] = useState(false);
@@ -67,14 +70,33 @@ export default function ReportsPage() {
       .finally(() => setAuthChecked(true));
   }, []);
 
+  // switching to "custom" (or clearing a date) shouldn't leave the previous
+  // range's numbers on screen mislabelled as the new one
+  useEffect(() => {
+    if (range === "custom" && !(customFrom && customTo && customFrom <= customTo)) {
+      setMeta(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [range, customFrom, customTo]);
+
+  // custom date filter only kicks in once both ends are picked and valid
+  const customReady = range === "custom" && !!customFrom && !!customTo && customFrom <= customTo;
+  const customInvalid = range === "custom" && !!customFrom && !!customTo && customFrom > customTo;
+  const rangeQuery =
+    range === "custom"
+      ? customReady
+        ? `from=${customFrom}&to=${customTo}`
+        : null
+      : `range=${range}`;
+
   // "Sales by product" is cursor-paginated; every other field in the
   // response (totals, series, pipeline, …) always covers the whole range,
   // so we just grab it off the first page each time range/basis changes.
   const productsList = useInfiniteList<PerProductRow>({
-    endpoint: `/api/admin/reports?range=${range}&basis=${basis}`,
+    endpoint: `/api/admin/reports?${rangeQuery || ""}&basis=${basis}`,
     key: "perProduct",
     limit: 10,
-    enabled: !!session,
+    enabled: !!session && !!rangeQuery,
     onPage: (res) => {
       setMeta({
         range: res.range,
@@ -96,12 +118,12 @@ export default function ReportsPage() {
   };
 
   const downloadCsv = async () => {
-    if (!meta) return;
+    if (!meta || !rangeQuery) return;
     setCsvBusy(true);
     try {
       // pagination is for the on-screen list only — CSV always exports the full range
       const full = await apiGet<{ perProduct: PerProductRow[] }>(
-        `/api/admin/reports?range=${range}&basis=${basis}&limit=2000`
+        `/api/admin/reports?${rangeQuery}&basis=${basis}&limit=2000`
       );
       const rows = [
         [
@@ -185,6 +207,50 @@ export default function ReportsPage() {
           </div>
         </div>
 
+        {range === "custom" && (
+          <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 8 }}>
+            <label className="flex items-center gap-1" style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>
+              From
+              <input
+                type="date"
+                value={customFrom}
+                max={customTo || undefined}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                style={{
+                  marginLeft: 4,
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--r-pill)",
+                  padding: "6px 10px",
+                  fontSize: 13.5,
+                  background: "#fff",
+                }}
+              />
+            </label>
+            <label className="flex items-center gap-1" style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>
+              To
+              <input
+                type="date"
+                value={customTo}
+                min={customFrom || undefined}
+                onChange={(e) => setCustomTo(e.target.value)}
+                style={{
+                  marginLeft: 4,
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--r-pill)",
+                  padding: "6px 10px",
+                  fontSize: 13.5,
+                  background: "#fff",
+                }}
+              />
+            </label>
+            {customInvalid && (
+              <span style={{ fontSize: 13, color: "var(--rose)" }}>
+                Start date must be before end date.
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 8 }}>
           <span className="small-caps" style={{ color: "var(--ink-soft)" }}>
             Count
@@ -214,11 +280,17 @@ export default function ReportsPage() {
         </div>
 
         <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 22px" }}>
-          {meta ? meta.range.label : "…"}
-          {meta ? ` · ${meta.range.from} to ${meta.range.to}` : ""}.{" "}
-          {basis === "paid"
-            ? "Only orders marked paid, dispatched or collected count as a sale."
-            : "Every non-cancelled order counts, reservations included."}
+          {range === "custom" && !customReady ? (
+            "Pick a start and end date above to build the report."
+          ) : (
+            <>
+              {meta ? meta.range.label : "…"}
+              {meta ? ` · ${meta.range.from} to ${meta.range.to}` : ""}.{" "}
+              {basis === "paid"
+                ? "Only orders marked paid, dispatched or collected count as a sale."
+                : "Every non-cancelled order counts, reservations included."}
+            </>
+          )}
         </p>
 
         {productsList.error && (
@@ -307,7 +379,7 @@ export default function ReportsPage() {
             <button
               className="btn btn-outline btn-sm"
               onClick={downloadCsv}
-              disabled={!meta || meta.perProductTotal === 0 || csvBusy}
+              disabled={!meta || !rangeQuery || meta.perProductTotal === 0 || csvBusy}
             >
               {csvBusy ? "Preparing…" : "Download CSV"}
             </button>
