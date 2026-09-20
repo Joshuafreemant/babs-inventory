@@ -254,9 +254,9 @@ label.check input[type="checkbox"]:checked::after { transform: translateX(16px);
   align-items: center;
   justify-content: center;
   padding: 18px 0;
-  /* a square scales with the card's own width, so it's never "too tall" for
-     however many columns the grid currently has — a fixed px height wasn't */
-  aspect-ratio: 1 / 1;
+  /* scales with the card's own width, so it's never "too tall" for however
+     many columns the grid currently has — a fixed px height wasn't */
+  aspect-ratio: 4 / 3;
   height: auto;
 }
 

@@ -8,10 +8,13 @@ import * as Mongoose from "mongoose";
 const productSchema = new Mongoose.Schema(
   {
     name: { type: String, required: true, unique: true, trim: true },
-    // art / category — drives which illustration the storefront renders when there's no photo
+    // legacy art/shape field — only ever drives the icon shown when a product has no
+    // photo. No longer editable by staff (superseded by drugCategory below), and
+    // deliberately NOT enum-constrained: a stray/legacy value here must never block
+    // a save on this document (ProductArt falls back safely for anything it doesn't
+    // recognise) — that's exactly what happened when this used to be a strict enum.
     category: {
       type: String,
-      enum: ["bottle", "syrup", "jar", "pump", "tube", "dropper", "granule", "cream", "powder", "condom"],
       default: "bottle",
     },
     // therapeutic classification — shown to staff and (later) customers
@@ -58,7 +61,7 @@ const productSchema = new Mongoose.Schema(
 
 export interface IProduct {
   name: string;
-  category: "bottle" | "syrup" | "jar" | "pump" | "tube" | "dropper" | "granule" | "cream" | "powder" | "condom";
+  category: string;
   drugCategory:
     | "analgesics"
     | "antibiotics"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "../types";
+import { Product, drugCategoryLabel } from "../types";
 import { ProductArt } from "./ProductArt";
 import { naira, stockStripe } from "../lib/money";
 
@@ -133,15 +133,18 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
         </div>
       )}
       <div style={{ padding: "15px 16px", borderTop: "1px solid var(--line)" }}>
-        <p className="serif" style={{ fontWeight: 600, fontSize: 19, margin: 0, lineHeight: 1.3 }}>
+        <p className="serif" style={{ fontWeight: 600, fontSize: 16.5, margin: 0, lineHeight: 1.3 }}>
           {p.name || "Untitled product"}
+        </p>
+        <p style={{ fontSize: 9, fontWeight: 700, color: "var(--gold)", margin: "2px 0 0", letterSpacing: "0.02em" }}>
+          ({drugCategoryLabel(p?.drugCategory || "")})
         </p>
         <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "4px 0 7px" }}>
           Sold per box &middot; {p.boxesPerCarton} boxes/carton
         </p>
         <p
           className="serif"
-          style={{ fontWeight: 700, fontSize: 16.5, color: "var(--navy)", margin: "0 0 10px", whiteSpace: "nowrap" }}
+          style={{ fontWeight: 700, fontSize: 14.5, color: "var(--navy)", margin: "0 0 10px", whiteSpace: "nowrap" }}
         >
           {naira(p.price || 0)}{" "}
           <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>

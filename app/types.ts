@@ -62,10 +62,19 @@ export const DRUG_CATEGORIES: { id: DrugCategory; label: string; active: boolean
   { id: "anesthetics", label: "Anesthetics", active: true },
 ];
 
+/** Short display label for a drug category — trims the "(examples...)" suffix. */
+export function drugCategoryLabel(id: DrugCategory): string {
+  const found = DRUG_CATEGORIES.find((c) => c.id === id);
+  return found ? found.label.split(" (")[0] : id;
+}
+
 export interface Product {
   id: string;
   name: string;
-  category: Category;
+  // legacy shape field — only used as a fallback icon when there's no photo.
+  // Loosely typed on purpose: it's no longer staff-editable or DB-constrained,
+  // so it must never be assumed to be one of the old `Category` values.
+  category: string;
   drugCategory: DrugCategory;
   boxesPerCarton: number;
   price: number;
@@ -132,6 +141,9 @@ export interface PlacedOrder {
   hasBackorder: boolean;
 }
 
+// Legacy shape/icon labels — kept only because ProductArt still looks these ids up
+// for its fallback illustration. Not shown to staff anymore; use DRUG_CATEGORIES
+// for anything user-facing.
 export const CATEGORIES: { id: Category; label: string }[] = [
   { id: "bottle", label: "Tablets / capsules bottle" },
   { id: "syrup", label: "Syrup bottle" },

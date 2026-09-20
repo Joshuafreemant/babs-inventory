@@ -1,10 +1,10 @@
-import { Category } from "../types";
-
 /**
  * Vector product renderings in the brand palette — stand-ins until real
  * photography is supplied. Each `art-panel` block is a one-line swap to <img>.
+ * `kind` is a loose string (see Product.category in types.ts) — anything
+ * unrecognised falls through to the default illustration below.
  */
-export function ProductArt({ kind }: { kind: Category }) {
+export function ProductArt({ kind }: { kind: string }) {
   const gid = `bg-${kind}`;
   const grad = (
     <defs>

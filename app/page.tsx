@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import { SiteHeader } from "./components/SiteHeader";
 import { ProductCard } from "./components/ProductCard";
 import { ProductCardSkeleton } from "./components/ProductCardSkeleton";
-import { TrackPanel } from "./components/storefront/TrackPanel";
 import { CheckoutModal, CheckoutForm } from "./components/storefront/CheckoutModal";
 import { ShareModal } from "./components/storefront/ShareModal";
 import { Product, PlacedOrder } from "./types";
@@ -30,6 +31,7 @@ const CART_KEY = "embassy_cart";
 const REF_KEY = "embassy_ref";
 
 export default function Storefront() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loadError, setLoadError] = useState("");
   const [productsLoading, setProductsLoading] = useState(true);
@@ -37,7 +39,6 @@ export default function Storefront() {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [draft, setDraft] = useState<Record<string, number>>({});
 
-  const [showTrack, setShowTrack] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [method, setMethod] = useState<"stand" | "transfer">("stand");
@@ -54,27 +55,6 @@ export default function Storefront() {
   const [query, setQuery] = useState("");
   const PAGE = 50;
   const [visible, setVisible] = useState(PAGE);
-
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (!showTrack) return;
-    // `body` has overflow-y:auto (side-effect of overflow-x:hidden), which
-    // confuses scrollIntoView — scroll the window explicitly instead.
-    const scrollToPanel = (smooth: boolean) => {
-      const el = trackRef.current;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top + window.scrollY - 14;
-      window.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
-    };
-    // one settle tick for the panel to mount, a hard jump, then a smooth
-    // pass so it lands cleanly even if scroll-anchoring nudged it
-    const t1 = setTimeout(() => scrollToPanel(false), 50);
-    const t2 = setTimeout(() => scrollToPanel(true), 120);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [showTrack]);
 
   const loadProducts = () =>
     apiGet<Product[]>("/api/products")
@@ -273,9 +253,9 @@ export default function Storefront() {
           {hero.subtext}
         </p>
         <div className="flex items-center gap-2 flex-wrap">
-          <button className="btn btn-ghost-navy" style={{ fontSize: 16.5 }} onClick={() => setShowTrack((v) => !v)}>
+          <Link href="/track" className="btn btn-ghost-navy" style={{ fontSize: 16.5 }}>
             Track my orders
-          </button>
+          </Link>
           <button className="btn btn-ghost-navy" style={{ fontSize: 16.5 }} onClick={() => setShowShare(true)}>
             Share catalogue link
           </button>
@@ -295,12 +275,6 @@ export default function Storefront() {
       </div>
 
       <div className="storefront-body" style={{ padding: "32px var(--gutter) 100px", marginTop: -20 }}>
-        {showTrack && (
-          <div ref={trackRef} style={{ scrollMarginTop: 14 }}>
-            <TrackPanel initialPhone={trackPhone} />
-          </div>
-        )}
-
         {loadError && (
           <div className="card" style={{ padding: "14px 18px", marginBottom: 20, color: "var(--rose)" }}>
             {loadError}{" "}
@@ -466,7 +440,7 @@ export default function Storefront() {
                 style={{ padding: "10px 0", fontSize: 16.5 }}
                 onClick={() => {
                   setConfirmed(null);
-                  setShowTrack(true);
+                  router.push(`/track?phone=${encodeURIComponent(trackPhone)}`);
                 }}
               >
                 Track my orders
