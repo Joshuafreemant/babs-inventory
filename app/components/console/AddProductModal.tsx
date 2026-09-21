@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, PACKET_PRESETS, SellUnit, Product } from "../../types";
 import { apiPost } from "../../lib/api";
-import { toBoxes, toPackets, suggestThreshold } from "../../lib/money";
+import { toBoxes, toPackets, cartonBreakdown, packetBreakdown, suggestThreshold } from "../../lib/money";
 import { ProductCard } from "../ProductCard";
 import { uploadProductPhoto, IMAGE_ACCEPT, MAX_IMAGE_BYTES } from "./uploadProductPhoto";
 import { CurrencyInput } from "./CurrencyInput";
@@ -324,16 +324,29 @@ export function AddProductModal({
             </div>
             <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
               {isPacket ? (
-                <>
-                  {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {boxes} box{boxes === 1 ? "" : "es"} ={" "}
-                  {cartons * (bpc || 0) + boxes} boxes &times; {ppb || 0} + {loose} loose ={" "}
-                  <strong>{totalStock.toLocaleString("en-NG")} packets in stock</strong>
-                </>
+                (() => {
+                  const nbd = packetBreakdown(totalStock, bpc, ppb);
+                  return (
+                    <>
+                      <strong>{totalStock.toLocaleString("en-NG")} packets in stock</strong> ({nbd.cartons} carton
+                      {nbd.cartons === 1 ? "" : "s"}
+                      {nbd.boxes ? ` + ${nbd.boxes} box${nbd.boxes === 1 ? "" : "es"}` : ""}
+                      {nbd.loosePackets ? ` + ${nbd.loosePackets} loose packet${nbd.loosePackets === 1 ? "" : "s"}` : ""},{" "}
+                      {ppb || 0}/box, {bpc || 0} boxes/carton)
+                    </>
+                  );
+                })()
               ) : (
-                <>
-                  {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {loose} loose ={" "}
-                  <strong>{totalStock.toLocaleString("en-NG")} boxes in stock</strong>
-                </>
+                (() => {
+                  const nbd = cartonBreakdown(totalStock, bpc);
+                  return (
+                    <>
+                      <strong>{totalStock.toLocaleString("en-NG")} boxes in stock</strong> ({nbd.cartons} carton
+                      {nbd.cartons === 1 ? "" : "s"}
+                      {nbd.loose ? ` + ${nbd.loose} loose box${nbd.loose === 1 ? "" : "es"}` : ""}, {bpc || 0}/carton)
+                    </>
+                  );
+                })()
               )}
             </p>
 

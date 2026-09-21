@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Product } from "../../types";
 import { apiPatch } from "../../lib/api";
-import { toBoxes, toPackets, unitLabel } from "../../lib/money";
+import { toBoxes, toPackets, cartonBreakdown, packetBreakdown, unitLabel } from "../../lib/money";
 
 export function RestockModal({
   product,
@@ -92,8 +92,26 @@ export function RestockModal({
             </div>
           </div>
           <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "0 0 14px" }}>
-            Adding <strong>{adding.toLocaleString("en-NG")} {unitLabel(product.sellUnit, adding)}</strong> &middot; new
-            total will be{" "}
+            Adding <strong>{adding.toLocaleString("en-NG")} {unitLabel(product.sellUnit, adding)}</strong>
+            {adding > 0 &&
+              (() => {
+                if (isPacket) {
+                  const nbd = packetBreakdown(adding, product.boxesPerCarton, product.packetsPerBox || 1);
+                  const parts = [
+                    nbd.cartons ? `${nbd.cartons} carton${nbd.cartons === 1 ? "" : "s"}` : "",
+                    nbd.boxes ? `${nbd.boxes} box${nbd.boxes === 1 ? "" : "es"}` : "",
+                    nbd.loosePackets ? `${nbd.loosePackets} loose packet${nbd.loosePackets === 1 ? "" : "s"}` : "",
+                  ].filter(Boolean);
+                  return parts.length > 1 ? <> ({parts.join(" + ")})</> : null;
+                }
+                const nbd = cartonBreakdown(adding, product.boxesPerCarton);
+                const parts = [
+                  nbd.cartons ? `${nbd.cartons} carton${nbd.cartons === 1 ? "" : "s"}` : "",
+                  nbd.loose ? `${nbd.loose} loose box${nbd.loose === 1 ? "" : "es"}` : "",
+                ].filter(Boolean);
+                return parts.length > 1 ? <> ({parts.join(" + ")})</> : null;
+              })()}{" "}
+            &middot; new total will be{" "}
             <strong>
               {(product.stock + adding).toLocaleString("en-NG")} {unitLabel(product.sellUnit, product.stock + adding)}
             </strong>
