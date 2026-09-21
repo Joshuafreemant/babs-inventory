@@ -663,6 +663,7 @@ export default function ConsolePage() {
                             {[
                               pbd.cartons > 0 ? `${pbd.cartons} carton${pbd.cartons === 1 ? "" : "s"}` : "",
                               pbd.boxes > 0 ? `${pbd.boxes} box${pbd.boxes === 1 ? "" : "es"}` : "",
+                              pbd.loosePackets > 0 ? `${pbd.loosePackets} loose packet${pbd.loosePackets === 1 ? "" : "s"}` : "",
                             ]
                               .filter(Boolean)
                               .join(" + ")}
