@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { naira, unitLabel } from "../lib/money";
+import { naira, unitLabel, cartonBreakdown, packetBreakdown } from "../lib/money";
 import { nairaInWords } from "../lib/numbertowords";
 
 export type DocKind = "invoice" | "receipt";
@@ -15,6 +15,8 @@ export interface OrderDocData {
     unitPrice: number;
     lineTotal: number;
     sellUnit?: "box" | "packet";
+    boxesPerCarton?: number;
+    packetsPerBox?: number;
   }[];
   total: number;
   method?: string;
@@ -56,6 +58,28 @@ const fmtDate = (iso: string) => {
 };
 /** EMB-0035 -> 000035 (swap for a real invoice counter if you add one) */
 const docNo = (code: string) => (code.replace(/\D/g, "") || "0").padStart(6, "0");
+
+/** "2 cartons + 4 loose" — the carton/box (or box/packet) breakdown of a line's
+ * qty, same normalized breakdown shown on the ledger. Empty when there's
+ * nothing beyond the bare qty worth showing. */
+function itemBreakdown(it: OrderDocData["items"][number]): string {
+  const bpc = it.boxesPerCarton || 1;
+  if (it.sellUnit === "packet") {
+    const bd = packetBreakdown(it.qty, bpc, it.packetsPerBox || 1);
+    const parts = [
+      bd.cartons > 0 ? `${bd.cartons} carton${bd.cartons === 1 ? "" : "s"}` : "",
+      bd.boxes > 0 ? `${bd.boxes} box${bd.boxes === 1 ? "" : "es"}` : "",
+      bd.loosePackets > 0 ? `${bd.loosePackets} loose` : "",
+    ].filter(Boolean);
+    return parts.length > 1 ? parts.join(" + ") : "";
+  }
+  const bd = cartonBreakdown(it.qty, bpc);
+  const parts = [
+    bd.cartons > 0 ? `${bd.cartons} carton${bd.cartons === 1 ? "" : "s"}` : "",
+    bd.loose > 0 ? `${bd.loose} loose` : "",
+  ].filter(Boolean);
+  return parts.length > 1 ? parts.join(" + ") : "";
+}
 
 const caps: CSSProperties = {
   fontSize: 10.5,
@@ -260,6 +284,7 @@ export function OrderDocument({ kind, data }: { kind: DocKind; data: OrderDocDat
               <div>{it.name}</div>
               <div style={{ fontSize: 10.5, color: SOFT, marginTop: 3 }}>
                 {naira(it.unitPrice)} / {unitLabel(it.sellUnit, 1)}
+                {itemBreakdown(it) && ` · ${itemBreakdown(it)}`}
               </div>
             </div>
             <div style={{ ...cell, alignItems: "flex-end", borderLeft: `2px solid ${INK}` }}>

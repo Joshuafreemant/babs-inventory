@@ -637,6 +637,8 @@ export default function ConsolePage() {
                   {o.items.map((it, idx) => {
                     const itemIsPacket = it.sellUnit === "packet";
                     const bpc = it.boxesPerCarton || 1;
+                    const ppb = it.packetsPerBox || 1;
+                    const pbd = itemIsPacket ? packetBreakdown(it.qty, bpc, ppb) : null;
                     const bd = !itemIsPacket && bpc > 1 ? cartonBreakdown(it.qty, bpc) : null;
                     return (
                       <p
@@ -652,6 +654,18 @@ export default function ConsolePage() {
                             {" "}
                             &middot; {bd.cartons} carton{bd.cartons === 1 ? "" : "s"}
                             {bd.loose ? ` + ${bd.loose} box${bd.loose === 1 ? "" : "es"}` : ""}
+                          </span>
+                        )}
+                        {pbd && (pbd.cartons > 0 || pbd.boxes > 0) && (
+                          <span>
+                            {" "}
+                            &middot;{" "}
+                            {[
+                              pbd.cartons > 0 ? `${pbd.cartons} carton${pbd.cartons === 1 ? "" : "s"}` : "",
+                              pbd.boxes > 0 ? `${pbd.boxes} box${pbd.boxes === 1 ? "" : "es"}` : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" + ")}
                           </span>
                         )}
                         {it.backordered && <span style={{ color: "var(--gold)" }}> &middot; backorder</span>}

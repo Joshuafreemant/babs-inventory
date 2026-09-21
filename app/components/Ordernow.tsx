@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { TrackedOrder } from "../types";
 import { StatusPill } from "./StatusPill";
-import { naira } from "../lib/money";
+import { naira, cartonBreakdown, packetBreakdown, unitLabel } from "../lib/money";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -12,12 +12,24 @@ const fmtDate = (iso?: string) => {
   return `${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 };
 
-/** "Lacma Granules x5, AgeFit x5" -> [{ name: "Lacma Granules", qty: "5" }, ...] */
-const parseItems = (s: string) =>
-  s.split(", ").map((part) => {
-    const m = part.match(/^(.*) x(\d+)$/);
-    return m ? { name: m[1], qty: m[2] } : { name: part, qty: "" };
-  });
+/** e.g. " (1 box + 4 loose)" — omitted when there's nothing to break down. */
+function breakdownSuffix(it: TrackedOrder["items"][number]): string {
+  if (it.sellUnit === "packet") {
+    const bd = packetBreakdown(it.qty, it.boxesPerCarton, it.packetsPerBox || 1);
+    const parts = [
+      bd.cartons ? `${bd.cartons} carton${bd.cartons === 1 ? "" : "s"}` : "",
+      bd.boxes ? `${bd.boxes} box${bd.boxes === 1 ? "" : "es"}` : "",
+      bd.loosePackets ? `${bd.loosePackets} loose` : "",
+    ].filter(Boolean);
+    return parts.length > 1 ? ` (${parts.join(" + ")})` : "";
+  }
+  const bd = cartonBreakdown(it.qty, it.boxesPerCarton);
+  const parts = [
+    bd.cartons ? `${bd.cartons} carton${bd.cartons === 1 ? "" : "s"}` : "",
+    bd.loose ? `${bd.loose} loose` : "",
+  ].filter(Boolean);
+  return parts.length > 1 ? ` (${parts.join(" + ")})` : "";
+}
 
 const chip: CSSProperties = {
   fontSize: 14,
@@ -50,7 +62,7 @@ export function OrderRow({
 }) {
   const paid = o.status === "paid";
   const date = fmtDate(o.createdAt);
-  const items = parseItems(o.items);
+  const items = o.items;
   const shown = items.slice(0, 3);
   const extra = items.length - shown.length;
 
@@ -80,7 +92,11 @@ export function OrderRow({
         {shown.map((it, i) => (
           <span key={i} style={chip}>
             {it.name}
-            {it.qty && <b style={{ fontWeight: 600, color: "var(--ink-soft)" }}> ×{it.qty}</b>}
+            <b style={{ fontWeight: 600, color: "var(--ink-soft)" }}>
+              {" "}
+              ×{it.qty} {unitLabel(it.sellUnit, it.qty)}
+              {breakdownSuffix(it)}
+            </b>
           </span>
         ))}
         {extra > 0 && <span style={{ ...chip, color: "var(--ink-soft)" }}>+{extra} more</span>}

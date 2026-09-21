@@ -42,6 +42,7 @@ export async function GET(req: Request) {
         unitPrice: i.unitPrice,
         lineTotal: i.lineTotal,
         sellUnit: i.sellUnit || "box",
+        boxesPerCarton: i.boxesPerCarton || 1,
         packetsPerBox: i.packetsPerBox,
       })),
       total: o.total,

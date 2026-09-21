@@ -93,7 +93,13 @@ export interface Product {
 
 export interface TrackedOrder {
   code: string;
-  items: string;
+  items: {
+    name: string;
+    qty: number;
+    sellUnit: SellUnit;
+    boxesPerCarton: number;
+    packetsPerBox?: number;
+  }[];
   total: number;
   status: string;
   statusLabel: string;

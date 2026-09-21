@@ -41,7 +41,13 @@ export async function GET(req: Request) {
     return Response.json(
       orders.map((o: any) => ({
         code: o.code,
-        items: o.items.map((i: any) => `${i.name} x${i.qty}`).join(", "),
+        items: o.items.map((i: any) => ({
+          name: i.name,
+          qty: i.qty,
+          sellUnit: i.sellUnit || "box",
+          boxesPerCarton: i.boxesPerCarton || 1,
+          packetsPerBox: i.packetsPerBox,
+        })),
         total: o.total,
         status: o.status,
         statusLabel: STATUS_LABEL[o.status] || o.status,
