@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Product, drugCategoryLabel } from "../types";
 import { ProductArt } from "./ProductArt";
-import { naira, stockStripe } from "../lib/money";
+import { naira, stockStripe, unitLabel } from "../lib/money";
 
 interface Props {
   product: Product;
@@ -140,14 +140,18 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
           ({drugCategoryLabel(p?.drugCategory || "")})
         </p>
         <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "4px 0 7px" }}>
-          Sold per box &middot; {p.boxesPerCarton} boxes/carton
+          {p.sellUnit === "packet"
+            ? <>Sold per packet &middot; {p.packetsPerBox} packets/box</>
+            : <>Sold per box &middot; {p.boxesPerCarton} boxes/carton</>}
         </p>
         <p
           className="serif"
           style={{ fontWeight: 700, fontSize: 14.5, color: "var(--navy)", margin: "0 0 10px", whiteSpace: "nowrap" }}
         >
           {naira(p.price || 0)}{" "}
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>/ box</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-soft)" }}>
+            / {unitLabel(p.sellUnit, 1)}
+          </span>
         </p>
 
         {!preview && (
@@ -162,7 +166,7 @@ export function ProductCard({ product: p, qty = 0, onDec, onInc, onSet, onAdd, p
                 min={0}
                 value={qty === 0 ? "" : qty}
                 placeholder="0"
-                aria-label="quantity in boxes"
+                aria-label={`quantity in ${unitLabel(p.sellUnit, 2)}`}
                 onChange={(e) => {
                   const n = parseInt(e.target.value, 10);
                   onSet?.(Number.isFinite(n) ? n : 0);

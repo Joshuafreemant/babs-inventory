@@ -99,7 +99,7 @@ export async function GET(req: Request) {
 
     // ---- totals ----
     let revenue = 0;
-    let boxes = 0;
+    let qty = 0;
     let collectedRevenue = 0;
     let outstandingRevenue = 0;
     const byMethod: Record<string, { orders: number; revenue: number }> = {
@@ -110,9 +110,9 @@ export async function GET(req: Request) {
 
     const productMap = new Map<
       string,
-      { name: string; boxes: number; revenue: number; orders: Set<string> }
+      { name: string; sellUnit: "box" | "packet"; qty: number; revenue: number; orders: Set<string> }
     >();
-    const sourceMap = new Map<string, { orders: number; revenue: number; boxes: number }>();
+    const sourceMap = new Map<string, { orders: number; revenue: number; units: number }>();
 
     const spanDays = Math.round((to.getTime() - from.getTime()) / DAY) + 1;
     const weekly = spanDays > 62;
@@ -137,18 +137,18 @@ export async function GET(req: Request) {
       buckets.set(key, b);
 
       const src = o.refSource || "";
-      const s = sourceMap.get(src) || { orders: 0, revenue: 0, boxes: 0 };
+      const s = sourceMap.get(src) || { orders: 0, revenue: 0, units: 0 };
       s.orders += 1;
       s.revenue += o.total;
 
       for (const it of o.items) {
-        boxes += it.qty;
-        s.boxes += it.qty;
+        qty += it.qty;
+        s.units += it.qty;
         const pid = String(it.product);
         const entry =
           productMap.get(pid) ||
-          { name: it.name, boxes: 0, revenue: 0, orders: new Set<string>() };
-        entry.boxes += it.qty;
+          { name: it.name, sellUnit: it.sellUnit || "box", qty: 0, revenue: 0, orders: new Set<string>() };
+        entry.qty += it.qty;
         entry.revenue += it.lineTotal;
         entry.orders.add(String(o._id));
         productMap.set(pid, entry);
@@ -169,7 +169,7 @@ export async function GET(req: Request) {
         source: source || "direct",
         name: source ? staffName.get(source) || source : "Direct / walk-in",
         orders: v.orders,
-        boxes: v.boxes,
+        units: v.units,
         revenue: v.revenue,
         sharePct: revenue > 0 ? +((v.revenue / revenue) * 100).toFixed(1) : 0,
       }))
@@ -181,7 +181,8 @@ export async function GET(req: Request) {
       .map(([productId, e]) => ({
         productId,
         name: e.name,
-        boxes: e.boxes,
+        sellUnit: e.sellUnit,
+        qty: e.qty,
         revenue: e.revenue,
         orders: e.orders.size,
         sharePct: revenue > 0 ? +((e.revenue / revenue) * 100).toFixed(1) : 0,
@@ -213,7 +214,7 @@ export async function GET(req: Request) {
       totals: {
         revenue,
         orders: orderCount,
-        boxes,
+        units: qty,
         avgOrderValue: orderCount > 0 ? Math.round(revenue / orderCount) : 0,
         collectedRevenue,
         outstandingRevenue,

@@ -64,7 +64,7 @@ export function newOrderMessage(o: {
   customerName: string;
   phone: string;
   items: { name: string; qty: number }[];
-  boxes: number;
+  itemsQty: number;
   total: number;
   methodLabel: string;
 }): string {
@@ -79,7 +79,7 @@ export function newOrderMessage(o: {
     `Embassy new order ${o.code}\n` +
     `From: ${o.customerName} (${o.phone})\n` +
     `${lines}\n` +
-    `${o.boxes} box${o.boxes === 1 ? "" : "es"}, NGN ${o.total.toLocaleString("en-NG")}\n` +
+    `${o.itemsQty} item${o.itemsQty === 1 ? "" : "s"}, NGN ${o.total.toLocaleString("en-NG")}\n` +
     `${o.methodLabel}`;
   return gsmSafe(msg);
 }

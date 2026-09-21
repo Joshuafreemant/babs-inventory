@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { unitLabel } from "../../lib/money";
 
 /** The ledger's per-product stock control — nudge with +/-, or type an exact
  * count directly and it commits when you tab/click away or press Enter. */
 export function StockStepper({
   stock,
+  sellUnit,
   onAdjust,
   onSetExact,
 }: {
   stock: number;
+  sellUnit?: "box" | "packet";
   onAdjust: (delta: number) => void;
   onSetExact: (value: number) => void;
 }) {
@@ -40,7 +43,7 @@ export function StockStepper({
         inputMode="numeric"
         min={0}
         value={draft}
-        aria-label="stock in boxes"
+        aria-label={`stock in ${unitLabel(sellUnit, 2)}`}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {

@@ -9,12 +9,13 @@ import { useInfiniteList } from "../../components/console/useInfiniteList";
 import { InfiniteFooter } from "../../components/console/InfiniteFooter";
 import { StaffSession } from "../../types";
 import { apiGet, apiPost } from "../../lib/api";
-import { naira } from "../../lib/money";
+import { naira, unitLabel } from "../../lib/money";
 
 interface PerProductRow {
   productId: string;
   name: string;
-  boxes: number;
+  sellUnit: "box" | "packet";
+  qty: number;
   revenue: number;
   orders: number;
   sharePct: number;
@@ -25,7 +26,7 @@ interface ReportMeta {
   totals: {
     revenue: number;
     orders: number;
-    boxes: number;
+    units: number;
     avgOrderValue: number;
     collectedRevenue: number;
     outstandingRevenue: number;
@@ -35,7 +36,7 @@ interface ReportMeta {
     source: string;
     name: string;
     orders: number;
-    boxes: number;
+    units: number;
     revenue: number;
     sharePct: number;
   }[];
@@ -131,16 +132,17 @@ export default function ReportsPage() {
           basis === "paid" ? "paid orders only" : "all non-cancelled orders",
         ],
         [],
-        ["Product", "Boxes sold", "Orders", "Revenue (NGN)", "Share %"],
+        ["Product", "Unit", "Qty sold", "Orders", "Revenue (NGN)", "Share %"],
         ...full.perProduct.map((p) => [
           p.name,
-          String(p.boxes),
+          p.sellUnit,
+          String(p.qty),
           String(p.orders),
           String(p.revenue),
           String(p.sharePct),
         ]),
         [],
-        ["Total sales", "", String(meta.totals.orders), String(meta.totals.revenue), "100"],
+        ["Total sales", "", "", String(meta.totals.orders), String(meta.totals.revenue), "100"],
       ];
       const csv = rows
         .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
@@ -179,7 +181,7 @@ export default function ReportsPage() {
   const tiles = [
     { label: "Total sales", value: t ? naira(t.revenue) : "—" },
     { label: "Orders", value: t ? t.orders.toLocaleString("en-NG") : "—" },
-    { label: "Boxes sold", value: t ? t.boxes.toLocaleString("en-NG") : "—" },
+    { label: "Units sold", value: t ? t.units.toLocaleString("en-NG") : "—" },
     { label: "Avg order value", value: t ? naira(t.avgOrderValue) : "—" },
   ];
 
@@ -417,8 +419,8 @@ export default function ReportsPage() {
                 />
               </div>
               <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "5px 0 0" }}>
-                {p.sharePct}% of sales &middot; {p.boxes.toLocaleString("en-NG")} box
-                {p.boxes === 1 ? "" : "es"} &middot; {p.orders} order{p.orders === 1 ? "" : "s"}
+                {p.sharePct}% of sales &middot; {p.qty.toLocaleString("en-NG")}{" "}
+                {unitLabel(p.sellUnit, p.qty)} &middot; {p.orders} order{p.orders === 1 ? "" : "s"}
               </p>
             </div>
           ))}
@@ -463,7 +465,7 @@ export default function ReportsPage() {
                 </div>
                 <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: "5px 0 0" }}>
                   {s.sharePct}% of sales &middot; {s.orders} order{s.orders === 1 ? "" : "s"} &middot;{" "}
-                  {s.boxes.toLocaleString("en-NG")} box{s.boxes === 1 ? "" : "es"}
+                  {s.units.toLocaleString("en-NG")} units
                 </p>
               </div>
             ))}

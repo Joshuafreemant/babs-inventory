@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, Product } from "../../types";
+import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, PACKET_PRESETS, SellUnit, Product } from "../../types";
 import { apiPost } from "../../lib/api";
-import { toBoxes, suggestThreshold } from "../../lib/money";
+import { toBoxes, toPackets, suggestThreshold } from "../../lib/money";
 import { ProductCard } from "../ProductCard";
 import { uploadProductPhoto, IMAGE_ACCEPT, MAX_IMAGE_BYTES } from "./uploadProductPhoto";
 import { CurrencyInput } from "./CurrencyInput";
@@ -14,8 +14,11 @@ interface Form {
   name: string;
   drugCategory: DrugCategory;
   boxesPerCarton: string;
+  sellUnit: SellUnit;
+  packetsPerBox: string;
   price: string;
   cartons: string;
+  boxes: string;
   loose: string;
   threshold: string;
   thresholdManual: boolean;
@@ -29,8 +32,11 @@ const EMPTY: Form = {
   name: "",
   drugCategory: "cardiovascular",
   boxesPerCarton: "24",
+  sellUnit: "box",
+  packetsPerBox: "",
   price: "",
   cartons: "",
+  boxes: "",
   loose: "",
   threshold: "",
   thresholdManual: false,
@@ -70,20 +76,32 @@ export function AddProductModal({
   };
 
   const bpc = parseInt(f.boxesPerCarton, 10) || 0;
+  const isPacket = f.sellUnit === "packet";
+  const ppb = parseInt(f.packetsPerBox, 10) || 0;
   const cartons = parseInt(f.cartons, 10) || 0;
+  const boxes = parseInt(f.boxes, 10) || 0;
   const loose = parseInt(f.loose, 10) || 0;
   const price = parseInt(f.price, 10) || 0;
-  const totalBoxes = toBoxes(cartons, loose, bpc);
+  const totalStock = isPacket ? toPackets(cartons, boxes, loose, bpc, ppb) : toBoxes(cartons, loose, bpc);
 
   const patch = (p: Partial<Form>) =>
     setF((prev) => {
       const next = { ...prev, ...p };
-      if (!next.thresholdManual && ("cartons" in p || "loose" in p || "boxesPerCarton" in p)) {
-        const b = toBoxes(
-          parseInt(next.cartons, 10) || 0,
-          parseInt(next.loose, 10) || 0,
-          parseInt(next.boxesPerCarton, 10) || 0
-        );
+      const stockFieldTouched =
+        "cartons" in p || "boxes" in p || "loose" in p || "boxesPerCarton" in p ||
+        "sellUnit" in p || "packetsPerBox" in p;
+      if (!next.thresholdManual && stockFieldTouched) {
+        const nbpc = parseInt(next.boxesPerCarton, 10) || 0;
+        const b =
+          next.sellUnit === "packet"
+            ? toPackets(
+                parseInt(next.cartons, 10) || 0,
+                parseInt(next.boxes, 10) || 0,
+                parseInt(next.loose, 10) || 0,
+                nbpc,
+                parseInt(next.packetsPerBox, 10) || 0
+              )
+            : toBoxes(parseInt(next.cartons, 10) || 0, parseInt(next.loose, 10) || 0, nbpc);
         next.threshold = b > 0 ? String(suggestThreshold(b)) : "";
       }
       return next;
@@ -97,8 +115,11 @@ export function AddProductModal({
         name: f.name,
         drugCategory: f.drugCategory,
         boxesPerCarton: bpc,
+        sellUnit: f.sellUnit,
+        packetsPerBox: isPacket ? ppb : undefined,
         price,
         cartons,
+        boxes,
         loose,
         threshold: f.threshold === "" ? undefined : parseInt(f.threshold, 10),
         backorder: f.backorder,
@@ -108,13 +129,13 @@ export function AddProductModal({
           product = await uploadProductPhoto(product.id, photo);
         } catch (e: any) {
           // product is saved; just tell them the photo didn't attach
-          onAdded(product, totalBoxes);
+          onAdded(product, totalStock);
           setError(`Product added, but the photo failed: ${e.message}. Add it from the ledger.`);
           setBusy(false);
           return;
         }
       }
-      onAdded(product, totalBoxes);
+      onAdded(product, totalStock);
       onClose();
     } catch (e: any) {
       setError(e.message);
@@ -129,8 +150,10 @@ export function AddProductModal({
     category: "bottle",
     drugCategory: f.drugCategory,
     boxesPerCarton: bpc || 1,
+    sellUnit: f.sellUnit,
+    packetsPerBox: isPacket ? ppb || 1 : undefined,
     price,
-    stock: totalBoxes,
+    stock: totalStock,
     lowStockThreshold: parseInt(f.threshold, 10) || 0,
     forceLowStock: false,
     showStock: false,
@@ -172,6 +195,34 @@ export function AddProductModal({
             </p>
 
             <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
+              Sell unit
+            </p>
+            <div className="flex" style={{ background: "var(--cream-soft)", borderRadius: "var(--r-pill)", padding: 3, gap: 2, width: "fit-content" }}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{
+                  background: !isPacket ? "var(--navy)" : "transparent",
+                  color: !isPacket ? "var(--gold-light)" : "var(--ink-soft)",
+                }}
+                onClick={() => patch({ sellUnit: "box" })}
+              >
+                Box
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{
+                  background: isPacket ? "var(--navy)" : "transparent",
+                  color: isPacket ? "var(--gold-light)" : "var(--ink-soft)",
+                }}
+                onClick={() => patch({ sellUnit: "packet" })}
+              >
+                Packet
+              </button>
+            </div>
+
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
               Boxes per carton (how it&apos;s packed for delivery)
             </p>
             <div className="flex items-center gap-2 flex-wrap">
@@ -196,15 +247,48 @@ export function AddProductModal({
               </div>
             </div>
 
+            {isPacket && (
+              <>
+                <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
+                  Packets per box
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {PACKET_PRESETS.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`chip ${ppb === n ? "active" : ""}`}
+                      onClick={() => patch({ packetsPerBox: String(n) })}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <div className="field" style={{ width: 110 }}>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="Custom"
+                      value={f.packetsPerBox}
+                      onChange={(e) => patch({ packetsPerBox: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="field" style={{ marginTop: 8 }}>
               <span className="icon">&#8358;</span>
-              <CurrencyInput value={f.price} onChange={(v) => patch({ price: v })} placeholder="Price per box" />
+              <CurrencyInput
+                value={f.price}
+                onChange={(v) => patch({ price: v })}
+                placeholder={isPacket ? "Price per packet" : "Price per box"}
+              />
             </div>
 
             <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
               Opening stock received
             </p>
-            <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            <div className="grid gap-2" style={{ gridTemplateColumns: isPacket ? "1fr 1fr 1fr" : "1fr 1fr" }}>
               <div className="field">
                 <span className="icon">&#128230;</span>
                 <input
@@ -215,20 +299,42 @@ export function AddProductModal({
                   onChange={(e) => patch({ cartons: e.target.value })}
                 />
               </div>
+              {isPacket && (
+                <div className="field">
+                  <span className="icon">&#128721;</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Full boxes"
+                    value={f.boxes}
+                    onChange={(e) => patch({ boxes: e.target.value })}
+                  />
+                </div>
+              )}
               <div className="field">
                 <span className="icon">&#128722;</span>
                 <input
                   type="number"
                   min={0}
-                  placeholder="Loose boxes"
+                  placeholder={isPacket ? "Loose packets" : "Loose boxes"}
                   value={f.loose}
                   onChange={(e) => patch({ loose: e.target.value })}
                 />
               </div>
             </div>
             <p style={{ fontSize: 13.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
-              {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {loose} loose ={" "}
-              <strong>{totalBoxes.toLocaleString("en-NG")} boxes in stock</strong>
+              {isPacket ? (
+                <>
+                  {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {boxes} box{boxes === 1 ? "" : "es"} ={" "}
+                  {cartons * (bpc || 0) + boxes} boxes &times; {ppb || 0} + {loose} loose ={" "}
+                  <strong>{totalStock.toLocaleString("en-NG")} packets in stock</strong>
+                </>
+              ) : (
+                <>
+                  {cartons} carton{cartons === 1 ? "" : "s"} &times; {bpc || 0} + {loose} loose ={" "}
+                  <strong>{totalStock.toLocaleString("en-NG")} boxes in stock</strong>
+                </>
+              )}
             </p>
 
             <div className="field" style={{ marginTop: 6 }}>
@@ -236,7 +342,7 @@ export function AddProductModal({
               <input
                 type="number"
                 min={0}
-                placeholder="Low-stock threshold (boxes)"
+                placeholder={`Low-stock threshold (${isPacket ? "packets" : "boxes"})`}
                 value={f.threshold}
                 onChange={(e) => patch({ threshold: e.target.value, thresholdManual: true })}
               />

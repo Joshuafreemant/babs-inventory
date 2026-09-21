@@ -18,6 +18,8 @@ export async function GET() {
         category: p.category,
         drugCategory: p.drugCategory || "cardiovascular",
         boxesPerCarton: p.boxesPerCarton,
+        sellUnit: p.sellUnit || "box",
+        packetsPerBox: p.packetsPerBox,
         price: p.price,
         stock: p.stock,
         lowStockThreshold: p.lowStockThreshold,

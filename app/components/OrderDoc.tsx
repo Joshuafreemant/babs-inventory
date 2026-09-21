@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { naira } from "../lib/money";
+import { naira, unitLabel } from "../lib/money";
 import { nairaInWords } from "../lib/numbertowords";
 
 export type DocKind = "invoice" | "receipt";
@@ -9,7 +9,13 @@ export interface OrderDocData {
   customerName: string;
   phone: string;
   email?: string;
-  items: { name: string; qty: number; unitPrice: number; lineTotal: number }[];
+  items: {
+    name: string;
+    qty: number;
+    unitPrice: number;
+    lineTotal: number;
+    sellUnit?: "box" | "packet";
+  }[];
   total: number;
   method?: string;
   status: string;
@@ -252,7 +258,9 @@ export function OrderDocument({ kind, data }: { kind: DocKind; data: OrderDocDat
             <div style={{ ...cell, alignItems: "center", borderRight: `2px solid ${INK}` }}>{it.qty}</div>
             <div style={cell}>
               <div>{it.name}</div>
-              <div style={{ fontSize: 10.5, color: SOFT, marginTop: 3 }}>{naira(it.unitPrice)} / box</div>
+              <div style={{ fontSize: 10.5, color: SOFT, marginTop: 3 }}>
+                {naira(it.unitPrice)} / {unitLabel(it.sellUnit, 1)}
+              </div>
             </div>
             <div style={{ ...cell, alignItems: "flex-end", borderLeft: `2px solid ${INK}` }}>
               {naira(it.lineTotal)}

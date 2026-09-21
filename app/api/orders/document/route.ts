@@ -41,6 +41,8 @@ export async function GET(req: Request) {
         qty: i.qty,
         unitPrice: i.unitPrice,
         lineTotal: i.lineTotal,
+        sellUnit: i.sellUnit || "box",
+        packetsPerBox: i.packetsPerBox,
       })),
       total: o.total,
       method: o.method,

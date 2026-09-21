@@ -136,10 +136,14 @@ export function ImportProductsModal({
             <div>
               <p style={{ fontSize: 14.5, color: "var(--ink-soft)", margin: "0 0 10px", lineHeight: 1.55 }}>
                 Paste a JSON array. Each product needs a <strong>name</strong>,{" "}
-                <strong>price</strong> (per box) and <strong>boxesPerCarton</strong>. Optional:{" "}
+                <strong>price</strong> (per box, or per packet if <code>sellUnit</code> is{" "}
+                <code>&quot;packet&quot;</code>) and <strong>boxesPerCarton</strong>. Optional:{" "}
                 <code>category</code>, <code>stock</code> or <code>cartons</code>+<code>loose</code>,{" "}
-                <code>lowStockThreshold</code>, <code>backorder</code>, <code>imageUrl</code>. Names
-                that already exist are skipped.
+                <code>lowStockThreshold</code>, <code>backorder</code>, <code>imageUrl</code>,{" "}
+                <code>sellUnit</code> (<code>&quot;box&quot;</code> default or{" "}
+                <code>&quot;packet&quot;</code>) + <code>packetsPerBox</code> (required for packet rows,
+                which must also give an explicit <code>stock</code>). Names that already exist are
+                skipped.
               </p>
               <textarea
                 value={text}

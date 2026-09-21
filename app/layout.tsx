@@ -20,7 +20,7 @@ const newsreader = Newsreader({
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://babs-inventory.vercel.app";
 const SITE_TITLE = "Embassy Pharmaceutical & Chemicals Limited";
 const SITE_DESCRIPTION =
-  "Wholesale pharmaceutical and healthcare products in Nigeria. Browse the trade catalogue and order by the box online — no account needed.";
+  "Wholesale pharmaceutical and healthcare products in Nigeria. Browse the trade catalogue and order by the box or packet online — no account needed.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

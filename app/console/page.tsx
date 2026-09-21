@@ -21,7 +21,7 @@ import { InfiniteFooter } from "../components/console/InfiniteFooter";
 import { LedgerRowSkeleton, OrderRowSkeleton } from "../components/console/RowSkeletons";
 import { Product, ConsoleOrder, ConsoleStats, StaffSession } from "../types";
 import { apiGet, apiPatch, apiPost } from "../lib/api";
-import { naira, cartonBreakdown, isLowStock, STATUS_LABEL } from "../lib/money";
+import { naira, cartonBreakdown, packetBreakdown, unitLabel, isLowStock, STATUS_LABEL } from "../lib/money";
 import type { DocKind, OrderDocData } from "../components/OrderDoc";
 
 const STATUS_OPTIONS = ["reserved", "awaiting_transfer", "paid", "dispatched", "collected", "cancelled"];
@@ -377,7 +377,9 @@ export default function ConsolePage() {
             ) : (
             <>
             {products.map((p) => {
-              const bd = cartonBreakdown(p.stock, p.boxesPerCarton);
+              const isPacket = p.sellUnit === "packet";
+              const pbd = isPacket ? packetBreakdown(p.stock, p.boxesPerCarton, p.packetsPerBox || 1) : null;
+              const bd = !isPacket ? cartonBreakdown(p.stock, p.boxesPerCarton) : null;
               const auto = !p.forceLowStock && isLowStock(p);
               return (
                 <div key={p.id} style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
@@ -387,10 +389,23 @@ export default function ConsolePage() {
                     <div style={{ minWidth: 0, flex: "1 1 180px" }}>
                       <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{p.name}</p>
                       <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
-                        <strong>{p.stock.toLocaleString("en-NG")} boxes</strong> ({bd.cartons} carton
-                        {bd.cartons === 1 ? "" : "s"}
-                        {bd.loose ? ` + ${bd.loose} loose box${bd.loose === 1 ? "" : "es"}` : ""},{" "}
-                        {p.boxesPerCarton}/carton)
+                        <strong>
+                          {p.stock.toLocaleString("en-NG")} {unitLabel(p.sellUnit, p.stock)}
+                        </strong>{" "}
+                        {pbd ? (
+                          <>
+                            ({pbd.cartons} carton{pbd.cartons === 1 ? "" : "s"}
+                            {pbd.boxes ? ` + ${pbd.boxes} box${pbd.boxes === 1 ? "" : "es"}` : ""}
+                            {pbd.loosePackets ? ` + ${pbd.loosePackets} loose packet${pbd.loosePackets === 1 ? "" : "s"}` : ""},{" "}
+                            {p.packetsPerBox}/box, {p.boxesPerCarton} boxes/carton)
+                          </>
+                        ) : (
+                          <>
+                            ({bd!.cartons} carton{bd!.cartons === 1 ? "" : "s"}
+                            {bd!.loose ? ` + ${bd!.loose} loose box${bd!.loose === 1 ? "" : "es"}` : ""},{" "}
+                            {p.boxesPerCarton}/carton)
+                          </>
+                        )}
                         {auto && (
                           <span style={{ color: "var(--gold)" }}>
                             {" "}
@@ -402,6 +417,7 @@ export default function ConsolePage() {
                     <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
                       <StockStepper
                         stock={p.stock}
+                        sellUnit={p.sellUnit}
                         onAdjust={(delta) => adjustStock(p, delta)}
                         onSetExact={(value) => setStockExact(p, value)}
                       />
@@ -619,14 +635,18 @@ export default function ConsolePage() {
                 </div>
                 <div style={{ margin: "4px 0 0" }}>
                   {o.items.map((it, idx) => {
+                    const itemIsPacket = it.sellUnit === "packet";
                     const bpc = it.boxesPerCarton || 1;
-                    const bd = bpc > 1 ? cartonBreakdown(it.qty, bpc) : null;
+                    const bd = !itemIsPacket && bpc > 1 ? cartonBreakdown(it.qty, bpc) : null;
                     return (
                       <p
                         key={idx}
                         style={{ fontSize: 13, color: "var(--ink-soft)", margin: idx === 0 ? 0 : "2px 0 0" }}
                       >
-                        {it.name} <span style={{ fontWeight: 600, color: "var(--ink)" }}>x{it.qty}</span>
+                        {it.name}{" "}
+                        <span style={{ fontWeight: 600, color: "var(--ink)" }}>
+                          x{it.qty} {unitLabel(it.sellUnit, it.qty)}
+                        </span>
                         {bd && bd.cartons > 0 && (
                           <span>
                             {" "}
@@ -722,7 +742,7 @@ export default function ConsolePage() {
           onAdded={(p, stock) => {
             setProducts((list) => [...list, p]);
             setProductTotal((n) => (n ?? 0) + 1);
-            toast.success(`${p.name} added — ${stock.toLocaleString("en-NG")} boxes`);
+            toast.success(`${p.name} added — ${stock.toLocaleString("en-NG")} ${unitLabel(p.sellUnit, stock)}`);
           }}
         />
       )}
@@ -732,7 +752,7 @@ export default function ConsolePage() {
           onClose={() => setRestockFor(null)}
           onRestocked={(p, added) => {
             replaceProduct(p);
-            toast.success(`${p.name}: +${added.toLocaleString("en-NG")} boxes`);
+            toast.success(`${p.name}: +${added.toLocaleString("en-NG")} ${unitLabel(p.sellUnit, added)}`);
           }}
         />
       )}

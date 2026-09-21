@@ -221,7 +221,7 @@ export default function Storefront() {
             "@type": "Store",
             name: "Embassy Pharmaceutical & Chemicals Limited",
             description:
-              "Wholesale pharmaceutical and healthcare products in Nigeria — trade catalogue, order by the box.",
+              "Wholesale pharmaceutical and healthcare products in Nigeria — trade catalogue, order in bulk, by the box or packet.",
             image: "/og-image.png",
             telephone: contact.phone || undefined,
             email: contact.email || undefined,
@@ -367,7 +367,7 @@ export default function Storefront() {
             }}
           >
             <span style={{ fontSize: 17 }}>
-              {totalQty} box{totalQty > 1 ? "es" : ""} in your order &middot; {naira(subtotal)}
+              {totalQty} item{totalQty > 1 ? "s" : ""} in your order &middot; {naira(subtotal)}
             </span>
             <button
               className="btn btn-gold"

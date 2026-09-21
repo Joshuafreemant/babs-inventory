@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, Product } from "../../types";
+import { DrugCategory, DRUG_CATEGORIES, CARTON_PRESETS, PACKET_PRESETS, SellUnit, Product } from "../../types";
 
 const ACTIVE_DRUG_CATEGORIES = DRUG_CATEGORIES.filter((c) => c.active);
 import { apiPatch } from "../../lib/api";
@@ -31,6 +31,13 @@ export function EditProductModal({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const initialSellUnit = product.sellUnit || "box";
+  const [sellUnit, setSellUnit] = useState<SellUnit>(initialSellUnit);
+  const [packetsPerBox, setPacketsPerBox] = useState(String(product.packetsPerBox || ""));
+  const [resetStock, setResetStock] = useState("");
+  const switching = sellUnit !== initialSellUnit;
+  const isPacket = sellUnit === "packet";
+
   // photo
   const [current, setCurrent] = useState(product.imageUrl || "");
   const [file, setFile] = useState<File | null>(null);
@@ -57,6 +64,14 @@ export function EditProductModal({
   };
 
   const save = async () => {
+    if (switching && resetStock.trim() === "") {
+      setError(`Enter the current stock in ${isPacket ? "packets" : "boxes"} to switch sell unit.`);
+      return;
+    }
+    if (isPacket && (!packetsPerBox || parseInt(packetsPerBox, 10) <= 0)) {
+      setError("Set how many packets come in one box.");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -66,6 +81,9 @@ export function EditProductModal({
         drugCategory,
         price: parseInt(price, 10),
         boxesPerCarton: parseInt(bpc, 10),
+        sellUnit,
+        packetsPerBox: isPacket ? parseInt(packetsPerBox, 10) : undefined,
+        resetStock: switching ? parseInt(resetStock, 10) : undefined,
         lowStockThreshold: threshold === "" ? undefined : parseInt(threshold, 10),
         backorder,
       }).catch((e) => {
@@ -149,7 +167,7 @@ export function EditProductModal({
           <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
             <div className="field">
               <span className="icon">&#8358;</span>
-              <CurrencyInput value={price} onChange={setPrice} placeholder="Price / box" />
+              <CurrencyInput value={price} onChange={setPrice} placeholder={isPacket ? "Price / packet" : "Price / box"} />
             </div>
             <div className="field">
               <span className="icon">&#128230;</span>
@@ -169,12 +187,83 @@ export function EditProductModal({
             ))}
           </div>
 
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-soft)", margin: "8px 0 2px" }}>
+            Sell unit
+          </p>
+          <div className="flex" style={{ background: "var(--cream-soft)", borderRadius: "var(--r-pill)", padding: 3, gap: 2, width: "fit-content" }}>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{
+                background: !isPacket ? "var(--navy)" : "transparent",
+                color: !isPacket ? "var(--gold-light)" : "var(--ink-soft)",
+              }}
+              onClick={() => setSellUnit("box")}
+            >
+              Box
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{
+                background: isPacket ? "var(--navy)" : "transparent",
+                color: isPacket ? "var(--gold-light)" : "var(--ink-soft)",
+              }}
+              onClick={() => setSellUnit("packet")}
+            >
+              Packet
+            </button>
+          </div>
+
+          {isPacket && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {PACKET_PRESETS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`chip ${parseInt(packetsPerBox, 10) === n ? "active" : ""}`}
+                  onClick={() => setPacketsPerBox(String(n))}
+                >
+                  {n}
+                </button>
+              ))}
+              <div className="field" style={{ width: 110 }}>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Packets/box"
+                  value={packetsPerBox}
+                  onChange={(e) => setPacketsPerBox(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          {switching && (
+            <div className="card" style={{ padding: "10px 12px", background: "var(--cream-soft)", border: "1px solid var(--gold)" }}>
+              <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 6px" }}>
+                Switching to {isPacket ? "packet" : "box"} selling means the current stock count no
+                longer applies. Enter the current stock in {isPacket ? "packets" : "boxes"} to continue.
+              </p>
+              <div className="field">
+                <span className="icon">&#128230;</span>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder={`Current stock (${isPacket ? "packets" : "boxes"})`}
+                  value={resetStock}
+                  onChange={(e) => setResetStock(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="field" style={{ marginTop: 4 }}>
             <span className="icon">&#9888;</span>
             <input
               type="number"
               min={0}
-              placeholder="Low-stock threshold (boxes)"
+              placeholder={`Low-stock threshold (${isPacket ? "packets" : "boxes"})`}
               value={threshold}
               onChange={(e) => setThreshold(e.target.value)}
             />

@@ -5,13 +5,15 @@ const orderItemSchema = new Mongoose.Schema(
   {
     product: { type: Mongoose.Schema.Types.ObjectId, ref: "product", required: true },
     name: { type: String, required: true },
-    qty: { type: Number, required: true, min: 1 }, // boxes
-    unitPrice: { type: Number, required: true, min: 0 }, // naira per box, snapshot
+    qty: { type: Number, required: true, min: 1 }, // in sellUnit
+    unitPrice: { type: Number, required: true, min: 0 }, // naira per sellUnit, snapshot
     lineTotal: { type: Number, required: true, min: 0 },
     backordered: { type: Boolean, default: false },
-    // snapshot at order time, so the carton breakdown shown later never drifts
-    // if the product's packing is edited afterwards
+    // snapshot at order time, so the unit/carton breakdown shown later never
+    // drifts if the product's packing or sell unit is edited afterwards
     boxesPerCarton: { type: Number, default: 1 },
+    sellUnit: { type: String, enum: ["box", "packet"], default: "box" },
+    packetsPerBox: { type: Number },
   },
   { _id: false }
 );
@@ -52,6 +54,8 @@ export interface IOrderItem {
   lineTotal: number;
   backordered: boolean;
   boxesPerCarton: number;
+  sellUnit: "box" | "packet";
+  packetsPerBox?: number;
 }
 
 export interface IOrder {

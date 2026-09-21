@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Product } from "../../types";
-import { naira } from "../../lib/money";
+import { naira, unitLabel } from "../../lib/money";
 
 export interface CheckoutForm {
   name: string;
@@ -109,7 +109,7 @@ export function CheckoutModal({
                     {i.name}
                   </p>
                   <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "2px 0 0" }}>
-                    {naira(i.price)} / box
+                    {naira(i.price)} / {unitLabel(i.sellUnit, 1)}
                   </p>
                 </div>
                 <div className="stepper" style={{ flexShrink: 0 }}>

@@ -17,6 +17,36 @@ export function toBoxes(cartons: number, loose: number, boxesPerCarton: number):
   return (cartons || 0) * (boxesPerCarton || 0) + (loose || 0);
 }
 
+/** cartons + loose boxes + loose packets -> exact packet total (for packet-sell products). */
+export function toPackets(
+  cartons: number,
+  boxes: number,
+  loosePackets: number,
+  boxesPerCarton: number,
+  packetsPerBox: number
+): number {
+  return ((cartons || 0) * (boxesPerCarton || 0) + (boxes || 0)) * (packetsPerBox || 0) + (loosePackets || 0);
+}
+
+/** Break a packet count into full cartons + full boxes + loose packets, for packet-sell products. */
+export function packetBreakdown(stockPackets: number, boxesPerCarton: number, packetsPerBox: number) {
+  const ppb = packetsPerBox > 0 ? packetsPerBox : 1;
+  const packetsPerCarton = boxesPerCarton > 0 ? boxesPerCarton * ppb : 0;
+  const cartons = packetsPerCarton > 0 ? Math.floor(stockPackets / packetsPerCarton) : 0;
+  const afterCartons = packetsPerCarton > 0 ? stockPackets % packetsPerCarton : stockPackets;
+  return {
+    cartons,
+    boxes: Math.floor(afterCartons / ppb),
+    loosePackets: afterCartons % ppb,
+  };
+}
+
+/** Pluralized unit word for a sell unit — "box"/"boxes" or "packet"/"packets". */
+export function unitLabel(sellUnit: "box" | "packet" | undefined, qty: number): string {
+  const base = sellUnit === "packet" ? "packet" : "box";
+  return qty === 1 ? base : `${base}s`;
+}
+
 /** Sensible low-stock cut-off suggested from opening stock (~15%, min 20 boxes). */
 export function suggestThreshold(stockBoxes: number): number {
   return Math.max(20, Math.round(stockBoxes * 0.15));

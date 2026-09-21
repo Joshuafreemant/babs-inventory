@@ -2,8 +2,15 @@ import { Document, Model } from "mongoose";
 import * as Mongoose from "mongoose";
 
 /**
- * Stock is tracked in BOXES — the smallest unit reps count and customers order.
- * `boxesPerCarton` is only a conversion factor used when stock arrives in cartons.
+ * Stock is tracked in the product's `sellUnit` — box by default, the smallest
+ * unit reps count and customers order. `boxesPerCarton` is only a conversion
+ * factor used when stock arrives in cartons.
+ *
+ * A product can opt into selling by PACKET instead: `packetsPerBox` then
+ * becomes the box->packet conversion factor, and `price`/`stock`/
+ * `lowStockThreshold` are all denominated in packets rather than boxes.
+ * `boxesPerCarton` keeps its usual meaning either way — it's a packaging
+ * fact, never a sales fact.
  */
 const productSchema = new Mongoose.Schema(
   {
@@ -46,9 +53,13 @@ const productSchema = new Mongoose.Schema(
       default: "cardiovascular",
     },
     boxesPerCarton: { type: Number, required: true, min: 1 },
-    price: { type: Number, required: true, min: 0 }, // naira, per box
-    stock: { type: Number, required: true, min: 0, default: 0 }, // boxes
-    lowStockThreshold: { type: Number, required: true, min: 0, default: 0 }, // boxes
+    // "box" (default) or "packet" — which unit price/stock/threshold below are denominated in
+    sellUnit: { type: String, enum: ["box", "packet"], default: "box", required: true },
+    // box -> packet conversion factor, only meaningful when sellUnit is "packet"
+    packetsPerBox: { type: Number, min: 1 },
+    price: { type: Number, required: true, min: 0 }, // naira, per sellUnit
+    stock: { type: Number, required: true, min: 0, default: 0 }, // in sellUnit
+    lowStockThreshold: { type: Number, required: true, min: 0, default: 0 }, // in sellUnit
     forceLowStock: { type: Boolean, default: false }, // manual "Selling fast" flag (auto below threshold too)
     showStock: { type: Boolean, default: false }, // reveal the remaining box count to customers on the storefront (opt-in per product)
     backorder: { type: Boolean, default: false }, // "Ships when out"
@@ -85,6 +96,8 @@ export interface IProduct {
     | "anti_inflammatory_steroids"
     | "anesthetics";
   boxesPerCarton: number;
+  sellUnit: "box" | "packet";
+  packetsPerBox?: number;
   price: number;
   stock: number;
   lowStockThreshold: number;

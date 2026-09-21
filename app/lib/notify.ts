@@ -42,7 +42,9 @@ export interface NewOrderInfo {
   customerName: string;
   phone: string;
   items: { name: string; qty: number; lineTotal: number }[];
-  boxes: number;
+  // total quantity across items — may mix box- and packet-sell products, so
+  // it's rendered as a generic "item(s)" count rather than assuming "boxes"
+  itemsQty: number;
   total: number;
   methodLabel: string;
   refName?: string;
@@ -58,7 +60,7 @@ export async function notifyNewOrder(o: NewOrderInfo) {
     customerName: o.customerName,
     phone: o.phone,
     items: o.items,
-    boxes: o.boxes,
+    itemsQty: o.itemsQty,
     total: o.total,
     methodLabel: o.methodLabel,
   });
@@ -67,7 +69,7 @@ export async function notifyNewOrder(o: NewOrderInfo) {
     phones.length ? sendSms(phones, smsText) : Promise.resolve(skipped),
     sendPushToAllStaff({
       title: `New order · ${o.code}`,
-      body: `${o.customerName} · ${o.boxes} box${o.boxes === 1 ? "" : "es"} · ${naira(o.total)}`,
+      body: `${o.customerName} · ${o.itemsQty} item${o.itemsQty === 1 ? "" : "s"} · ${naira(o.total)}`,
       url: "/console",
     }),
   ]);

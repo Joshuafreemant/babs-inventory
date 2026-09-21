@@ -2,7 +2,7 @@ import { dbConnect } from "@/app/lib/db";
 import ProductModel from "@/models/Product";
 import OrderModel from "@/models/Order";
 import { nextSeq } from "@/models/Counter";
-import { METHOD_LABEL } from "@/app/lib/money";
+import { METHOD_LABEL, unitLabel } from "@/app/lib/money";
 import { notifyNewOrder } from "@/app/lib/notify";
 import { writeAudit } from "@/models/AuditLog";
 import StaffModel from "@/models/Staff";
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       const backordered = p.stock === 0 && p.backorder;
       if (p.stock < w.qty && !p.backorder) {
         return Response.json(
-          { error: `Only ${p.stock} box${p.stock === 1 ? "" : "es"} of ${p.name} left.` },
+          { error: `Only ${p.stock} ${unitLabel(p.sellUnit, p.stock)} of ${p.name} left.` },
           { status: 409 }
         );
       }
@@ -70,6 +70,8 @@ export async function POST(req: Request) {
         lineTotal,
         backordered,
         boxesPerCarton: p.boxesPerCarton,
+        sellUnit: p.sellUnit || "box",
+        packetsPerBox: p.packetsPerBox,
       });
     }
 
@@ -105,7 +107,9 @@ export async function POST(req: Request) {
     });
 
     // fire-and-forget admin alerts (SMS + push) — never blocks the order
-    const boxes = items.reduce((s, i) => s + i.qty, 0);
+    // (a plain sum across items may mix box- and packet-sell products, so
+    // the alert text renders this as a generic "item(s)" count, not "boxes")
+    const itemsQty = items.reduce((s, i) => s + i.qty, 0);
     const refName = refSource
       ? (await StaffModel.findOne({ staffId: refSource }).select("name").lean())?.name || refSource
       : undefined;
@@ -115,7 +119,7 @@ export async function POST(req: Request) {
       customerName: order.customerName,
       phone: order.phone,
       items: items.map((i) => ({ name: i.name, qty: i.qty, lineTotal: i.lineTotal })),
-      boxes,
+      itemsQty,
       total,
       methodLabel: METHOD_LABEL[method],
       hasBackorder,

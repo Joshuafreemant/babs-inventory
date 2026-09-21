@@ -4,7 +4,7 @@ import OrderModel from "@/models/Order";
 import { requireStaff } from "@/app/lib/auth";
 import { writeAudit } from "@/models/AuditLog";
 import { productForConsole } from "@/app/lib/serialize";
-import { toBoxes } from "@/app/lib/money";
+import { toBoxes, toPackets, suggestThreshold, unitLabel } from "@/app/lib/money";
 import { deleteProductImage } from "@/app/lib/cloudinary";
 import { CATEGORIES as CATEGORY_DEFS, DRUG_CATEGORIES } from "@/app/types";
 
@@ -18,9 +18,12 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * One endpoint for every ledger edit, chosen by `op`:
  *  - "adjust"  { delta }                       single-box +/- stepper
  *  - "set"     { stock }                       type an exact count directly
- *  - "restock" { cartons, loose }              count a fresh delivery, add exactly
+ *  - "restock" { cartons, loose, boxes? }        count a fresh delivery, add exactly
+ *                                                 (boxes is only used for packet-sell products)
  *  - "flags"   { forceLowStock?, showStock?, backorder? }
- *  - "edit"    { name?, category?, drugCategory?, price?, boxesPerCarton?, lowStockThreshold?, backorder? }
+ *  - "edit"    { name?, category?, drugCategory?, price?, boxesPerCarton?, lowStockThreshold?,
+ *                backorder?, sellUnit?, packetsPerBox?, resetStock? }
+ *              (resetStock is required when sellUnit is changing — see below)
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -44,7 +47,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         staffName: staff.name,
         action: "stock.adjust",
         target: product.name,
-        detail: `${delta > 0 ? "+" : ""}${delta} box -> ${product.stock}`,
+        detail: `${delta > 0 ? "+" : ""}${delta} ${unitLabel(product.sellUnit, Math.abs(delta))} -> ${product.stock}`,
       });
     } else if (op === "set") {
       const stock = Math.max(0, Math.floor(Number(b.stock)));
@@ -65,17 +68,31 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     } else if (op === "restock") {
       const cartons = Math.max(0, Math.floor(Number(b.cartons) || 0));
       const loose = Math.max(0, Math.floor(Number(b.loose) || 0));
-      const adding = toBoxes(cartons, loose, product.boxesPerCarton);
+      const isPacket = product.sellUnit === "packet";
+      const boxes = isPacket ? Math.max(0, Math.floor(Number(b.boxes) || 0)) : 0;
+      const adding = isPacket
+        ? toPackets(cartons, boxes, loose, product.boxesPerCarton, product.packetsPerBox || 0)
+        : toBoxes(cartons, loose, product.boxesPerCarton);
       if (adding <= 0)
-        return Response.json({ error: "Enter cartons or loose boxes received." }, { status: 400 });
+        return Response.json(
+          {
+            error: isPacket
+              ? "Enter cartons, boxes or loose packets received."
+              : "Enter cartons or loose boxes received.",
+          },
+          { status: 400 }
+        );
       product.stock += adding;
       await product.save();
+      const detail = isPacket
+        ? `+${adding} packets (${cartons} cartons + ${boxes} boxes + ${loose} loose) -> ${product.stock}`
+        : `+${adding} boxes (${cartons} cartons + ${loose} loose) -> ${product.stock}`;
       await writeAudit({
         staffId: staff.staffId,
         staffName: staff.name,
         action: "stock.restock",
         target: product.name,
-        detail: `+${adding} boxes (${cartons} cartons + ${loose} loose) -> ${product.stock}`,
+        detail,
       });
     } else if (op === "flags") {
       const changed: string[] = [];
@@ -127,10 +144,59 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         if (b.drugCategory !== product.drugCategory) changed.push(`classification ${b.drugCategory}`);
         product.drugCategory = b.drugCategory;
       }
+      // sell-unit switch — guarded because a stock/threshold number under the
+      // old unit is meaningless under the new one, so the rep must re-baseline
+      // stock (and, unless they also set a threshold in this same request, the
+      // threshold auto-recomputes from that new stock) in the same edit.
+      if (b.sellUnit !== undefined) {
+        if (b.sellUnit !== "box" && b.sellUnit !== "packet") {
+          return Response.json({ error: "Sell unit must be box or packet." }, { status: 400 });
+        }
+        const switching = b.sellUnit !== product.sellUnit;
+        if (b.sellUnit === "packet") {
+          const ppb =
+            b.packetsPerBox !== undefined
+              ? Math.floor(Number(b.packetsPerBox))
+              : product.packetsPerBox;
+          if (!ppb || ppb <= 0)
+            return Response.json(
+              { error: "Set how many packets come in one box." },
+              { status: 400 }
+            );
+          if (ppb !== product.packetsPerBox) changed.push(`packets/box ${ppb}`);
+          product.packetsPerBox = ppb;
+        }
+        if (switching) {
+          const resetStock = Math.floor(Number(b.resetStock));
+          if (!Number.isFinite(resetStock) || resetStock < 0)
+            return Response.json(
+              {
+                error: `Enter the current stock in ${
+                  b.sellUnit === "packet" ? "packets" : "boxes"
+                } to switch sell unit.`,
+              },
+              { status: 400 }
+            );
+          product.stock = resetStock;
+          if (b.lowStockThreshold === undefined) {
+            product.lowStockThreshold = suggestThreshold(resetStock);
+          }
+          changed.push(`sell unit ${product.sellUnit} -> ${b.sellUnit} (stock reset to ${resetStock})`);
+          product.sellUnit = b.sellUnit;
+        }
+      }
       if (b.price !== undefined) {
         const price = Math.floor(Number(b.price));
         if (!price || price <= 0)
-          return Response.json({ error: "Price per box must be greater than zero." }, { status: 400 });
+          return Response.json(
+            {
+              error:
+                product.sellUnit === "packet"
+                  ? "Price per packet must be greater than zero."
+                  : "Price per box must be greater than zero.",
+            },
+            { status: 400 }
+          );
         if (price !== product.price) changed.push(`price ${price}`);
         product.price = price;
       }

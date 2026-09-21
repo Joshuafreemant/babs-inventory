@@ -16,7 +16,11 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  *
  * body: { products: [ { name, price, boxesPerCarton,
  *                       category?, stock? | cartons?+loose?,
- *                       lowStockThreshold?, backorder?, imageUrl? } ] }
+ *                       lowStockThreshold?, backorder?, imageUrl?,
+ *                       sellUnit? ("box"|"packet", default "box"),
+ *                       packetsPerBox? (required if sellUnit is "packet";
+ *                       packet rows must give an explicit `stock`, no
+ *                       cartons/loose shorthand) } ] }
  *
  * Existing names are skipped (reported), so re-running a list is safe.
  */
@@ -62,17 +66,30 @@ export async function POST(req: Request) {
 
       const price = Math.floor(Number(r.price));
       const boxesPerCarton = Math.floor(Number(r.boxesPerCarton ?? r.boxes_per_carton));
+      const sellUnit = r.sellUnit === "packet" ? "packet" : "box";
+      const packetsPerBox =
+        sellUnit === "packet" ? Math.floor(Number(r.packetsPerBox ?? r.packets_per_box)) : undefined;
       if (!price || price <= 0) {
-        skipped.push({ name, reason: "price per box missing or not a number" });
+        skipped.push({ name, reason: `price per ${sellUnit} missing or not a number` });
         continue;
       }
       if (!boxesPerCarton || boxesPerCarton <= 0) {
         skipped.push({ name, reason: "boxesPerCarton missing or not a number" });
         continue;
       }
+      if (sellUnit === "packet" && (!packetsPerBox || packetsPerBox <= 0)) {
+        skipped.push({ name, reason: "packetsPerBox missing or not a number" });
+        continue;
+      }
 
       let stock = 0;
-      if (r.stock !== undefined && Number.isFinite(Number(r.stock))) {
+      if (sellUnit === "packet") {
+        if (r.stock === undefined || !Number.isFinite(Number(r.stock))) {
+          skipped.push({ name, reason: "packet-sell rows need an explicit stock value" });
+          continue;
+        }
+        stock = Math.max(0, Math.floor(Number(r.stock)));
+      } else if (r.stock !== undefined && Number.isFinite(Number(r.stock))) {
         stock = Math.max(0, Math.floor(Number(r.stock)));
       } else if (r.cartons !== undefined || r.loose !== undefined) {
         stock = toBoxes(
@@ -94,6 +111,8 @@ export async function POST(req: Request) {
           name,
           category,
           boxesPerCarton,
+          sellUnit,
+          packetsPerBox,
           price,
           stock,
           lowStockThreshold,

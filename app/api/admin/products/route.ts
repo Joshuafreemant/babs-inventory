@@ -3,7 +3,7 @@ import ProductModel from "@/models/Product";
 import { requireStaff } from "@/app/lib/auth";
 import { writeAudit } from "@/models/AuditLog";
 import { productForConsole } from "@/app/lib/serialize";
-import { suggestThreshold, toBoxes } from "@/app/lib/money";
+import { suggestThreshold, toBoxes, toPackets } from "@/app/lib/money";
 import { DRUG_CATEGORIES } from "@/app/types";
 
 export const dynamic = "force-dynamic";
@@ -67,10 +67,16 @@ export async function POST(req: Request) {
     const category = String(b.category || "bottle");
     const drugCategory = DRUG_CATEGORY_IDS.includes(b.drugCategory) ? b.drugCategory : "cardiovascular";
     const boxesPerCarton = Math.floor(Number(b.boxesPerCarton));
+    const sellUnit = b.sellUnit === "packet" ? "packet" : "box";
+    const packetsPerBox = sellUnit === "packet" ? Math.floor(Number(b.packetsPerBox)) : undefined;
     const price = Math.floor(Number(b.price));
     const cartons = Math.max(0, Math.floor(Number(b.cartons) || 0));
+    const boxes = Math.max(0, Math.floor(Number(b.boxes) || 0));
     const loose = Math.max(0, Math.floor(Number(b.loose) || 0));
-    const stock = toBoxes(cartons, loose, boxesPerCarton);
+    const stock =
+      sellUnit === "packet"
+        ? toPackets(cartons, boxes, loose, boxesPerCarton, packetsPerBox || 0)
+        : toBoxes(cartons, loose, boxesPerCarton);
     const thresholdRaw = Number(b.threshold);
     const lowStockThreshold =
       Number.isFinite(thresholdRaw) && thresholdRaw >= 0
@@ -80,9 +86,14 @@ export async function POST(req: Request) {
     if (!name) return Response.json({ error: "Give the product a name." }, { status: 400 });
     if (!boxesPerCarton || boxesPerCarton <= 0)
       return Response.json({ error: "Set how many boxes come in one carton." }, { status: 400 });
+    if (sellUnit === "packet" && (!packetsPerBox || packetsPerBox <= 0))
+      return Response.json({ error: "Set how many packets come in one box." }, { status: 400 });
     if (!price || price <= 0)
-      return Response.json({ error: "Enter a price per box." }, { status: 400 });
-    if (cartons === 0 && loose === 0)
+      return Response.json(
+        { error: sellUnit === "packet" ? "Enter a price per packet." : "Enter a price per box." },
+        { status: 400 }
+      );
+    if (cartons === 0 && boxes === 0 && loose === 0)
       return Response.json({ error: "Enter the opening stock received." }, { status: 400 });
 
     const clash = await ProductModel.findOne({
@@ -96,6 +107,8 @@ export async function POST(req: Request) {
       category,
       drugCategory,
       boxesPerCarton,
+      sellUnit,
+      packetsPerBox,
       price,
       stock,
       lowStockThreshold,
@@ -103,12 +116,16 @@ export async function POST(req: Request) {
       backorder: Boolean(b.backorder),
     });
 
+    const detail =
+      sellUnit === "packet"
+        ? `opening stock ${stock} packets (${cartons} cartons + ${boxes} boxes + ${loose} loose)`
+        : `opening stock ${stock} boxes (${cartons} cartons + ${loose} loose)`;
     await writeAudit({
       staffId: staff.staffId,
       staffName: staff.name,
       action: "product.add",
       target: name,
-      detail: `opening stock ${stock} boxes (${cartons} cartons + ${loose} loose)`,
+      detail,
     });
 
     return Response.json(productForConsole(product));

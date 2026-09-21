@@ -9,7 +9,7 @@ export const DEFAULT_HERO: Hero = {
   eyebrow: "Ijele 2026 · 99th PSN Annual Conference",
   headline: "Embassy at Ijele 2026 — browse the catalogue, order whenever you're ready.",
   subtext:
-    "Live at the 99th Annual National Conference of the Pharmaceutical Society of Nigeria, International Convention Centre, Awka, Anambra State. No account needed — sold by the box, order any quantity that suits you.",
+    "Live at the 99th Annual National Conference of the Pharmaceutical Society of Nigeria, International Convention Centre, Awka, Anambra State. No account needed — sold by the box or packet, order any quantity that suits you.",
 };
 
 export function cleanHero(input: any): Hero {

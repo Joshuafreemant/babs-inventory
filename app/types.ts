@@ -68,6 +68,8 @@ export function drugCategoryLabel(id: DrugCategory): string {
   return found ? found.label.split(" (")[0] : id;
 }
 
+export type SellUnit = "box" | "packet";
+
 export interface Product {
   id: string;
   name: string;
@@ -77,6 +79,9 @@ export interface Product {
   category: string;
   drugCategory: DrugCategory;
   boxesPerCarton: number;
+  // "box" (default) or "packet" — which unit price/stock/lowStockThreshold are denominated in
+  sellUnit: SellUnit;
+  packetsPerBox?: number;
   price: number;
   stock: number;
   lowStockThreshold: number;
@@ -108,6 +113,8 @@ export interface ConsoleOrder {
     lineTotal: number;
     backordered: boolean;
     boxesPerCarton?: number;
+    sellUnit?: SellUnit;
+    packetsPerBox?: number;
   }[];
   itemsSummary: string;
   total: number;
@@ -159,3 +166,4 @@ export const CATEGORIES: { id: Category; label: string }[] = [
 ];
 
 export const CARTON_PRESETS = [12, 20, 24, 30, 36, 48, 60];
+export const PACKET_PRESETS = [10, 20, 30, 50, 100];
