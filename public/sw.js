@@ -8,7 +8,7 @@
  *  - Push: shows a notification for new-order alerts and focuses/opens the
  *    console on click.
  */
-const CACHE_VERSION = "embassy-v1";
+const CACHE_VERSION = "embassy-v2";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
