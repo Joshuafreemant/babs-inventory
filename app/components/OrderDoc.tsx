@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { naira, unitLabel, cartonBreakdown, packetBreakdown } from "../lib/money";
 import { nairaInWords } from "../lib/numbertowords";
+import { DEFAULT_HERO } from "../lib/heroDefaults";
 
 export type DocKind = "invoice" | "receipt";
 
@@ -33,8 +34,6 @@ const COMPANY = {
   address: "No: 41 Ademola Street, S/W Ikoyi, Lagos.",
   contact: "Tel: 01-4630021 · orders@embassypharma.ng",
   preparedBy: "Embassy Pharmaceutical & Chemicals LTD",
-  // event: "Ijele 2026, ICC Awka",
-  event: "Scientific Conference Of Nigerian Cardiac Society (NCS) EKO 2026",
   signOff: "FOR: EMBASSY PHARMS. LTD.",
   logo: "/logo.png", // put the logo in /public
 };
@@ -118,7 +117,17 @@ function SumRow({ label, value, dark }: { label: string; value: string; dark?: b
   );
 }
 
-export function OrderDocument({ kind, data }: { kind: DocKind; data: OrderDocData }) {
+export function OrderDocument({
+  kind,
+  data,
+  eyebrow,
+}: {
+  kind: DocKind;
+  data: OrderDocData;
+  /** Event/occasion line next to "Prepared by" — the storefront hero's
+   * Eyebrow setting, so it only ever needs updating in one place. */
+  eyebrow?: string;
+}) {
   const isReceipt = kind === "receipt";
   const date = fmtDate(isReceipt ? data.updatedAt || data.createdAt : data.createdAt);
   const advance = isReceipt ? data.total : 0;
@@ -241,7 +250,7 @@ export function OrderDocument({ kind, data }: { kind: DocKind; data: OrderDocDat
             {COMPANY.preparedBy} · Order {data.code}
           </div>
           <div style={{ fontSize: 11.5, color: SOFT, marginTop: 3 }}>
-            {[COMPANY.event, methodText].filter(Boolean).join(" · ")}
+            {[eyebrow || DEFAULT_HERO.eyebrow, methodText].filter(Boolean).join(" · ")}
           </div>
         </div>
       </div>

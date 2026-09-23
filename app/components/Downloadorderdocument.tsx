@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 import { OrderDocument, type DocKind, type OrderDocData } from "./OrderDoc";
+import { apiGet } from "../lib/api";
+import { DEFAULT_HERO } from "../lib/heroDefaults";
 
 const A4_W = 595.28; // pt
 const A4_H = 841.89; // pt
@@ -10,13 +12,17 @@ const MARGIN = 28;
 
 /** Renders the invoice/receipt off-screen, snapshots it, and downloads a PDF. Browser only. */
 export async function downloadOrderDocument(kind: DocKind, data: OrderDocData) {
+  const eyebrow = await apiGet<{ hero?: { eyebrow?: string } }>("/api/settings")
+    .then((s) => s.hero?.eyebrow || DEFAULT_HERO.eyebrow)
+    .catch(() => DEFAULT_HERO.eyebrow);
+
   const host = document.createElement("div");
   host.style.cssText = "position:fixed;left:-10000px;top:0;pointer-events:none;";
   document.body.appendChild(host);
   const root = createRoot(host);
 
   try {
-    flushSync(() => root.render(<OrderDocument kind={kind} data={data} />));
+    flushSync(() => root.render(<OrderDocument kind={kind} data={data} eyebrow={eyebrow} />));
     const node = host.firstElementChild as HTMLElement;
 
     // wait for fonts + logo so the snapshot isn't missing them
