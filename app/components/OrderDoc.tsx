@@ -33,7 +33,8 @@ const COMPANY = {
   address: "No: 41 Ademola Street, S/W Ikoyi, Lagos.",
   contact: "Tel: 01-4630021 · orders@embassypharma.ng",
   preparedBy: "Embassy Pharmaceutical & Chemicals LTD",
-  event: "Ijele 2026, ICC Awka",
+  // event: "Ijele 2026, ICC Awka",
+  event: "Scientific Conference Of Nigerian Cardiac Society (NCS) EKO 2026",
   signOff: "FOR: EMBASSY PHARMS. LTD.",
   logo: "/logo.png", // put the logo in /public
 };

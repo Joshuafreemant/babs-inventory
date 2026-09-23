@@ -38,6 +38,7 @@ const ACTION_LABEL: Record<string, string> = {
   "alert.recipient.remove": "removed alert recipient",
   "alert.test": "sent a test alert",
   "alert.failed": "order alert failed for",
+  "push.subscribe_failed": "couldn't enable push order alerts",
   "settings.update": "updated contact/payment settings",
   "settings.hero": "updated the storefront hero",
 };

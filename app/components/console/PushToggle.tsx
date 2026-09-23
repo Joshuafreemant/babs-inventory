@@ -78,17 +78,25 @@ export function PushToggle() {
       toast.success("Order alerts enabled on this device");
     } catch (e: any) {
       const msg = String(e?.message || "");
+      let reason = "other";
       if (e?.name === "NotAllowedError" || /permission/i.test(msg)) {
+        reason = "permission";
         toast.error(
           "This browser or device is blocking notifications for the site. Check your browser's site settings and your phone's notification settings for it."
         );
       } else if (e?.name === "AbortError" || /push service/i.test(msg)) {
+        reason = "push-service";
         toast.error(
           "The device's push service rejected the request. Try closing and reopening the browser, or check that Google Play services / your browser is up to date. SMS order alerts still work either way."
         );
       } else {
         toast.error(msg || "Could not enable notifications. SMS order alerts still work either way.");
       }
+      apiPost("/api/staff/push/subscribe-failed", {
+        reason,
+        message: msg || e?.name || "",
+        userAgent: navigator.userAgent,
+      }).catch(() => {});
     } finally {
       setBusy(false);
     }
