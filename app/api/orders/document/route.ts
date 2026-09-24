@@ -48,6 +48,7 @@ export async function GET(req: Request) {
       total: o.total,
       method: o.method,
       status: o.status,
+      issuedByName: o.issuedByName || "",
       createdAt: o.createdAt,
       updatedAt: o.updatedAt,
     });

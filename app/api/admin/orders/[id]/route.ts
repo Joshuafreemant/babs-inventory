@@ -22,6 +22,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const from = order.status;
     order.status = status;
+    // Stamp the invoice's "issued by" the first time an order is marked paid;
+    // later status changes (dispatched/collected/cancelled) don't overwrite it.
+    if (status === "paid" && !order.issuedByName) {
+      order.issuedByStaffId = staff.staffId;
+      order.issuedByName = staff.name;
+    }
     await order.save();
 
     await writeAudit({

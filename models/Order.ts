@@ -40,6 +40,9 @@ const orderSchema = new Mongoose.Schema(
     hasBackorder: { type: Boolean, default: false },
     // staffId of the rep whose shared link the buyer arrived through ("" = direct)
     refSource: { type: String, default: "" },
+    // staff who marked the order paid — the invoice's "issued by"; set once, never overwritten
+    issuedByStaffId: { type: String, default: "" },
+    issuedByName: { type: String, default: "" },
   },
   { timestamps: true }
 );
@@ -69,6 +72,8 @@ export interface IOrder {
   status: (typeof ORDER_STATUSES)[number];
   hasBackorder: boolean;
   refSource: string;
+  issuedByStaffId: string;
+  issuedByName: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -22,6 +22,7 @@ export interface OrderDocData {
   total: number;
   method?: string;
   status: string;
+  issuedByName?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -247,7 +248,7 @@ export function OrderDocument({
         <div style={{ padding: "14px 24px 12px" }}>
           <div style={{ ...caps, color: SOFT }}>Prepared by</div>
           <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 5 }}>
-            {COMPANY.preparedBy} · Order {data.code}
+            {data.issuedByName ? `${data.issuedByName} · Order ${data.code}` : `${COMPANY.preparedBy} · Order ${data.code}`}
           </div>
           <div style={{ fontSize: 11.5, color: SOFT, marginTop: 3 }}>
             {[eyebrow || DEFAULT_HERO.eyebrow, methodText].filter(Boolean).join(" · ")}

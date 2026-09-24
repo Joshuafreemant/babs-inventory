@@ -128,6 +128,7 @@ export interface ConsoleOrder {
   status: string;
   hasBackorder: boolean;
   refSource: string;
+  issuedByName: string;
   createdAt: string;
   updatedAt: string;
 }

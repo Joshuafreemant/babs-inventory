@@ -192,6 +192,7 @@ export default function ConsolePage() {
         total: o.total,
         method: o.method,
         status: o.status,
+        issuedByName: o.issuedByName,
         createdAt: o.createdAt,
         updatedAt: o.updatedAt,
       };
@@ -679,6 +680,7 @@ export default function ConsolePage() {
                     {o.code} &middot; {o.phone}
                     {o.email ? " · " + o.email : ""}
                     {o.refSource ? ` · via ${o.refSource}` : ""}
+                    {o.issuedByName ? ` · issued by ${o.issuedByName}` : ""}
                   </span>
                   <span style={{ fontSize: 14.5, fontWeight: 700 }}>{naira(o.total)}</span>
                 </div>
