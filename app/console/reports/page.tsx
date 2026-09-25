@@ -10,6 +10,7 @@ import { InfiniteFooter } from "../../components/console/InfiniteFooter";
 import { StaffSession } from "../../types";
 import { apiGet, apiPost } from "../../lib/api";
 import { naira, unitLabel } from "../../lib/money";
+import * as XLSX from "xlsx";
 
 interface PerProductRow {
   productId: string;
@@ -118,46 +119,95 @@ export default function ReportsPage() {
     setSession(null);
   };
 
-  const downloadCsv = async () => {
-    if (!meta || !rangeQuery) return;
-    setCsvBusy(true);
-    try {
-      // pagination is for the on-screen list only — CSV always exports the full range
-      const full = await apiGet<{ perProduct: PerProductRow[] }>(
-        `/api/admin/reports?${rangeQuery}&basis=${basis}&limit=2000`
-      );
-      const rows = [
-        [
-          `Embassy sales — ${meta.range.label} (${meta.range.from} to ${meta.range.to})`,
-          basis === "paid" ? "paid orders only" : "all non-cancelled orders",
-        ],
-        [],
-        ["Product", "Unit", "Qty sold", "Orders", "Revenue (NGN)", "Share %"],
-        ...full.perProduct.map((p) => [
-          p.name,
-          p.sellUnit,
-          String(p.qty),
-          String(p.orders),
-          String(p.revenue),
-          String(p.sharePct),
-        ]),
-        [],
-        ["Total sales", "", "", String(meta.totals.orders), String(meta.totals.revenue), "100"],
-      ];
-      const csv = rows
-        .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
-        .join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `embassy-sales-${basis}-${meta.range.from}-to-${meta.range.to}.csv`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    } finally {
-      setCsvBusy(false);
-    }
-  };
+  // const downloadCsv = async () => {
+  //   if (!meta || !rangeQuery) return;
+  //   setCsvBusy(true);
+  //   try {
+  //     // pagination is for the on-screen list only — CSV always exports the full range
+  //     const full = await apiGet<{ perProduct: PerProductRow[] }>(
+  //       `/api/admin/reports?${rangeQuery}&basis=${basis}&limit=2000`
+  //     );
+  //     const rows = [
+  //       [
+  //         `Embassy sales — ${meta.range.label} (${meta.range.from} to ${meta.range.to})`,
+  //         basis === "paid" ? "paid orders only" : "all non-cancelled orders",
+  //       ],
+  //       [],
+  //       ["Product", "Unit", "Qty sold", "Orders", "Revenue (NGN)", "Share %"],
+  //       ...full.perProduct.map((p) => [
+  //         p.name,
+  //         p.sellUnit,
+  //         String(p.qty),
+  //         String(p.orders),
+  //         String(p.revenue),
+  //         String(p.sharePct),
+  //       ]),
+  //       [],
+  //       ["Total sales", "", "", String(meta.totals.orders), String(meta.totals.revenue), "100"],
+  //     ];
+  //     const csv = rows
+  //       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+  //       .join("\n");
+  //     const blob = new Blob([csv], { type: "text/csv" });
+  //     const a = document.createElement("a");
+  //     a.href = URL.createObjectURL(blob);
+  //     a.download = `embassy-sales-${basis}-${meta.range.from}-to-${meta.range.to}.csv`;
+  //     a.click();
+  //     URL.revokeObjectURL(a.href);
+  //   } finally {
+  //     setCsvBusy(false);
+  //   }
+  // };
+const downloadXlsx = async () => {
+  if (!meta || !rangeQuery) return;
+  setCsvBusy(true);
+  try {
+    // pagination is for the on-screen list only — export always uses the full range
+    const full = await apiGet<{ perProduct: PerProductRow[] }>(
+      `/api/admin/reports?${rangeQuery}&basis=${basis}&limit=2000`
+    );
 
+    // Build the sheet as a 2D array (aoa = array of arrays)
+    const aoa: (string | number)[][] = [
+      [
+        `Embassy sales — ${meta.range.label} (${meta.range.from} to ${meta.range.to})`,
+        basis === "paid" ? "paid orders only" : "all non-cancelled orders",
+      ],
+      [],
+      ["Product", "Unit", "Qty sold", "Orders", "Revenue (NGN)", "Share %"],
+      ...full.perProduct.map((p) => [
+        p.name,
+        p.sellUnit,
+        p.qty,
+        p.orders,
+        p.revenue,
+        p.sharePct,
+      ]),
+      [],
+      ["Total sales", "", "", meta.totals.orders, meta.totals.revenue, 100],
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Optional: nicer column widths
+    ws["!cols"] = [
+      { wch: 40 }, // Product
+      { wch: 12 }, // Unit
+      { wch: 10 }, // Qty sold
+      { wch: 10 }, // Orders
+      { wch: 16 }, // Revenue
+      { wch: 10 }, // Share %
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sales");
+
+    const filename = `embassy-sales-${basis}-${meta.range.from}-to-${meta.range.to}.xlsx`;
+    XLSX.writeFile(wb, filename);
+  } finally {
+    setCsvBusy(false);
+  }
+};
   if (!authChecked) {
     return (
       <div>
@@ -380,10 +430,10 @@ export default function ReportsPage() {
             </div>
             <button
               className="btn btn-outline btn-sm"
-              onClick={downloadCsv}
+              onClick={downloadXlsx}
               disabled={!meta || !rangeQuery || meta.perProductTotal === 0 || csvBusy}
             >
-              {csvBusy ? "Preparing…" : "Download CSV"}
+              {csvBusy ? "Preparing…" : "Download Sheet"}
             </button>
           </div>
 
