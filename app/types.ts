@@ -88,6 +88,7 @@ export interface Product {
   forceLowStock: boolean;
   showStock: boolean;
   backorder: boolean;
+  archived: boolean;
   imageUrl?: string;
 }
 

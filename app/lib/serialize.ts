@@ -27,6 +27,7 @@ export function productForConsole(p: any) {
     forceLowStock: p.forceLowStock,
     showStock: p.showStock === true,
     backorder: p.backorder,
+    archived: Boolean(p.archived),
     imageUrl: p.imageUrl || "",
   };
 }

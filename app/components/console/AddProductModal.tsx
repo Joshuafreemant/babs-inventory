@@ -158,6 +158,7 @@ export function AddProductModal({
     forceLowStock: false,
     showStock: false,
     backorder: f.backorder,
+    archived: false,
     imageUrl: photoPreview || undefined,
   };
 

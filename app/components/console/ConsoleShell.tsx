@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StaffSession } from "../../types";
 
-type Tab = "desk" | "reports" | "activity" | "settings";
+type Tab = "desk" | "archive" | "reports" | "activity" | "settings";
 
 const NAV: { tab: Tab; href: string; label: string }[] = [
   { tab: "desk", href: "/console", label: "Order desk" },
+  { tab: "archive", href: "/console/archive", label: "Archive" },
   { tab: "reports", href: "/console/reports", label: "Reports" },
   { tab: "activity", href: "/console/activity", label: "Activity" },
   { tab: "settings", href: "/console/settings", label: "Settings" },
@@ -22,6 +23,14 @@ function Icon({ tab }: { tab: Tab }) {
         <path d="M3 7l9-4 9 4-9 4-9-4z" />
         <path d="M3 7v10l9 4 9-4V7" />
         <path d="M12 11v10" />
+      </svg>
+    );
+  if (tab === "archive")
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="5" rx="1.2" />
+        <path d="M5 9v9a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 18V9" />
+        <path d="M10 13h4" />
       </svg>
     );
   if (tab === "reports")

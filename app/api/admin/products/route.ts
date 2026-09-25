@@ -14,7 +14,8 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
  * Inventory ledger — paginated with an `_id` cursor (creation order).
- *   ?q=<text>   narrow to products whose name contains this (case-insensitive)
+ *   ?q=<text>          narrow to products whose name contains this (case-insensitive)
+ *   ?archived=true     list archived products instead of the active catalogue
  */
 export async function GET(req: Request) {
   try {
@@ -25,8 +26,9 @@ export async function GET(req: Request) {
     const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "20", 10)));
     const cursor = url.searchParams.get("cursor");
     const q = url.searchParams.get("q")?.trim();
+    const archived = url.searchParams.get("archived") === "true";
 
-    const filter: any = { archived: { $ne: true } };
+    const filter: any = archived ? { archived: true } : { archived: { $ne: true } };
     if (q) filter.name = new RegExp(escapeRe(q), "i");
     if (cursor) filter._id = { $gt: cursor };
 
@@ -41,7 +43,9 @@ export async function GET(req: Request) {
     // the products collection is small and this only runs on page 1
     const total = cursor
       ? undefined
-      : await ProductModel.countDocuments(q ? filter : { archived: { $ne: true } });
+      : await ProductModel.countDocuments(
+          q ? filter : archived ? { archived: true } : { archived: { $ne: true } }
+        );
 
     return Response.json({
       products: page.map(productForConsole),

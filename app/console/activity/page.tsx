@@ -28,6 +28,7 @@ const ACTION_LABEL: Record<string, string> = {
   "product.flags": "changed a setting for",
   "product.delete": "removed",
   "product.archive": "archived",
+  "product.unarchive": "restored",
   "product.image": "updated the photo for",
   "product.import": "bulk-imported products",
   "staff.add": "added the staff account",

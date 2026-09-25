@@ -24,6 +24,7 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  *  - "edit"    { name?, category?, drugCategory?, price?, boxesPerCarton?, lowStockThreshold?,
  *                backorder?, sellUnit?, packetsPerBox?, resetStock? }
  *              (resetStock is required when sellUnit is changing — see below)
+ *  - "archive" { archived }                     hide from / restore to the catalogue and ledger
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -115,6 +116,20 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         action: "product.flags",
         target: product.name,
         detail: changed.join(", "),
+      });
+    } else if (op === "archive") {
+      if (typeof b.archived !== "boolean")
+        return Response.json({ error: "Missing archived flag." }, { status: 400 });
+      if (b.archived === product.archived)
+        return Response.json({ error: "Nothing to change." }, { status: 400 });
+      product.archived = b.archived;
+      await product.save();
+      await writeAudit({
+        staffId: staff.staffId,
+        staffName: staff.name,
+        action: b.archived ? "product.archive" : "product.unarchive",
+        target: product.name,
+        detail: b.archived ? "hidden from catalogue and ledger" : "restored to catalogue and ledger",
       });
     } else if (op === "edit") {
       const changed: string[] = [];
