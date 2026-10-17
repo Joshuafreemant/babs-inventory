@@ -49,6 +49,22 @@ const productSchema = new Mongoose.Schema(
         "urological",
         "anti_inflammatory_steroids",
         "anesthetics",
+        "erectile_dysfunction",
+        "hematinics",
+        "anti_allergy",
+        "neurological_pain",
+        "antiemetics",
+        "overactive_bladder",
+        "anticoagulants",
+        "antioxidants",
+        "muscle_relaxants",
+        "eye_supplements",
+        "testosterone_boosters",
+        "homoeopathic_remedies",
+        "sleep_stress_aid",
+        "weight_management",
+        "womens_vitality_fertility",
+        "general_supplements",
       ],
       default: "cardiovascular",
     },
@@ -94,7 +110,23 @@ export interface IProduct {
     | "hormonal_reproductive"
     | "urological"
     | "anti_inflammatory_steroids"
-    | "anesthetics";
+    | "anesthetics"
+    | "erectile_dysfunction"
+    | "hematinics"
+    | "anti_allergy"
+    | "neurological_pain"
+    | "antiemetics"
+    | "overactive_bladder"
+    | "anticoagulants"
+    | "antioxidants"
+    | "muscle_relaxants"
+    | "eye_supplements"
+    | "testosterone_boosters"
+    | "homoeopathic_remedies"
+    | "sleep_stress_aid"
+    | "weight_management"
+    | "womens_vitality_fertility"
+    | "general_supplements";
   boxesPerCarton: number;
   sellUnit: "box" | "packet";
   packetsPerBox?: number;

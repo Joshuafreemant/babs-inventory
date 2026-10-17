@@ -31,7 +31,23 @@ export type DrugCategory =
   | "hormonal_reproductive"
   | "urological"
   | "anti_inflammatory_steroids"
-  | "anesthetics";
+  | "anesthetics"
+  | "erectile_dysfunction"
+  | "hematinics"
+  | "anti_allergy"
+  | "neurological_pain"
+  | "antiemetics"
+  | "overactive_bladder"
+  | "anticoagulants"
+  | "antioxidants"
+  | "muscle_relaxants"
+  | "eye_supplements"
+  | "testosterone_boosters"
+  | "homoeopathic_remedies"
+  | "sleep_stress_aid"
+  | "weight_management"
+  | "womens_vitality_fertility"
+  | "general_supplements";
 
 /**
  * Therapeutic classification shown to staff when adding/editing a product.
@@ -60,6 +76,22 @@ export const DRUG_CATEGORIES: { id: DrugCategory; label: string; active: boolean
   { id: "urological", label: "Urological", active: true },
   { id: "anti_inflammatory_steroids", label: "Anti-inflammatory / Steroids", active: true },
   { id: "anesthetics", label: "Anesthetics", active: true },
+  { id: "erectile_dysfunction", label: "Erectile Dysfunction / Premature Ejaculation", active: true },
+  { id: "hematinics", label: "Hematinics (Iron / Blood Builders)", active: true },
+  { id: "anti_allergy", label: "Anti-allergy / Antihistamines", active: true },
+  { id: "neurological_pain", label: "Neurological Pain", active: true },
+  { id: "antiemetics", label: "Antiemetics (Anti-nausea)", active: true },
+  { id: "overactive_bladder", label: "Overactive Bladder", active: true },
+  { id: "anticoagulants", label: "Anticoagulants / Blood Thinners", active: true },
+  { id: "antioxidants", label: "Antioxidants", active: true },
+  { id: "muscle_relaxants", label: "Muscle Relaxants", active: true },
+  { id: "eye_supplements", label: "Eye Supplements / Antioxidants", active: true },
+  { id: "testosterone_boosters", label: "Testosterone Boosters", active: true },
+  { id: "homoeopathic_remedies", label: "Homoeopathic Remedies", active: true },
+  { id: "sleep_stress_aid", label: "Sleep & Stress Aid", active: true },
+  { id: "weight_management", label: "Weight Management Supplements", active: true },
+  { id: "womens_vitality_fertility", label: "Women's Vitality / Fertility", active: true },
+  { id: "general_supplements", label: "Supplements (General)", active: true },
 ];
 
 /** Short display label for a drug category — trims the "(examples...)" suffix. */
