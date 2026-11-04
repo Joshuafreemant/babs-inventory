@@ -217,6 +217,15 @@ export default function ConsolePage() {
     }
   };
 
+  const setOrderPaidVia = async (o: ConsoleOrder, paidVia: string) => {
+    try {
+      const updated = await apiPatch<ConsoleOrder>(`/api/admin/orders/${o.id}`, { paidVia });
+      setOrders((list) => list.map((x) => (x.id === o.id ? updated : x)));
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const signOut = async () => {
     await apiPost("/api/staff/logout").catch(() => {});
     setSession(null);
@@ -703,6 +712,26 @@ export default function ConsolePage() {
                     </option>
                   ))}
                 </select>
+                {PAID_STATUSES.includes(o.status) && (
+                  <select
+                    value={o.paidVia}
+                    onChange={(e) => setOrderPaidVia(o, e.target.value)}
+                    style={{
+                      marginTop: 6,
+                      width: "100%",
+                      border: "1px solid var(--line)",
+                      borderRadius: "var(--r-sm)",
+                      padding: "8px 10px",
+                      fontSize: 13.5,
+                      background: "#fff",
+                      color: o.paidVia ? "var(--ink)" : "var(--ink-soft)",
+                    }}
+                  >
+                    <option value="">Paid via — not set</option>
+                    <option value="cash">Paid via cash</option>
+                    <option value="transfer">Paid via transfer</option>
+                  </select>
+                )}
                 <div className="flex items-center gap-2" style={{ marginTop: 8 }}>
                   <button
                     type="button"

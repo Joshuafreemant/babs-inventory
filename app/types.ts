@@ -162,6 +162,7 @@ export interface ConsoleOrder {
   hasBackorder: boolean;
   refSource: string;
   issuedByName: string;
+  paidVia: "" | "cash" | "transfer";
   createdAt: string;
   updatedAt: string;
 }

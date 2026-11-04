@@ -11,32 +11,49 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   try {
     const staff = await requireStaff();
     await dbConnect();
-    const { status } = await req.json();
+    const { status, paidVia } = await req.json();
 
-    if (!ORDER_STATUSES.includes(status)) {
+    if (status !== undefined && !ORDER_STATUSES.includes(status)) {
       return Response.json({ error: "Unknown status." }, { status: 400 });
+    }
+    if (paidVia !== undefined && !["", "cash", "transfer"].includes(paidVia)) {
+      return Response.json({ error: "Unknown payment method." }, { status: 400 });
     }
 
     const order = await OrderModel.findById((await params).id);
     if (!order) return Response.json({ error: "Order not found." }, { status: 404 });
 
     const from = order.status;
-    order.status = status;
-    // Stamp the invoice's "issued by" the first time an order is marked paid;
-    // later status changes (dispatched/collected/cancelled) don't overwrite it.
-    if (status === "paid" && !order.issuedByName) {
-      order.issuedByStaffId = staff.staffId;
-      order.issuedByName = staff.name;
+    if (status !== undefined) {
+      order.status = status;
+      // Stamp the invoice's "issued by" the first time an order is marked paid;
+      // later status changes (dispatched/collected/cancelled) don't overwrite it.
+      if (status === "paid" && !order.issuedByName) {
+        order.issuedByStaffId = staff.staffId;
+        order.issuedByName = staff.name;
+      }
     }
+    if (paidVia !== undefined) order.paidVia = paidVia;
     await order.save();
 
-    await writeAudit({
-      staffId: staff.staffId,
-      staffName: staff.name,
-      action: "order.status",
-      target: order.code,
-      detail: `${from} -> ${status}`,
-    });
+    if (status !== undefined) {
+      await writeAudit({
+        staffId: staff.staffId,
+        staffName: staff.name,
+        action: "order.status",
+        target: order.code,
+        detail: `${from} -> ${status}`,
+      });
+    }
+    if (paidVia !== undefined) {
+      await writeAudit({
+        staffId: staff.staffId,
+        staffName: staff.name,
+        action: "order.paidVia",
+        target: order.code,
+        detail: paidVia || "(cleared)",
+      });
+    }
 
     return Response.json(orderForConsole(order));
   } catch (err) {

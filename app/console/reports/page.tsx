@@ -42,6 +42,7 @@ interface ReportMeta {
     sharePct: number;
   }[];
   byMethod: Record<string, { orders: number; revenue: number }>;
+  byPaidVia: Record<string, { orders: number; revenue: number }>;
   perProductTotal: number;
   series: { date: string; revenue: number; orders: number }[];
 }
@@ -106,6 +107,7 @@ export default function ReportsPage() {
         pipeline: res.pipeline,
         bySource: res.bySource,
         byMethod: res.byMethod,
+        byPaidVia: res.byPaidVia,
         perProductTotal: res.perProductTotal,
         series: res.series,
       });
@@ -545,6 +547,37 @@ const downloadXlsx = async () => {
               );
             })}
           </div>
+        )}
+
+        {/* how payment was actually collected, for money that's actually in hand */}
+        {meta && (
+          <>
+            <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "22px 0 8px" }}>
+              Collected as
+            </p>
+            <div className="grid-tiles">
+              {[
+                { key: "cash", label: "Cash" },
+                { key: "transfer", label: "Transfer" },
+                { key: "unset", label: "Not tagged yet" },
+              ].map((m) => {
+                const d = meta.byPaidVia[m.key] || { orders: 0, revenue: 0 };
+                return (
+                  <div key={m.key} className="card" style={{ padding: "14px 18px" }}>
+                    <p className="small-caps" style={{ color: "var(--ink-soft)", margin: "0 0 6px" }}>
+                      {m.label}
+                    </p>
+                    <p className="serif" style={{ fontWeight: 700, fontSize: 18.5, margin: 0 }}>
+                      {naira(d.revenue)}
+                    </p>
+                    <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "2px 0 0" }}>
+                      {d.orders} order{d.orders === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
       </ConsoleShell>

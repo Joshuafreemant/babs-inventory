@@ -87,7 +87,7 @@ export async function GET(req: Request) {
     const statusMatch = basis === "all" ? { $ne: "cancelled" } : { $in: PAID };
 
     const orders = await OrderModel.find({ ...window, status: statusMatch })
-      .select("items total method status createdAt refSource")
+      .select("items total method status createdAt refSource paidVia")
       .lean();
 
     // reserved / awaiting-payment sitting in the pipeline for this window
@@ -105,6 +105,13 @@ export async function GET(req: Request) {
     const byMethod: Record<string, { orders: number; revenue: number }> = {
       stand: { orders: 0, revenue: 0 },
       transfer: { orders: 0, revenue: 0 },
+    };
+    // how payment was actually collected, for orders where money has changed
+    // hands — "unset" catches paid orders staff haven't tagged yet
+    const byPaidVia: Record<string, { orders: number; revenue: number }> = {
+      cash: { orders: 0, revenue: 0 },
+      transfer: { orders: 0, revenue: 0 },
+      unset: { orders: 0, revenue: 0 },
     };
     const byStatus: Record<string, number> = {};
 
@@ -126,6 +133,11 @@ export async function GET(req: Request) {
       if (byMethod[o.method]) {
         byMethod[o.method].orders += 1;
         byMethod[o.method].revenue += o.total;
+      }
+      if (PAID.includes(o.status)) {
+        const via = byPaidVia[o.paidVia] ? o.paidVia : "unset";
+        byPaidVia[via].orders += 1;
+        byPaidVia[via].revenue += o.total;
       }
 
       const key = weekly
@@ -221,6 +233,7 @@ export async function GET(req: Request) {
       },
       pipeline,
       byMethod,
+      byPaidVia,
       byStatus,
       bySource,
       perProduct,

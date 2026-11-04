@@ -41,11 +41,36 @@ export async function downloadOrderDocument(kind: DocKind, data: OrderDocData) {
 
     const imgW = A4_W - MARGIN * 2;
     const imgH = (canvas.height * imgW) / canvas.width;
-    // A4 normally; grows taller for very long orders instead of cutting off
-    const pageH = Math.max(A4_H, imgH + MARGIN * 2);
+    const contentH = A4_H - MARGIN * 2;
 
-    const pdf = new jsPDF({ unit: "pt", format: [A4_W, pageH], orientation: "portrait" });
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN, MARGIN, imgW, imgH);
+    const pdf = new jsPDF({ unit: "pt", format: [A4_W, A4_H], orientation: "portrait" });
+
+    if (imgH <= contentH) {
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN, MARGIN, imgW, imgH);
+    } else {
+      // too tall for one A4 page — slice the canvas into page-height chunks
+      // so it prints as real pages instead of one oversized page a printer clips
+      const pxPerPt = canvas.height / imgH;
+      const sliceH = Math.floor(contentH * pxPerPt);
+      const pageCount = Math.ceil(canvas.height / sliceH);
+
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      const ctx = sliceCanvas.getContext("2d")!;
+
+      for (let page = 0; page < pageCount; page++) {
+        const srcY = page * sliceH;
+        const thisSliceH = Math.min(sliceH, canvas.height - srcY);
+        sliceCanvas.height = thisSliceH;
+        ctx.clearRect(0, 0, sliceCanvas.width, thisSliceH);
+        ctx.drawImage(canvas, 0, srcY, canvas.width, thisSliceH, 0, 0, canvas.width, thisSliceH);
+
+        if (page > 0) pdf.addPage([A4_W, A4_H], "portrait");
+        const thisImgH = (thisSliceH * imgW) / canvas.width;
+        pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN, MARGIN, imgW, thisImgH);
+      }
+    }
+
     pdf.save(`${kind === "receipt" ? "Receipt" : "Invoice"}-${data.code}.pdf`);
   } finally {
     root.unmount();

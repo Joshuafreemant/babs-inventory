@@ -43,6 +43,9 @@ const orderSchema = new Mongoose.Schema(
     // staff who marked the order paid — the invoice's "issued by"; set once, never overwritten
     issuedByStaffId: { type: String, default: "" },
     issuedByName: { type: String, default: "" },
+    // how payment was actually collected, set by staff once money changes hands —
+    // independent of `method`, since a "stand" reservation can be paid by cash or transfer
+    paidVia: { type: String, enum: ["", "cash", "transfer"], default: "" },
   },
   { timestamps: true }
 );
@@ -74,6 +77,7 @@ export interface IOrder {
   refSource: string;
   issuedByStaffId: string;
   issuedByName: string;
+  paidVia: "" | "cash" | "transfer";
   createdAt?: Date;
   updatedAt?: Date;
 }

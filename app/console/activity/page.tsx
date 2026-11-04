@@ -34,6 +34,7 @@ const ACTION_LABEL: Record<string, string> = {
   "staff.add": "added the staff account",
   "staff.edit": "edited the staff account",
   "order.status": "updated order",
+  "order.paidVia": "set how payment was collected for",
   "alert.recipient.add": "added alert recipient",
   "alert.recipient.edit": "edited alert recipient",
   "alert.recipient.remove": "removed alert recipient",
