@@ -167,6 +167,7 @@ export function OrderDocument({
 
       {/* letterhead */}
       <div
+        data-row="atomic"
         style={{
           position: "relative",
           display: "flex",
@@ -190,6 +191,7 @@ export function OrderDocument({
 
       {/* address + date */}
       <div
+        data-row="atomic"
         style={{
           position: "relative",
           display: "flex",
@@ -212,6 +214,7 @@ export function OrderDocument({
 
       {/* title bar */}
       <div
+        data-row="atomic"
         style={{
           position: "relative",
           background: INK,
@@ -231,6 +234,7 @@ export function OrderDocument({
 
       {/* customer / prepared by */}
       <div
+        data-row="atomic"
         style={{
           position: "relative",
           display: "grid",
@@ -259,6 +263,7 @@ export function OrderDocument({
       {/* items */}
       <div style={{ position: "relative" }}>
         <div
+          data-row="atomic"
           style={{
             display: "grid",
             gridTemplateColumns: COLS,
@@ -283,6 +288,7 @@ export function OrderDocument({
         {data.items.map((it, i) => (
           <div
             key={i}
+            data-row="atomic"
             style={{
               display: "grid",
               gridTemplateColumns: COLS,
@@ -307,6 +313,7 @@ export function OrderDocument({
 
       {/* words + totals */}
       <div
+        data-row="atomic"
         style={{
           position: "relative",
           display: "grid",
@@ -326,7 +333,7 @@ export function OrderDocument({
       </div>
 
       {/* signatures */}
-      <div style={{ position: "relative", display: "flex", gap: 86, padding: "54px 24px 22px" }}>
+      <div data-row="atomic" style={{ position: "relative", display: "flex", gap: 86, padding: "54px 24px 22px" }}>
         <div style={{ flex: 1, borderTop: `1.5px solid ${INK}`, paddingTop: 10, ...caps, fontSize: 11, letterSpacing: "0.08em" }}>
           {COMPANY.signOff}
         </div>

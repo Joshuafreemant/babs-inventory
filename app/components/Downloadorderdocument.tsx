@@ -37,6 +37,15 @@ export async function downloadOrderDocument(kind: DocKind, data: OrderDocData) {
       )
     );
 
+    // rows/sections that must never be sliced in half across a page break —
+    // measured before the snapshot, while the node is still laid out in the DOM
+    const nodeRect = node.getBoundingClientRect();
+    const nodeHeight = node.offsetHeight;
+    const atomicBlocks = Array.from(node.querySelectorAll('[data-row="atomic"]')).map((el) => {
+      const r = (el as HTMLElement).getBoundingClientRect();
+      return { top: r.top - nodeRect.top, bottom: r.bottom - nodeRect.top };
+    });
+
     const canvas = await html2canvas(node, { scale: 3, backgroundColor: "#fbfaf6", useCORS: true });
 
     const imgW = A4_W - MARGIN * 2;
@@ -50,17 +59,24 @@ export async function downloadOrderDocument(kind: DocKind, data: OrderDocData) {
     } else {
       // too tall for one A4 page — slice the canvas into page-height chunks
       // so it prints as real pages instead of one oversized page a printer clips
-      const pxPerPt = canvas.height / imgH;
-      const sliceH = Math.floor(contentH * pxPerPt);
-      const pageCount = Math.ceil(canvas.height / sliceH);
+      const pxPerCss = canvas.height / (nodeHeight || canvas.height / 3);
+      const idealSliceH = Math.floor(contentH * (canvas.height / imgH));
+      const atomicPx = atomicBlocks.map((b) => ({ top: b.top * pxPerCss, bottom: b.bottom * pxPerCss }));
 
       const sliceCanvas = document.createElement("canvas");
       sliceCanvas.width = canvas.width;
       const ctx = sliceCanvas.getContext("2d")!;
 
-      for (let page = 0; page < pageCount; page++) {
-        const srcY = page * sliceH;
-        const thisSliceH = Math.min(sliceH, canvas.height - srcY);
+      let srcY = 0;
+      let page = 0;
+      while (srcY < canvas.height) {
+        let end = Math.min(srcY + idealSliceH, canvas.height);
+        // if the natural cut falls inside a row/section, back the cut up to
+        // that block's top instead, pushing the whole block to the next page
+        const splitBlock = atomicPx.find((b) => b.top < end && end < b.bottom);
+        if (splitBlock && splitBlock.top > srcY) end = splitBlock.top;
+
+        const thisSliceH = Math.max(1, Math.round(end - srcY));
         sliceCanvas.height = thisSliceH;
         ctx.clearRect(0, 0, sliceCanvas.width, thisSliceH);
         ctx.drawImage(canvas, 0, srcY, canvas.width, thisSliceH, 0, 0, canvas.width, thisSliceH);
@@ -68,6 +84,9 @@ export async function downloadOrderDocument(kind: DocKind, data: OrderDocData) {
         if (page > 0) pdf.addPage([A4_W, A4_H], "portrait");
         const thisImgH = (thisSliceH * imgW) / canvas.width;
         pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN, MARGIN, imgW, thisImgH);
+
+        srcY += thisSliceH;
+        page += 1;
       }
     }
 
