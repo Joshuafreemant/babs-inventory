@@ -124,20 +124,6 @@ export default function ConsolePage() {
   const setProducts = productsList.setItems;
   const setOrders = ordersList.setItems;
 
-  // auto-refresh the order feed while the tab is actually visible — the
-  // manual refresh button next to it still covers "check right now"
-  const ORDERS_POLL_MS = 60_000;
-  useEffect(() => {
-    if (!session) return;
-    const id = setInterval(() => {
-      if (document.visibilityState === "visible") ordersList.reload();
-    }, ORDERS_POLL_MS);
-    return () => clearInterval(id);
-    // re-arm whenever `reload` changes identity (i.e. the filter/search
-    // changed the endpoint) so the poll always refreshes the *current* view
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, ordersList.reload]);
-
   const refreshStats = () =>
     apiGet<{ stats: ConsoleStats }>("/api/admin/orders?limit=1")
       .then((d) => d.stats && setStats(d.stats))
