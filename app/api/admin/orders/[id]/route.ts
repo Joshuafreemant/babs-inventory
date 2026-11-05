@@ -1,8 +1,20 @@
 import { dbConnect } from "@/app/lib/db";
 import OrderModel, { ORDER_STATUSES } from "@/models/Order";
+import ProductModel from "@/models/Product";
 import { requireStaff } from "@/app/lib/auth";
 import { writeAudit } from "@/models/AuditLog";
 import { orderForConsole } from "@/app/lib/serialize";
+
+/** Credit (sign=1) or re-deduct (sign=-1) stock for an order's non-backordered
+ * items — backordered items never actually came off the shelf, so they're
+ * left alone. */
+async function adjustStockForOrder(order: any, sign: 1 | -1) {
+  await Promise.all(
+    order.items
+      .filter((i: any) => !i.backordered)
+      .map((i: any) => ProductModel.findByIdAndUpdate(i.product, { $inc: { stock: sign * i.qty } }))
+  );
+}
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +47,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (paidVia !== undefined) order.paidVia = paidVia;
     await order.save();
+
+    // cancelling frees up the stock it held; reactivating a cancelled order
+    // takes it back out again
+    if (status === "cancelled" && from !== "cancelled") {
+      await adjustStockForOrder(order, 1);
+    } else if (from === "cancelled" && status !== undefined && status !== "cancelled") {
+      await adjustStockForOrder(order, -1);
+    }
 
     if (status !== undefined) {
       await writeAudit({
