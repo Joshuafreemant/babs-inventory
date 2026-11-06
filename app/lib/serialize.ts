@@ -51,6 +51,7 @@ export function orderForConsole(o: any) {
     phone: o.phone,
     email: o.email || "",
     items: o.items.map((i: any) => ({
+      product: String(i.product),
       name: i.name,
       qty: i.qty,
       unitPrice: i.unitPrice,

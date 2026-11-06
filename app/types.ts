@@ -146,6 +146,7 @@ export interface ConsoleOrder {
   phone: string;
   email: string;
   items: {
+    product: string;
     name: string;
     qty: number;
     unitPrice: number;

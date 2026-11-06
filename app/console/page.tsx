@@ -13,6 +13,7 @@ import { ProductPhotoCell } from "../components/console/ProductPhotoCell";
 import { ConsoleShell } from "../components/console/ConsoleShell";
 import { DeleteProductModal } from "../components/console/DeleteProductModal";
 import { EditProductModal } from "../components/console/EditProductModal";
+import { EditOrderModal } from "../components/console/EditOrderModal";
 import { ImportProductsModal } from "../components/console/ImportProductsModal";
 import { PushToggle } from "../components/console/PushToggle";
 import { StockStepper } from "../components/console/StockStepper";
@@ -38,6 +39,7 @@ export default function ConsolePage() {
   const [restockFor, setRestockFor] = useState<Product | null>(null);
   const [deleteFor, setDeleteFor] = useState<Product | null>(null);
   const [editFor, setEditFor] = useState<Product | null>(null);
+  const [editOrderFor, setEditOrderFor] = useState<ConsoleOrder | null>(null);
   const [showImport, setShowImport] = useState(false);
 
   const [ledgerOpen, setLedgerOpen] = useState(true);
@@ -723,6 +725,14 @@ export default function ConsolePage() {
                     type="button"
                     className="btn btn-outline btn-sm"
                     style={{ flex: 1 }}
+                    onClick={() => setEditOrderFor(o)}
+                  >
+                    Edit items
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1 }}
                     disabled={printBusy === `${o.id}:invoice`}
                     onClick={() => printOrder(o, "invoice")}
                   >
@@ -808,6 +818,17 @@ export default function ConsolePage() {
           onSaved={(p) => {
             replaceProduct(p);
             toast.success(`${p.name} updated`);
+          }}
+        />
+      )}
+      {editOrderFor && (
+        <EditOrderModal
+          order={editOrderFor}
+          onClose={() => setEditOrderFor(null)}
+          onSaved={(updated) => {
+            setOrders((list) => list.map((x) => (x.id === updated.id ? updated : x)));
+            refreshStats();
+            toast.success(`${updated.code} updated`);
           }}
         />
       )}
